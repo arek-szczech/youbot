@@ -35,21 +35,21 @@
        </widget>
       </item>
       <item>
-       <widget class="QTextEdit" name="log_window"/>
+       <widget class="QListView" name="view_logging"/>
       </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_10">
         <item>
          <widget class="QPushButton" name="run_driver">
           <property name="text">
-           <string>Wlacz sterownik</string>
+           <string>Włącz sterownik</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QPushButton" name="fold">
           <property name="text">
-           <string>Zloz</string>
+           <string>Złóż</string>
           </property>
          </widget>
         </item>
@@ -100,9 +100,9 @@
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="q4_minus_3">
+             <widget class="QPushButton" name="edit_list">
               <property name="text">
-               <string>Edytuj liste</string>
+               <string>Edytuj listę</string>
               </property>
              </widget>
             </item>
@@ -175,7 +175,7 @@
         <item>
          <widget class="QLabel" name="var_cord_label">
           <property name="text">
-           <string>Wspolrzedne X Y Z</string>
+           <string>Współrzędne X Y Z</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -198,21 +198,21 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_4">
           <item>
-           <widget class="QPushButton" name="q1_plus_2">
+           <widget class="QPushButton" name="x_plus">
             <property name="text">
              <string>+</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="q4_plus_2">
+           <widget class="QPushButton" name="y_plus">
             <property name="text">
              <string>+</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="q5_plus_2">
+           <widget class="QPushButton" name="z_plus">
             <property name="text">
              <string>+</string>
             </property>
@@ -257,21 +257,21 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_6">
           <item>
-           <widget class="QPushButton" name="q1_minus_2">
+           <widget class="QPushButton" name="x_minus">
             <property name="text">
              <string>-</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="q4_minus_2">
+           <widget class="QPushButton" name="y_minus">
             <property name="text">
              <string>-</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="q5_minus_2">
+           <widget class="QPushButton" name="z_minus">
             <property name="text">
              <string>-</string>
             </property>

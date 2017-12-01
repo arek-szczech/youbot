@@ -36,14 +36,48 @@ public:
 
 	void closeEvent(QCloseEvent *event);
 
+
+        static double joint_1;
+   /*     static double joint_2;
+        static double joint_3;
+        static double joint_4;
+        static double joint_5;*/
+
 	void showQ1PlusMsg();
 	void showQ1MinusMsg();
 	void runYoubotDriver();
 
 public Q_SLOTS:
-	void on_q1_plus_clicked(bool check);
-	void on_q1_minus_clicked(bool check);	
-	void on_run_driver_clicked(bool check);
+        void on_run_driver_clicked(bool check);
+        void on_fold_clicked(bool check);
+        void on_candle_clicked(bool check);
+
+        void on_save_clicked(bool check);
+        void on_edit_list_clicked(bool check);
+        void on_edit_clicked(bool check);
+        void on_execute_clicked(bool check);
+
+        void on_x_plus_clicked(bool check);
+        void on_x_minus_clicked(bool check);
+        void on_y_plus_clicked(bool check);
+        void on_y_minus_clicked(bool check);
+        void on_z_plus_clicked(bool check);
+        void on_z_minus_clicked(bool check);
+
+        void on_q1_plus_clicked(bool check);
+        void on_q1_minus_clicked(bool check);
+        void on_q2_plus_clicked(bool check);
+        void on_q2_minus_clicked(bool check);
+        void on_q3_plus_clicked(bool check);
+        void on_q3_minus_clicked(bool check);
+        void on_q4_plus_clicked(bool check);
+        void on_q4_minus_clicked(bool check);
+        void on_q5_plus_clicked(bool check);
+        void on_q5_minus_clicked(bool check);
+
+
+
+
 
 private:
 	Ui::MainWindowDesign ui;

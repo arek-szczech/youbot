@@ -10,8 +10,15 @@ project(youbot_gui)
 ##############################################################################
 
 # qt_build provides the qt cmake glue, roscpp the comms for a default talker
-find_package(catkin REQUIRED COMPONENTS roscpp)
+find_package(catkin REQUIRED COMPONENTS roscpp youbot_driver rosconsole actionlib tf control_msgs brics_actuator pr2_msgs diagnostic_msgs geometry_msgs nav_msgs pr2_msgs std_msgs std_srvs trajectory_msgs)
+
+find_package(Boost REQUIRED COMPONENTS thread date_time filesystem system)
+
 find_package(Qt5Widgets REQUIRED)
+
+catkin_package(
+	CATKIN_DEPENDS youbot_driver rosconsole roscpp pr2_msgs brics_actuator tf control_msgs diagnostic_msgs geometry_msgs nav_msgs pr2_msgs std_msgs std_srvs trajectory_msgs
+)
 
 include_directories(
         include

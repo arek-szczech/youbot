@@ -15,12 +15,43 @@
 #include <string>
 #include <std_msgs/String.h>
 #include <sstream>
+
+
+#include <iostream>
+#include <assert.h>
+
+#include "ros/ros.h"
+#include "trajectory_msgs/JointTrajectory.h"
+#include "brics_actuator/CartesianWrench.h"
+
+#include <boost/units/io.hpp>
+
+#include <boost/units/systems/angle/degrees.hpp>
+#include <boost/units/conversion.hpp>
+
+#include <iostream>
+#include <assert.h>
+
+#include "ros/ros.h"
+#include "brics_actuator/JointPositions.h"
+
+#include <boost/units/systems/si/length.hpp>
+#include <boost/units/systems/si/plane_angle.hpp>
+#include <boost/units/io.hpp>
+
+#include <boost/units/systems/angle/degrees.hpp>
+#include <boost/units/conversion.hpp>
+
+#include <signal.h>
+#include <curses.h>
+
+
 #include "../include/youbot_gui/qnode.hpp"
 
 /*****************************************************************************
 ** Namespaces
 *****************************************************************************/
-
+using namespace std;
 namespace youbot_gui {
 
 /*****************************************************************************
@@ -43,12 +74,18 @@ QNode::~QNode() {
 bool QNode::init() {
 	ros::init(init_argc,init_argv,"youbot_gui");
 	if ( ! ros::master::check() ) {
-		return false;
+                return false;
 	}
 	ros::start(); // explicitly needed since our nodehandle is going out of scope.
 	ros::NodeHandle n;
 	// Add your ros communications here.
 	chatter_publisher = n.advertise<std_msgs::String>("chatter", 1000);
+        ros::Publisher armPositionsPublisher;
+        ros::Publisher gripperPositionPublisher;
+
+        armPositionsPublisher = n.advertise<brics_actuator::JointPositions > ("arm_1/arm_controller/position_command", 1);
+        gripperPositionPublisher = n.advertise<brics_actuator::JointPositions > ("arm_1/gripper_controller/position_command", 1);
+
 	start();
 	return true;
 }
@@ -70,9 +107,22 @@ bool QNode::init(const std::string &master_url, const std::string &host_url) {
 }
 
 void QNode::run() {
-	ros::Rate loop_rate(1);
+        ros::Rate loop_rate(20); //zmienione z 1 na 20
 	int count = 0;
+
+        static const int numberOfArmJoints = 5;
+        static const int numberOfGripperJoints = 2;
+
 	while ( ros::ok() ) {
+
+          brics_actuator::JointPositions command;
+              vector <brics_actuator::JointValue> armJointPositions;
+           vector <brics_actuator::JointValue> gripperJointPositions;
+
+            armJointPositions.resize(numberOfArmJoints); //TODO:change that
+            gripperJointPositions.resize(numberOfGripperJoints);
+
+            std::stringstream jointName;
 
 		std_msgs::String msg;
 		std::stringstream ss;
