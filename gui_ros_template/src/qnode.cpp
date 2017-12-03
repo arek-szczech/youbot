@@ -10,6 +10,7 @@
 ** Includes
 *****************************************************************************/
 
+#include "../include/youbot_gui/main_window.hpp" //Kolejność includów jest krytyczna xD Musi być na górze
 #include <ros/ros.h>
 #include <ros/network.h>
 #include <string>
@@ -47,6 +48,8 @@
 
 
 #include "../include/youbot_gui/qnode.hpp"
+//#include "../include/youbot_gui/mainwindow.hpp"
+//#include "../include/youbot_gui/main_window.hpp"
 
 /*****************************************************************************
 ** Namespaces
@@ -57,6 +60,127 @@ namespace youbot_gui {
 /*****************************************************************************
 ** Implementation
 *****************************************************************************/
+
+double QNode::subscriber_joint1;
+double QNode::subscriber_joint2;
+double QNode::subscriber_joint3;
+double QNode::subscriber_joint4;
+double QNode::subscriber_joint5;
+double QNode::x;
+double QNode::y;
+double QNode::z;
+double QNode::roll;
+double QNode::pitch;
+double QNode::yaw;
+
+
+
+//MainWindow obiekt = new MainWindow();
+//youbot_gui::MainWindow obiekt(int argc, char** argv); //dziala prawie
+
+
+void chatterCallback(const brics_actuator::JointPositionsConstPtr& youbotArmCommand)
+{
+
+
+        // Wartosci odczytane z robota
+        double th_1 = youbotArmCommand->positions[0].value;
+        double th_2 = youbotArmCommand->positions[1].value;
+        double th_3 = youbotArmCommand->positions[2].value;
+        double th_4 = youbotArmCommand->positions[3].value;
+        double th_5 = youbotArmCommand->positions[4].value;
+
+
+        double th1 = th_1 - 2.8668;
+        double th2 = th_2 - 2.5919;
+        double th3 = th_3 + 2.5211;
+        double th4 = th_4 - 3.3305;
+        double th5 = th_5 -	2.9314;
+
+/*	cout << "Wartosci wysyłane do robota: " << endl;
+        cout << "th_1: " << th_1 << endl;
+        cout << "th_2: " << th_2 << endl;
+        cout << "th_3: " << th_3 << endl;
+        cout << "th_4: " << th_4 << endl;
+        cout << "th_5: " << th_5 << endl;
+        cout << "" << endl;
+        cout << "Wartosci uzywane do liczenia fk: " << endl;
+        cout << "th1: " << th1 << endl;
+        cout << "th2: " << th2 << endl;
+        cout << "th3: " << th3 << endl;
+        cout << "th4: " << th4 << endl;
+        cout << "th5: " << th5 << endl;
+        cout << "" << endl;*/
+
+        double a1 = 0.033;
+        double d1 = 0.147;
+        double a2 = 0.155;
+        double a3 = 0.135;
+        double d5 = 0.218;
+
+        //double x = a1*cos(th1) - d5*(cos(th5)*(cos(th1)*cos(th2)*sin(th3) + cos(th1)*cos(th3)*sin(th2)) + sin(th5)*(cos(th1)*cos(th2)*cos(th3) - cos(th1)*sin(th2)*sin(th3))) + a2*cos(th1)*cos(th2) - a3*cos(th1)*sin(th2)*sin(th3) + a3*cos(th1)*cos(th2)*cos(th3);
+        //double y = a1*sin(th1) - d5*(cos(th5)*(cos(th2)*sin(th1)*sin(th3) + cos(th3)*sin(th1)*sin(th2)) + sin(th5)*(cos(th2)*cos(th3)*sin(th1) - sin(th1)*sin(th2)*sin(th3))) + a2*cos(th2)*sin(th1) - a3*sin(th1)*sin(th2)*sin(th3) + a3*cos(th2)*cos(th3)*sin(th1);
+        //double z = d1 - a2*sin(th2) - d5*(cos(th5)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th5)*(cos(th2)*sin(th3) + cos(th3)*sin(th2))) - a3*cos(th2)*sin(th3) - a3*cos(th3)*sin(th2);
+
+        QNode::x = a1*cos(th1) - d5*(cos(th4)*(cos(th1)*cos(th2)*sin(th3) + cos(th1)*cos(th3)*sin(th2)) - sin(th4)*(cos(th1)*sin(th2)*sin(th3) - cos(th1)*cos(th2)*cos(th3))) + a2*cos(th1)*cos(th2) + a3*cos(th1)*cos(th2)*cos(th3) - a3*cos(th1)*sin(th2)*sin(th3);
+        QNode::y = a1*sin(th1) - d5*(cos(th4)*(cos(th2)*sin(th1)*sin(th3) + cos(th3)*sin(th1)*sin(th2)) - sin(th4)*(sin(th1)*sin(th2)*sin(th3) - cos(th2)*cos(th3)*sin(th1))) + a2*cos(th2)*sin(th1) + a3*cos(th2)*cos(th3)*sin(th1) - a3*sin(th1)*sin(th2)*sin(th3);
+        QNode::z = d1 - a2*sin(th2) - d5*(cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2))) - a3*cos(th2)*sin(th3) - a3*cos(th3)*sin(th2);
+
+        QNode::roll = atan2(- cos(th1)*sin(th5) - cos(th5)*(cos(th4)*(sin(th1)*sin(th2)*sin(th3) - cos(th2)*cos(th3)*sin(th1)) + sin(th4)*(cos(th2)*sin(th1)*sin(th3) + cos(th3)*sin(th1)*sin(th2))), sin(th1)*sin(th5) - cos(th5)*(cos(th4)*(cos(th1)*sin(th2)*sin(th3) - cos(th1)*cos(th2)*cos(th3)) + sin(th4)*(cos(th1)*cos(th2)*sin(th3) + cos(th1)*cos(th3)*sin(th2))));
+        //double pitch = atan2(cos(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))), sqrt(sin(th5)*sin(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)))*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))) + (cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)))*(cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)))));
+        //double yaw = atan2(sin(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))), sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) - cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)));
+
+        QNode::pitch = atan2(cos(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))), sqrt(sin(th5)*sin(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)))*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))) + (cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)))*(cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)))));
+        QNode::yaw = atan2(sin(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))), sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) - cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)));
+
+        cout << "Pozycja x: " << QNode::x << endl;
+        cout << "Pozycja y: " << QNode::y << endl;
+        cout << "Pozycja z: " << QNode::z << endl;
+        cout << "Kąt roll: " << QNode::roll << endl;
+        cout << "Kąt pitch: " << QNode::pitch << endl;
+        cout << "Kąt yaw: " << QNode::yaw << endl;
+        cout << "----------" << endl;
+       // QNode::subscriber_joint1 = armJointPositions[0].value;
+
+        static const int numberOfArmJoints = 5;
+        static const int numberOfGripperJoints = 2;
+
+        brics_actuator::JointPositions command;
+            vector <brics_actuator::JointValue> armJointPositions;
+         vector <brics_actuator::JointValue> gripperJointPositions;
+
+          armJointPositions.resize(numberOfArmJoints); //TODO:change that
+          gripperJointPositions.resize(numberOfGripperJoints);
+
+          std::stringstream jointName;
+
+
+          QNode::subscriber_joint1 = th_1;
+          QNode::subscriber_joint2 = th_2;
+          QNode::subscriber_joint3 = th_3;
+          QNode::subscriber_joint4 = th_4;
+          QNode::subscriber_joint5 = th_5;
+          cout<< th_1<<endl;
+
+          //gripperJointPositions[0].value = gripper_1;
+          //gripperJointPositions[1].value = gripper_2;
+          for (int i = 0; i < numberOfArmJoints; ++i) {
+          //cout << "Please type in value for joint " << i + 1 << endl;
+          //cin >> readValue;
+
+          jointName.str("");
+          jointName << "arm_joint_" << (i + 1);
+
+          armJointPositions[i].joint_uri = jointName.str();
+          //armJointPositions[i].value = readValue;
+
+          armJointPositions[i].unit = boost::units::to_string(boost::units::si::radians);
+          //cout << "Joint " << armJointPositions[i].joint_uri << " = " << armJointPositions[i].value << " " << armJointPositions[i].unit << endl;
+          };
+
+
+}
+
 
 QNode::QNode(int argc, char** argv ) :
 	init_argc(argc),
@@ -79,14 +203,16 @@ bool QNode::init() {
 	ros::start(); // explicitly needed since our nodehandle is going out of scope.
 	ros::NodeHandle n;
 	// Add your ros communications here.
-	chatter_publisher = n.advertise<std_msgs::String>("chatter", 1000);
-        ros::Publisher armPositionsPublisher;
-        ros::Publisher gripperPositionPublisher;
+        //chatter_publisher = n.advertise<std_msgs::String>("chatter", 1000);
+        //ros::Publisher armPositionsPublisher;
+        //ros::Publisher gripperPositionPublisher;
 
         armPositionsPublisher = n.advertise<brics_actuator::JointPositions > ("arm_1/arm_controller/position_command", 1);
         gripperPositionPublisher = n.advertise<brics_actuator::JointPositions > ("arm_1/gripper_controller/position_command", 1);
 
-	start();
+        armPositionsSubscriber = n.subscribe<brics_actuator::JointPositions >("arm_1/arm_controller/position_command", 1, chatterCallback);
+
+        start();
 	return true;
 }
 
@@ -101,13 +227,16 @@ bool QNode::init(const std::string &master_url, const std::string &host_url) {
 	ros::start(); // explicitly needed since our nodehandle is going out of scope.
 	ros::NodeHandle n;
 	// Add your ros communications here.
-	chatter_publisher = n.advertise<std_msgs::String>("chatter", 1000);
+        //chatter_publisher = n.advertise<std_msgs::String>("chatter", 1000);
 	start();
 	return true;
+
 }
 
+
+
 void QNode::run() {
-        ros::Rate loop_rate(20); //zmienione z 1 na 20
+        ros::Rate loop_rate(1); //zmienione z 1 na 20
 	int count = 0;
 
         static const int numberOfArmJoints = 5;
@@ -124,12 +253,38 @@ void QNode::run() {
 
             std::stringstream jointName;
 
+
+            armJointPositions[0].value = MainWindow::joint_1;
+            armJointPositions[1].value = MainWindow::joint_2;
+            armJointPositions[2].value = MainWindow::joint_3;
+            armJointPositions[3].value = MainWindow::joint_4;
+            armJointPositions[4].value = MainWindow::joint_5;
+            //gripperJointPositions[0].value = gripper_1;
+            //gripperJointPositions[1].value = gripper_2;
+            for (int i = 0; i < numberOfArmJoints; ++i) {
+            //cout << "Please type in value for joint " << i + 1 << endl;
+            //cin >> readValue;
+
+            jointName.str("");
+            jointName << "arm_joint_" << (i + 1);
+
+            armJointPositions[i].joint_uri = jointName.str();
+            //armJointPositions[i].value = readValue;
+
+            armJointPositions[i].unit = boost::units::to_string(boost::units::si::radians);
+            cout << "Joint " << armJointPositions[i].joint_uri << " = " << armJointPositions[i].value << " " << armJointPositions[i].unit << endl;};
+
+
 		std_msgs::String msg;
 		std::stringstream ss;
-		ss << "hello world " << count;
+                double zmienna = MainWindow::joint_1;
+                ss << "hello world " << count << zmienna;
 		msg.data = ss.str();
-		chatter_publisher.publish(msg);
-		log(Info,std::string("I sent: ")+msg.data);
+                //chatter_publisher.publish(msg);
+                command.positions = armJointPositions;
+                armPositionsPublisher.publish(command);
+                //log(Info,std::string("I sent: ")+msg.data);
+                //MainWindow::refresh_value(true);
 		ros::spinOnce();
 		loop_rate.sleep();
 		++count;

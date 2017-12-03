@@ -9,6 +9,7 @@
 ** Includes
 *****************************************************************************/
 
+#include "../include/youbot_gui/qnode.hpp"
 #include <QtGui>
 #include <QMessageBox>
 #include <iostream>
@@ -18,7 +19,7 @@
 #include <fstream>
 #include <string>
 #include <QProcess>
-
+#include <QLCDNumber>
 /*****************************************************************************
 ** Namespaces
 *****************************************************************************/
@@ -36,8 +37,6 @@ using namespace std;
 ** Implementation [MainWindow]
 *****************************************************************************/
 
-
-
 double min_1 = 0.0100692;
 double max_1 = 5.84014;
 double MainWindow::joint_1 = 0.0100692;
@@ -45,19 +44,19 @@ double MainWindow::joint_1 = 0.0100692;
 
 double min_2 = 0.0100692;
 double max_2 = 2.61799;
-static double joint_2 = 0.0100692;
+double MainWindow::joint_2 = 0.0100692;
 
 double min_3 = -5.02655;
 double max_3 = -0.015708;
-static double joint_3 = -0.015708;
+double MainWindow::joint_3 = -0.015708;
 
 double min_4 = 0.0221239;
 double max_4 = 3.4292;
-static double joint_4 = 0.0221239;
+double MainWindow::joint_4 = 0.0221239;
 
 double min_5 = 0.110619;
 double max_5 = 5.64159;
-static double joint_5 = 0.110619;
+double MainWindow::joint_5 = 0.110619;
 
 double min_6 = 0;
 double max_6 = 0.011;
@@ -66,6 +65,7 @@ static double gripper_1 = 0;
 double min_7 = 0;
 double max_7 = 0.011;
 static double gripper_2 = 0;
+
 
 MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
 	: QMainWindow(parent)
@@ -84,7 +84,14 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
         **********************/
         ui.view_logging->setModel(qnode.loggingModel());
         QObject::connect(&qnode, SIGNAL(loggingUpdated()), this, SLOT(updateLoggingView()));
+
+
+
+
 }
+
+/*MainWindow::MainWindow()//: QMainWindow(parent), qnode(argc,argv)
+{}*/
 
 MainWindow::~MainWindow() {}
 
@@ -117,9 +124,18 @@ void MainWindow::on_run_driver_clicked(bool check)
         runYoubotDriver();
 }
 
-void MainWindow::on_fold_clicked(bool check)
+void MainWindow::on_connect_master_clicked(bool check)
 {
         qnode.init();
+}
+
+void MainWindow::on_fold_clicked(bool check)
+{
+    ui.lcd_q1->display(QNode::subscriber_joint1);
+    ui.lcd_q2->display(QNode::subscriber_joint2);
+    ui.lcd_q3->display(QNode::subscriber_joint3);
+    ui.lcd_q4->display(QNode::subscriber_joint4);
+    ui.lcd_q5->display(QNode::subscriber_joint5);
 }
 
 void MainWindow::on_candle_clicked(bool check)
@@ -139,7 +155,7 @@ void MainWindow::on_save_clicked(bool check)
             }
 
             else cout << "Dostep do pliku zostal zabroniony!" << endl;
-
+      // cout<< QNode::x;
 }
 
 
@@ -159,7 +175,11 @@ void MainWindow::on_execute_clicked(bool check)
 }
 void MainWindow::on_x_plus_clicked(bool check)
 {
+//lcd_q1->display(1.0);
+        //ui.lcd_q1->display("1.0"); //dziala
+       // ui.lcd_q1->display(MainWindow::joint_1); //dziala ale pobiera wartosci ze zmiennej, a nie z subscribera
 
+//ui.lcd_q1->display(QNode::subscriber_joint1); dziala najlepiej
 }
 void MainWindow::on_x_minus_clicked(bool check)
 {
@@ -242,6 +262,19 @@ void MainWindow::on_q5_minus_clicked(bool check)
         joint_5 = joint_5 - (max_5 - min_5)/100;
 }
 
+/*void MainWindow::refresh_value(bool check)
+{
+ui.lcd_q1->display(QNode::subscriber_joint1);
+ui.lcd_q2->display(QNode::subscriber_joint2);
+ui.lcd_q3->display(QNode::subscriber_joint3);
+ui.lcd_q4->display(QNode::subscriber_joint4);
+ui.lcd_q5->display(QNode::subscriber_joint5);
+cout<<"gówno"<<endl;
+} */
+
+void MainWindow::updateLoggingView() {
+        ui.view_logging->scrollToBottom();
+}
 
 
 //komentarz

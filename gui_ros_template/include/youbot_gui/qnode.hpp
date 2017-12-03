@@ -16,6 +16,7 @@
 ** Includes
 *****************************************************************************/
 
+
 #include <ros/ros.h>
 #include <string>
 #include <QThread>
@@ -35,6 +36,21 @@ namespace youbot_gui {
 class QNode : public QThread {
     Q_OBJECT
 public:
+
+        static double x;
+        static double y;
+        static double z;
+        static double roll;
+        static double pitch;
+        static double yaw;
+
+        static double subscriber_joint1;
+        static double subscriber_joint2;
+        static double subscriber_joint3;
+        static double subscriber_joint4;
+        static double subscriber_joint5;
+
+
 	QNode(int argc, char** argv );
 	virtual ~QNode();
 	bool init();
@@ -62,8 +78,14 @@ Q_SIGNALS:
 private:
 	int init_argc;
 	char** init_argv;
-	ros::Publisher chatter_publisher;
+        //ros::Publisher chatter_publisher;
+        ros::Publisher armPositionsPublisher;
+        ros::Publisher gripperPositionPublisher;
+
+        ros::Subscriber armPositionsSubscriber;
+
     	QStringListModel logging_model;
+        //MainWindow obiekt;
 };
 
 }  // namespace youbot_gui
