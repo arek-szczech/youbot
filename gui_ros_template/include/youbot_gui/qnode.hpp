@@ -23,6 +23,11 @@
 #include <QStringListModel>
 
 
+#include <QtWidgets/QMainWindow>
+#include <QLCDNumber>
+#include "ui_main_window.h"
+
+
 /*****************************************************************************
 ** Namespaces
 *****************************************************************************/
@@ -50,13 +55,14 @@ public:
         static double subscriber_joint4;
         static double subscriber_joint5;
 
+        Ui::MainWindowDesign ui;
+
 
 	QNode(int argc, char** argv );
 	virtual ~QNode();
 	bool init();
 	bool init(const std::string &master_url, const std::string &host_url);
-	void run();
-
+        void run();
 	/*********************
 	** Logging
 	**********************/

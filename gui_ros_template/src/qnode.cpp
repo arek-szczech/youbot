@@ -285,6 +285,11 @@ void QNode::run() {
                 armPositionsPublisher.publish(command);
                 //log(Info,std::string("I sent: ")+msg.data);
                 //MainWindow::refresh_value(true);
+                this->ui.lcd_q1->display(QNode::subscriber_joint1);
+                this->ui.lcd_q2->display(QNode::subscriber_joint2);
+                this->ui.lcd_q3->display(QNode::subscriber_joint3);
+                this->ui.lcd_q4->display(QNode::subscriber_joint4);
+                this->ui.lcd_q5->display(QNode::subscriber_joint5);
 		ros::spinOnce();
 		loop_rate.sleep();
 		++count;

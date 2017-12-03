@@ -72,6 +72,8 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
 	, qnode(argc,argv)
 {
 	ui.setupUi(this);
+        qnode.ui = ui;
+//        qnode.initUi(ui);
     	QObject::connect(ui.actionAbout_Qt, SIGNAL(triggered(bool)), qApp, SLOT(aboutQt()));
 
 	setWindowIcon(QIcon(":/images/icon.png"));
