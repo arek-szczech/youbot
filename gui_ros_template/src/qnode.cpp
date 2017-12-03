@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file /src/qnode.cpp
  *
  * @brief Ros communication central!
@@ -46,6 +46,9 @@
 #include <signal.h>
 #include <curses.h>
 
+#include <fstream>
+#include <stdlib.h>
+#include <cstdlib>
 
 #include "../include/youbot_gui/qnode.hpp"
 //#include "../include/youbot_gui/mainwindow.hpp"
@@ -74,9 +77,27 @@ double QNode::pitch;
 double QNode::yaw;
 
 
+//*********EXECUTE_PROGRAM****************
+
+string line[100];
+int line_nmb=0;
+int stan=0;
+double q1[100];
+double q2[100];
+double q3[100];
+double q4[100];
+double q5[100];
+double P[100][5];
+
+size_t pos1,pos2,pos3,pos4,pos5,pos6;
+fstream punkty;
+
+//****************************************
+
 
 //MainWindow obiekt = new MainWindow();
 //youbot_gui::MainWindow obiekt(int argc, char** argv); //dziala prawie
+
 
 
 void chatterCallback(const brics_actuator::JointPositionsConstPtr& youbotArmCommand)
@@ -133,13 +154,13 @@ void chatterCallback(const brics_actuator::JointPositionsConstPtr& youbotArmComm
         QNode::pitch = atan2(cos(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))), sqrt(sin(th5)*sin(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)))*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))) + (cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)))*(cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)))));
         QNode::yaw = atan2(sin(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))), sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) - cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)));
 
-        cout << "Pozycja x: " << QNode::x << endl;
-        cout << "Pozycja y: " << QNode::y << endl;
-        cout << "Pozycja z: " << QNode::z << endl;
-        cout << "Kąt roll: " << QNode::roll << endl;
-        cout << "Kąt pitch: " << QNode::pitch << endl;
-        cout << "Kąt yaw: " << QNode::yaw << endl;
-        cout << "----------" << endl;
+//        cout << "Pozycja x: " << QNode::x << endl;
+//        cout << "Pozycja y: " << QNode::y << endl;
+//        cout << "Pozycja z: " << QNode::z << endl;
+//        cout << "Kąt roll: " << QNode::roll << endl;
+//        cout << "Kąt pitch: " << QNode::pitch << endl;
+//        cout << "Kąt yaw: " << QNode::yaw << endl;
+//        cout << "----------" << endl;
        // QNode::subscriber_joint1 = armJointPositions[0].value;
 
         static const int numberOfArmJoints = 5;
@@ -160,7 +181,7 @@ void chatterCallback(const brics_actuator::JointPositionsConstPtr& youbotArmComm
           QNode::subscriber_joint3 = th_3;
           QNode::subscriber_joint4 = th_4;
           QNode::subscriber_joint5 = th_5;
-          cout<< th_1<<endl;
+
 
           //gripperJointPositions[0].value = gripper_1;
           //gripperJointPositions[1].value = gripper_2;
@@ -236,7 +257,7 @@ bool QNode::init(const std::string &master_url, const std::string &host_url) {
 
 
 void QNode::run() {
-        ros::Rate loop_rate(1); //zmienione z 1 na 20
+        ros::Rate loop_rate(4); //zmienione z 1 na 20
 	int count = 0;
 
         static const int numberOfArmJoints = 5;
@@ -272,7 +293,8 @@ void QNode::run() {
             //armJointPositions[i].value = readValue;
 
             armJointPositions[i].unit = boost::units::to_string(boost::units::si::radians);
-            cout << "Joint " << armJointPositions[i].joint_uri << " = " << armJointPositions[i].value << " " << armJointPositions[i].unit << endl;};
+            //cout << "Joint " << armJointPositions[i].joint_uri << " = " << armJointPositions[i].value << " " << armJointPositions[i].unit << endl;
+            };
 
 
 		std_msgs::String msg;
@@ -290,6 +312,12 @@ void QNode::run() {
                 this->ui.lcd_q3->display(QNode::subscriber_joint3);
                 this->ui.lcd_q4->display(QNode::subscriber_joint4);
                 this->ui.lcd_q5->display(QNode::subscriber_joint5);
+                this->ui.lcd_x->display(QNode::x);
+                this->ui.lcd_y->display(QNode::y);
+                this->ui.lcd_z->display(QNode::z);
+                this->ui.lcd_roll->display(QNode::roll);
+                this->ui.lcd_pitch->display(QNode::pitch);
+                this->ui.lcd_yaw->display(QNode::yaw);
 		ros::spinOnce();
 		loop_rate.sleep();
 		++count;
@@ -297,6 +325,167 @@ void QNode::run() {
 	std::cout << "Ros shutdown, proceeding to close the gui." << std::endl;
 	Q_EMIT rosShutdown(); // used to signal the gui for a shutdown (useful to roslaunch)
 }
+
+void konwersjaDoTablicy2d()
+{
+        for (int j=0;j<5;j++)
+        {
+                for (int i=1;i<=line_nmb;i++)
+                {
+                if(j==0)
+                {
+                        P[i][j] = q1[i-1];
+                }
+                else if (j==1)
+                {
+                        P[i][j] = q2[i-1];
+                }
+                else if (j==2)
+                {
+                        P[i][j] = q3[i-1];
+                }
+                else if (j==3)
+                {
+                        P[i][j] = q4[i-1];
+                }
+                else
+                {
+                        P[i][j] = q5[i-1];
+                }
+                }
+
+        }
+
+}
+
+double stringToDouble (string q)
+{
+std::replace(q.begin(), q.end(), '.', ','); // Na kompilatorze terminalowym czyta kropki, zapisuje jako kropki
+double q_d = atof(q.c_str());               // Catkin czyta przecinki, zapisuje kropki - WTF??11!!11
+cout << "q: " << q<< endl;
+cout << "q_d: " << q_d << endl;
+
+return q_d;
+}
+
+void czytaj_zmienne()
+{
+
+        while (getline(punkty, line[line_nmb]))
+{
+
+        pos1 = line[line_nmb].find(";",1);
+        pos2 = line[line_nmb].find(";",pos1+1);
+        pos3 = line[line_nmb].find(";",pos2+1);
+        pos4 = line[line_nmb].find(";",pos3+1);
+        pos5 = line[line_nmb].find(";",pos4+1);
+        pos6 = line[line_nmb].find(";",pos5+1);
+        q1[line_nmb] = stringToDouble(line[line_nmb].substr(pos1+1,pos2-(pos1+1)));
+        q2[line_nmb] = stringToDouble(line[line_nmb].substr(pos2+1,pos3-(pos2+1)));
+        q3[line_nmb] = stringToDouble(line[line_nmb].substr(pos3+1,pos4-(pos3+1)));
+        q4[line_nmb] = stringToDouble(line[line_nmb].substr(pos4+1,pos5-(pos4+1)));
+        q5[line_nmb] = stringToDouble(line[line_nmb].substr(pos5+1,pos6-(pos5+1)));
+        cout << "PKT " << line_nmb+1 << ": q1 = " << q1[line_nmb] << " q2 = " << q2[line_nmb] << " q3 = " << q3[line_nmb] << " q4 = " << q4[line_nmb] << " q5 = " << q5[line_nmb] << endl;
+        ++line_nmb;
+}
+
+        cout << "Plik ma " << line_nmb << " wierszy" << endl;
+}
+
+void czytajPunkty()
+{
+    punkty.open( "punkty.txt", ios::in | ios::out | ios::app);
+    if( punkty.good() == true )
+    {
+        cout << "Uzyskano dostep do pliku!" << endl;
+        czytaj_zmienne();
+        punkty.close();
+        konwersjaDoTablicy2d();
+    }
+
+    else cout << "Brak dostępu do pliku" << endl;
+}
+
+void pkt(string punkt)
+{
+        cout << " do punktu: "  << punkt << endl;
+int pkt = atoi(punkt.c_str());
+        cout << "q1 = " << P[pkt][0] << " q2 = " << P[pkt][1] << " q3 = " << P[pkt][2] << " q4 = " << P[pkt][3] << " q5 = " << P[pkt][4] << endl;
+
+}
+
+void czytajProgram()
+{
+
+    string temp_kom;
+    string wiersz[100];
+    int wiersz_nmb=0;
+    fstream plik;
+
+
+    plik.open( "program.txt", ios::in | ios::out | ios::app);
+    if( plik.good() == true )
+    {
+        cout << "Uzyskano dostep do pliku!" << endl;
+        while (getline(plik, wiersz[wiersz_nmb]))
+        {
+        cout << wiersz[wiersz_nmb] << endl;
+        ++wiersz_nmb;
+        }
+        cout << "Plik ma " << wiersz_nmb << " wierszy" << endl;
+        plik.close();
+    }
+
+    else
+    {
+        cout << "Brak dostępu do pliku" << endl; // przerwać funkcje
+    }
+    string temp_pkt[wiersz_nmb];
+    string komenda[wiersz_nmb];
+    string punkt[wiersz_nmb];
+
+        for (int i = 0; i<wiersz_nmb;  i++)
+    {
+        komenda[i] = wiersz[i].substr (0,3);
+        temp_pkt[i] = wiersz[i].substr (4,1);
+        punkt[i] = wiersz[i].substr (5,2);
+        if (komenda[i]=="PTP")
+            stan++;
+        else
+            cout << "Nieznana komenda" << endl;
+        if (temp_pkt[i]=="P")
+            stan++;
+        else
+            cout << "Błędnie wprowadzony punkt" << endl;
+        if (atoi(punkt[i].c_str())<=line_nmb)
+            stan++;
+        else
+            cout << "Punkt P" << punkt[i] << " nie został zdefiniowany" << endl;
+    }
+        if (stan/3!=wiersz_nmb)
+        {
+         cout << "Błąd składni kodu" << endl; // wyprowadzić log i przerwać funkcje
+        }
+        else
+        {
+         for (int i=0;i<wiersz_nmb;i++)
+         pkt(punkt[i]);
+        }
+
+   }
+
+
+
+void QNode::execute_program()
+{
+        cout << "GÓWNO" << endl;
+
+        czytajPunkty();
+        czytajProgram();
+        line_nmb=0;
+        stan=0;
+}
+
 
 
 void QNode::log( const LogLevel &level, const std::string &msg) {

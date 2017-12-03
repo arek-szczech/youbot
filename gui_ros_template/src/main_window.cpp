@@ -133,11 +133,7 @@ void MainWindow::on_connect_master_clicked(bool check)
 
 void MainWindow::on_fold_clicked(bool check)
 {
-    ui.lcd_q1->display(QNode::subscriber_joint1);
-    ui.lcd_q2->display(QNode::subscriber_joint2);
-    ui.lcd_q3->display(QNode::subscriber_joint3);
-    ui.lcd_q4->display(QNode::subscriber_joint4);
-    ui.lcd_q5->display(QNode::subscriber_joint5);
+
 }
 
 void MainWindow::on_candle_clicked(bool check)
@@ -152,7 +148,9 @@ void MainWindow::on_save_clicked(bool check)
             if( plik.good() == true )
             {
                 cout << "Uzyskano dostep do pliku!" << endl;
-                plik << "P0;1;1.1;1.1;1.1;1.1;" << endl;
+                //plik << "P0;1;1.1;1.1;1.1;1.1;" << endl;
+                plik << QNode::subscriber_joint1 <<";"<< QNode::subscriber_joint2 <<";"<< QNode::subscriber_joint3 <<";"
+                     << QNode::subscriber_joint4 <<";"<< QNode::subscriber_joint5 <<";"<<endl;
                 plik.close();
             }
 
@@ -173,15 +171,11 @@ void MainWindow::on_edit_clicked(bool check)
 }
 void MainWindow::on_execute_clicked(bool check)
 {
-
+      qnode.execute_program();
 }
 void MainWindow::on_x_plus_clicked(bool check)
 {
-//lcd_q1->display(1.0);
-        //ui.lcd_q1->display("1.0"); //dziala
-       // ui.lcd_q1->display(MainWindow::joint_1); //dziala ale pobiera wartosci ze zmiennej, a nie z subscribera
 
-//ui.lcd_q1->display(QNode::subscriber_joint1); dziala najlepiej
 }
 void MainWindow::on_x_minus_clicked(bool check)
 {
@@ -264,15 +258,7 @@ void MainWindow::on_q5_minus_clicked(bool check)
         joint_5 = joint_5 - (max_5 - min_5)/100;
 }
 
-/*void MainWindow::refresh_value(bool check)
-{
-ui.lcd_q1->display(QNode::subscriber_joint1);
-ui.lcd_q2->display(QNode::subscriber_joint2);
-ui.lcd_q3->display(QNode::subscriber_joint3);
-ui.lcd_q4->display(QNode::subscriber_joint4);
-ui.lcd_q5->display(QNode::subscriber_joint5);
-cout<<"gówno"<<endl;
-} */
+
 
 void MainWindow::updateLoggingView() {
         ui.view_logging->scrollToBottom();

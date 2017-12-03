@@ -332,21 +332,21 @@
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_14">
               <item>
-               <widget class="QLCDNumber" name="lcdNumber">
+               <widget class="QLCDNumber" name="lcd_roll">
                 <property name="segmentStyle">
                  <enum>QLCDNumber::Flat</enum>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QLCDNumber" name="lcdNumber_3">
+               <widget class="QLCDNumber" name="lcd_pitch">
                 <property name="segmentStyle">
                  <enum>QLCDNumber::Flat</enum>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QLCDNumber" name="lcdNumber_2">
+               <widget class="QLCDNumber" name="lcd_yaw">
                 <property name="segmentStyle">
                  <enum>QLCDNumber::Flat</enum>
                 </property>

@@ -55,6 +55,8 @@ public:
         static double subscriber_joint4;
         static double subscriber_joint5;
 
+
+
         Ui::MainWindowDesign ui;
 
 
@@ -63,6 +65,9 @@ public:
 	bool init();
 	bool init(const std::string &master_url, const std::string &host_url);
         void run();
+        void execute_program();
+
+
 	/*********************
 	** Logging
 	**********************/
