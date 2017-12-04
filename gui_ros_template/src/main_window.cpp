@@ -88,9 +88,16 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
         QObject::connect(&qnode, SIGNAL(loggingUpdated()), this, SLOT(updateLoggingView()));
 
 
-
+//        ui.point_window0->setModel(pointsListModel());
 
 }
+
+//void MainWindow::points_list(const std::string &msg)
+//{
+//          points_list_model.insertRows(points_list_model.rowCount(),1);
+//          std::stringstream points_list_model_msg;
+//          points_list_model_msg <<
+//}
 
 /*MainWindow::MainWindow()//: QMainWindow(parent), qnode(argc,argv)
 {}*/
@@ -129,6 +136,8 @@ void MainWindow::on_run_driver_clicked(bool check)
 void MainWindow::on_connect_master_clicked(bool check)
 {
         qnode.init();
+        qnode.czytajPunkty();
+        qnode.wyswietl_pkt();
 }
 
 void MainWindow::on_fold_clicked(bool check)
@@ -143,13 +152,31 @@ void MainWindow::on_candle_clicked(bool check)
 
 void MainWindow::on_save_clicked(bool check)
 {
-        fstream plik;
+    string line[100];
+    int line_nmb=0;
+    fstream plik;
+    fstream plik_temp;
+    int nr_pkt = 0;
+
+    plik_temp.open( "punkty.txt", ios::in | ios::out | ios::app);
+        if( plik.good() == true )
+        {
+            while (getline(plik_temp, line[nr_pkt]))
+            {
+              nr_pkt++;
+            }
+            plik_temp.close();
+        }
+        else cout << "Dostep do pliku zostal zabroniony!" << endl;
+
+
         plik.open( "punkty.txt", ios::in | ios::out | ios::app);
             if( plik.good() == true )
             {
                 cout << "Uzyskano dostep do pliku!" << endl;
+                cout<<nr_pkt<<endl;
                 //plik << "P0;1;1.1;1.1;1.1;1.1;" << endl;
-                plik << QNode::subscriber_joint1 <<";"<< QNode::subscriber_joint2 <<";"<< QNode::subscriber_joint3 <<";"
+                plik<<"P"<<nr_pkt+1<<";"<< QNode::subscriber_joint1 <<";"<< QNode::subscriber_joint2 <<";"<< QNode::subscriber_joint3 <<";"
                      << QNode::subscriber_joint4 <<";"<< QNode::subscriber_joint5 <<";"<<endl;
                 plik.close();
             }
@@ -164,6 +191,11 @@ void MainWindow::on_edit_list_clicked(bool check)
         //system("gnome-terminal -x sh -c 'cd ~/youbot ; gedit punkty.txt'"); //dodatkowo odpala terminal
         system("bash -c ''cd ~/youbot ; gedit punkty.txt''");   //nie odpala terminala
 }
+void  MainWindow::on_load_list_clicked(bool check)
+{
+        qnode.load_points_list();
+}
+
 void MainWindow::on_edit_clicked(bool check)
 {
 

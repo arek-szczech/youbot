@@ -56,6 +56,12 @@ public:
         static double subscriber_joint5;
 
 
+        static double pkt_x;
+        static double pkt_y;
+        static double pkt_z;
+        static double pkt_roll;
+        static double pkt_pitch;
+        static double pkt_yaw;
 
         Ui::MainWindowDesign ui;
 
@@ -66,8 +72,11 @@ public:
 	bool init(const std::string &master_url, const std::string &host_url);
         void run();
         void execute_program();
-
-
+        void kin_prosta(double q1, double q2,double q3,double q4,double q5);
+        void czytajPunkty();
+        void wyswietl_pkt();
+        void ptp(double q1, double q2,double q3,double q4,double q5);
+        void load_points_list();
 	/*********************
 	** Logging
 	**********************/

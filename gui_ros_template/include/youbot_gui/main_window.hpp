@@ -60,6 +60,7 @@ public Q_SLOTS:
 
         void on_save_clicked(bool check);
         void on_edit_list_clicked(bool check);
+        void on_load_list_clicked(bool check);
         void on_edit_clicked(bool check);
         void on_execute_clicked(bool check);
 

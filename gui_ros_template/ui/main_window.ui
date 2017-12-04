@@ -49,7 +49,7 @@
         <item>
          <widget class="QPushButton" name="connect_master">
           <property name="text">
-           <string>Połącz z Masterem</string>
+           <string>Połącz</string>
           </property>
          </widget>
         </item>
@@ -85,7 +85,7 @@
             <item>
              <widget class="QLabel" name="points_label">
               <property name="text">
-               <string>Lista punktow</string>
+               <string>Lista punktów</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -95,7 +95,7 @@
            </layout>
           </item>
           <item>
-           <widget class="QListView" name="listView"/>
+           <widget class="QListView" name="points_list"/>
           </item>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_12">
@@ -110,6 +110,13 @@
              <widget class="QPushButton" name="edit_list">
               <property name="text">
                <string>Edytuj listę</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="load_list">
+              <property name="text">
+               <string>Wczytaj listę</string>
               </property>
              </widget>
             </item>
