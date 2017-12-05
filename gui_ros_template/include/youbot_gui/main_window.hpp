@@ -46,17 +46,10 @@ public:
         static double joint_4;
         static double joint_5;
 
-	void showQ1PlusMsg();
-	void showQ1MinusMsg();
-	void runYoubotDriver();
-       // static void refresh_value(bool check); //dziala wykonywanie funkcji ale bez obiektow
-      //  void refresh_value(bool check);
-
 public Q_SLOTS:
         void on_run_driver_clicked(bool check);
         void on_connect_master_clicked(bool check);
         void on_fold_clicked(bool check);
-        void on_candle_clicked(bool check);
 
         void on_save_clicked(bool check);
         void on_edit_list_clicked(bool check);
@@ -85,7 +78,9 @@ public Q_SLOTS:
 
 
 
+
         void updateLoggingView(); // no idea why this can't connect automatically
+        void updateListView();
 
 
 

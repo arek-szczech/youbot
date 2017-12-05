@@ -13,7 +13,7 @@
 #include "../include/youbot_gui/main_window.hpp" //Kolejność includów jest krytyczna xD Musi być na górze
 #include <ros/ros.h>
 #include <ros/network.h>
-#include <string>
+#include <string.h>
 #include <std_msgs/String.h>
 #include <sstream>
 #include <iostream>
@@ -24,23 +24,15 @@
 #include <boost/units/io.hpp>
 #include <boost/units/systems/angle/degrees.hpp>
 #include <boost/units/conversion.hpp>
-#include <iostream>
-#include <assert.h>
-#include "ros/ros.h"
 #include "brics_actuator/JointPositions.h"
 #include <boost/units/systems/si/length.hpp>
 #include <boost/units/systems/si/plane_angle.hpp>
-#include <boost/units/systems/angle/degrees.hpp>
-#include <boost/units/conversion.hpp>
 #include <signal.h>
 #include <curses.h>
 #include <fstream>
 #include <stdlib.h>
 #include <cstdlib>
-
 #include "../include/youbot_gui/qnode.hpp"
-//#include "../include/youbot_gui/mainwindow.hpp"
-//#include "../include/youbot_gui/main_window.hpp"
 
 /*****************************************************************************
 ** Namespaces
@@ -65,78 +57,56 @@ double QNode::roll;
 double QNode::pitch;
 double QNode::yaw;
 
-double QNode::pkt_x;
-double QNode::pkt_y;
-double QNode::pkt_z;
-double QNode::pkt_roll;
-double QNode::pkt_pitch;
-double QNode::pkt_yaw;
+double QNode::list_x;
+double QNode::list_y;
+double QNode::list_z;
+double QNode::list_roll;
+double QNode::list_pitch;
+double QNode::list_yaw;
 
-
-//*********EXECUTE_PROGRAM****************
-
+//*********Zmienne do funkcji executeProgram****************
 string line[100];
 int line_nmb=0;
-int stan=0;
+int state=0;
 double q1[100];
 double q2[100];
 double q3[100];
 double q4[100];
 double q5[100];
 double P[100][5];
-
 size_t pos1,pos2,pos3,pos4,pos5,pos6;
-fstream punkty;
+fstream points;
+//**********************************************************
 
-//****************************************
-
-
-//MainWindow obiekt = new MainWindow();
-//youbot_gui::MainWindow obiekt(int argc, char** argv); //dziala prawie
-
-void QNode::kin_prosta(double q1, double q2,double q3,double q4,double q5)
+void QNode::forwardKinematic(double q1, double q2,double q3,double q4,double q5)
 {
-//cout << q2[1] << endl;
+    double th_1=q1;
+    double th_2=q2;
+    double th_3=q3;
+    double th_4=q4;
+    double th_5=q5;
 
-double th_1=q1;
-double th_2=q2;
-double th_3=q3;
-double th_4=q4;
-double th_5=q5;
+    double th1 = th_1 - 2.8668;
+    double th2 = th_2 - 2.5919;
+    double th3 = th_3 + 2.5211;
+    double th4 = th_4 - 3.3305;
+    double th5 = th_5 - 2.9314;
 
+    double a1 = 0.033;
+    double d1 = 0.147;
+    double a2 = 0.155;
+    double a3 = 0.135;
+    double d5 = 0.218;
 
-double th1 = th_1 - 2.8668;
-double th2 = th_2 - 2.5919;
-double th3 = th_3 + 2.5211;
-double th4 = th_4 - 3.3305;
-double th5 = th_5 - 2.9314;
-
-
-double a1 = 0.033;
-double d1 = 0.147;
-double a2 = 0.155;
-double a3 = 0.135;
-double d5 = 0.218;
-
-QNode::pkt_x = a1*cos(th1) - d5*(cos(th4)*(cos(th1)*cos(th2)*sin(th3) + cos(th1)*cos(th3)*sin(th2)) - sin(th4)*(cos(th1)*sin(th2)*sin(th3) - cos(th1)*cos(th2)*cos(th3))) + a2*cos(th1)*cos(th2) + a3*cos(th1)*cos(th2)*cos(th3) - a3*cos(th1)*sin(th2)*sin(th3);
-QNode::pkt_y = a1*sin(th1) - d5*(cos(th4)*(cos(th2)*sin(th1)*sin(th3) + cos(th3)*sin(th1)*sin(th2)) - sin(th4)*(sin(th1)*sin(th2)*sin(th3) - cos(th2)*cos(th3)*sin(th1))) + a2*cos(th2)*sin(th1) + a3*cos(th2)*cos(th3)*sin(th1) - a3*sin(th1)*sin(th2)*sin(th3);
-QNode::pkt_z = d1 - a2*sin(th2) - d5*(cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2))) - a3*cos(th2)*sin(th3) - a3*cos(th3)*sin(th2);
-QNode::pkt_roll = atan2(- cos(th1)*sin(th5) - cos(th5)*(cos(th4)*(sin(th1)*sin(th2)*sin(th3) - cos(th2)*cos(th3)*sin(th1)) + sin(th4)*(cos(th2)*sin(th1)*sin(th3) + cos(th3)*sin(th1)*sin(th2))), sin(th1)*sin(th5) - cos(th5)*(cos(th4)*(cos(th1)*sin(th2)*sin(th3) - cos(th1)*cos(th2)*cos(th3)) + sin(th4)*(cos(th1)*cos(th2)*sin(th3) + cos(th1)*cos(th3)*sin(th2))));
-QNode::pkt_pitch = atan2(cos(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))), sqrt(sin(th5)*sin(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)))*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))) + (cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)))*(cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)))));
-QNode::pkt_yaw = atan2(sin(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))), sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) - cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)));
-
+    QNode::list_x = a1*cos(th1) - d5*(cos(th4)*(cos(th1)*cos(th2)*sin(th3) + cos(th1)*cos(th3)*sin(th2)) - sin(th4)*(cos(th1)*sin(th2)*sin(th3) - cos(th1)*cos(th2)*cos(th3))) + a2*cos(th1)*cos(th2) + a3*cos(th1)*cos(th2)*cos(th3) - a3*cos(th1)*sin(th2)*sin(th3);
+    QNode::list_y = a1*sin(th1) - d5*(cos(th4)*(cos(th2)*sin(th1)*sin(th3) + cos(th3)*sin(th1)*sin(th2)) - sin(th4)*(sin(th1)*sin(th2)*sin(th3) - cos(th2)*cos(th3)*sin(th1))) + a2*cos(th2)*sin(th1) + a3*cos(th2)*cos(th3)*sin(th1) - a3*sin(th1)*sin(th2)*sin(th3);
+    QNode::list_z = d1 - a2*sin(th2) - d5*(cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2))) - a3*cos(th2)*sin(th3) - a3*cos(th3)*sin(th2);
+    QNode::list_roll = atan2(- cos(th1)*sin(th5) - cos(th5)*(cos(th4)*(sin(th1)*sin(th2)*sin(th3) - cos(th2)*cos(th3)*sin(th1)) + sin(th4)*(cos(th2)*sin(th1)*sin(th3) + cos(th3)*sin(th1)*sin(th2))), sin(th1)*sin(th5) - cos(th5)*(cos(th4)*(cos(th1)*sin(th2)*sin(th3) - cos(th1)*cos(th2)*cos(th3)) + sin(th4)*(cos(th1)*cos(th2)*sin(th3) + cos(th1)*cos(th3)*sin(th2))));
+    QNode::list_pitch = atan2(cos(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))), sqrt(sin(th5)*sin(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)))*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))) + (cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)))*(cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)))));
+    QNode::list_yaw = atan2(sin(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))), sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) - cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)));
 }
 
-void QNode::wyswietl_pkt()
-{
-        for (int i=0; i<line_nmb; i++)
-        {
-                kin_prosta(q1[i],q2[i],q3[i],q4[i],q5[i]);
-                cout << "P" << i << ":  x: " << pkt_x << " y: " << pkt_y << " z: " << pkt_z
-                     <<  " roll: " << pkt_roll << " pitch: " << pkt_pitch << " yaw: " << pkt_yaw <<endl;
 
-        }
-}
 
 void QNode::ptp(double q1, double q2,double q3,double q4,double q5)
 {
@@ -175,8 +145,6 @@ void QNode::ptp(double q1, double q2,double q3,double q4,double q5)
 
 void chatterCallback(const brics_actuator::JointPositionsConstPtr& youbotArmCommand)
 {
-
-
         // Wartosci odczytane z robota
         double th_1 = youbotArmCommand->positions[0].value;
         double th_2 = youbotArmCommand->positions[1].value;
@@ -184,27 +152,11 @@ void chatterCallback(const brics_actuator::JointPositionsConstPtr& youbotArmComm
         double th_4 = youbotArmCommand->positions[3].value;
         double th_5 = youbotArmCommand->positions[4].value;
 
-
         double th1 = th_1 - 2.8668;
         double th2 = th_2 - 2.5919;
         double th3 = th_3 + 2.5211;
         double th4 = th_4 - 3.3305;
         double th5 = th_5 -	2.9314;
-
-/*	cout << "Wartosci wysyłane do robota: " << endl;
-        cout << "th_1: " << th_1 << endl;
-        cout << "th_2: " << th_2 << endl;
-        cout << "th_3: " << th_3 << endl;
-        cout << "th_4: " << th_4 << endl;
-        cout << "th_5: " << th_5 << endl;
-        cout << "" << endl;
-        cout << "Wartosci uzywane do liczenia fk: " << endl;
-        cout << "th1: " << th1 << endl;
-        cout << "th2: " << th2 << endl;
-        cout << "th3: " << th3 << endl;
-        cout << "th4: " << th4 << endl;
-        cout << "th5: " << th5 << endl;
-        cout << "" << endl;*/
 
         double a1 = 0.033;
         double d1 = 0.147;
@@ -212,71 +164,45 @@ void chatterCallback(const brics_actuator::JointPositionsConstPtr& youbotArmComm
         double a3 = 0.135;
         double d5 = 0.218;
 
-        //double x = a1*cos(th1) - d5*(cos(th5)*(cos(th1)*cos(th2)*sin(th3) + cos(th1)*cos(th3)*sin(th2)) + sin(th5)*(cos(th1)*cos(th2)*cos(th3) - cos(th1)*sin(th2)*sin(th3))) + a2*cos(th1)*cos(th2) - a3*cos(th1)*sin(th2)*sin(th3) + a3*cos(th1)*cos(th2)*cos(th3);
-        //double y = a1*sin(th1) - d5*(cos(th5)*(cos(th2)*sin(th1)*sin(th3) + cos(th3)*sin(th1)*sin(th2)) + sin(th5)*(cos(th2)*cos(th3)*sin(th1) - sin(th1)*sin(th2)*sin(th3))) + a2*cos(th2)*sin(th1) - a3*sin(th1)*sin(th2)*sin(th3) + a3*cos(th2)*cos(th3)*sin(th1);
-        //double z = d1 - a2*sin(th2) - d5*(cos(th5)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th5)*(cos(th2)*sin(th3) + cos(th3)*sin(th2))) - a3*cos(th2)*sin(th3) - a3*cos(th3)*sin(th2);
-
         QNode::x = a1*cos(th1) - d5*(cos(th4)*(cos(th1)*cos(th2)*sin(th3) + cos(th1)*cos(th3)*sin(th2)) - sin(th4)*(cos(th1)*sin(th2)*sin(th3) - cos(th1)*cos(th2)*cos(th3))) + a2*cos(th1)*cos(th2) + a3*cos(th1)*cos(th2)*cos(th3) - a3*cos(th1)*sin(th2)*sin(th3);
         QNode::y = a1*sin(th1) - d5*(cos(th4)*(cos(th2)*sin(th1)*sin(th3) + cos(th3)*sin(th1)*sin(th2)) - sin(th4)*(sin(th1)*sin(th2)*sin(th3) - cos(th2)*cos(th3)*sin(th1))) + a2*cos(th2)*sin(th1) + a3*cos(th2)*cos(th3)*sin(th1) - a3*sin(th1)*sin(th2)*sin(th3);
         QNode::z = d1 - a2*sin(th2) - d5*(cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2))) - a3*cos(th2)*sin(th3) - a3*cos(th3)*sin(th2);
 
         QNode::roll = atan2(- cos(th1)*sin(th5) - cos(th5)*(cos(th4)*(sin(th1)*sin(th2)*sin(th3) - cos(th2)*cos(th3)*sin(th1)) + sin(th4)*(cos(th2)*sin(th1)*sin(th3) + cos(th3)*sin(th1)*sin(th2))), sin(th1)*sin(th5) - cos(th5)*(cos(th4)*(cos(th1)*sin(th2)*sin(th3) - cos(th1)*cos(th2)*cos(th3)) + sin(th4)*(cos(th1)*cos(th2)*sin(th3) + cos(th1)*cos(th3)*sin(th2))));
-        //double pitch = atan2(cos(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))), sqrt(sin(th5)*sin(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)))*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))) + (cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)))*(cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)))));
-        //double yaw = atan2(sin(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))), sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) - cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)));
-
         QNode::pitch = atan2(cos(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))), sqrt(sin(th5)*sin(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)))*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))) + (cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)))*(cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)))));
         QNode::yaw = atan2(sin(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))), sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) - cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)));
-
-//        cout << "Pozycja x: " << QNode::x << endl;
-//        cout << "Pozycja y: " << QNode::y << endl;
-//        cout << "Pozycja z: " << QNode::z << endl;
-//        cout << "Kąt roll: " << QNode::roll << endl;
-//        cout << "Kąt pitch: " << QNode::pitch << endl;
-//        cout << "Kąt yaw: " << QNode::yaw << endl;
-//        cout << "----------" << endl;
-       // QNode::subscriber_joint1 = armJointPositions[0].value;
 
         static const int numberOfArmJoints = 5;
         static const int numberOfGripperJoints = 2;
 
-        brics_actuator::JointPositions command;
-            vector <brics_actuator::JointValue> armJointPositions;
-         vector <brics_actuator::JointValue> gripperJointPositions;
+        //brics_actuator::JointPositions command;
+        vector <brics_actuator::JointValue> armJointPositions;
+        vector <brics_actuator::JointValue> gripperJointPositions;
 
-          armJointPositions.resize(numberOfArmJoints); //TODO:change that
-          gripperJointPositions.resize(numberOfGripperJoints);
+        armJointPositions.resize(numberOfArmJoints); //TODO:change that
+        gripperJointPositions.resize(numberOfGripperJoints);
+        std::stringstream jointName;
 
-          std::stringstream jointName;
+        QNode::subscriber_joint1 = th_1;
+        QNode::subscriber_joint2 = th_2;
+        QNode::subscriber_joint3 = th_3;
+        QNode::subscriber_joint4 = th_4;
+        QNode::subscriber_joint5 = th_5;
 
+        //gripperJointPositions[0].value = gripper_1;
+        //gripperJointPositions[1].value = gripper_2;
+        for (int i = 0; i < numberOfArmJoints; ++i)
+        {
+            jointName.str("");
+            jointName << "arm_joint_" << (i + 1);
 
-          QNode::subscriber_joint1 = th_1;
-          QNode::subscriber_joint2 = th_2;
-          QNode::subscriber_joint3 = th_3;
-          QNode::subscriber_joint4 = th_4;
-          QNode::subscriber_joint5 = th_5;
-
-
-          //gripperJointPositions[0].value = gripper_1;
-          //gripperJointPositions[1].value = gripper_2;
-          for (int i = 0; i < numberOfArmJoints; ++i) {
-          //cout << "Please type in value for joint " << i + 1 << endl;
-          //cin >> readValue;
-
-          jointName.str("");
-          jointName << "arm_joint_" << (i + 1);
-
-          armJointPositions[i].joint_uri = jointName.str();
-          //armJointPositions[i].value = readValue;
-
-          armJointPositions[i].unit = boost::units::to_string(boost::units::si::radians);
-          //cout << "Joint " << armJointPositions[i].joint_uri << " = " << armJointPositions[i].value << " " << armJointPositions[i].unit << endl;
-          };
-
+            armJointPositions[i].joint_uri = jointName.str();
+            armJointPositions[i].unit = boost::units::to_string(boost::units::si::radians);
+        };
 
 }
 
-
-void konwersjaDoTablicy2d()
+void convertTo2dArray()
 {
         for (int j=0;j<5;j++)
         {
@@ -310,19 +236,17 @@ void konwersjaDoTablicy2d()
 
 double stringToDouble (string q)
 {
-std::replace(q.begin(), q.end(), '.', ','); // Na kompilatorze terminalowym czyta kropki, zapisuje jako kropki
-double q_d = atof(q.c_str());               // Catkin czyta przecinki, zapisuje kropki - WTF??11!!11
-cout << "q: " << q<< endl;
-cout << "q_d: " << q_d << endl;
+    std::replace(q.begin(), q.end(), '.', ','); // Na kompilatorze terminalowym czyta kropki, zapisuje jako kropki
+    double q_d = atof(q.c_str());               // Catkin czyta przecinki, zapisuje kropki - WTF??11!!11
 
-return q_d;
+    return q_d;
 }
 
-void czytaj_zmienne()
+void readJointsFromFile()
 {
 
-        while (getline(punkty, line[line_nmb]))
-{
+    while (getline(points, line[line_nmb]))
+    {
 
         pos1 = line[line_nmb].find(";",1);
         pos2 = line[line_nmb].find(";",pos1+1);
@@ -335,112 +259,148 @@ void czytaj_zmienne()
         q3[line_nmb] = stringToDouble(line[line_nmb].substr(pos3+1,pos4-(pos3+1)));
         q4[line_nmb] = stringToDouble(line[line_nmb].substr(pos4+1,pos5-(pos4+1)));
         q5[line_nmb] = stringToDouble(line[line_nmb].substr(pos5+1,pos6-(pos5+1)));
-        cout << "PKT " << line_nmb+1 << ": q1 = " << q1[line_nmb] << " q2 = " << q2[line_nmb] << " q3 = " << q3[line_nmb] << " q4 = " << q4[line_nmb] << " q5 = " << q5[line_nmb] << endl;
+ //       cout << "PKT " << line_nmb+1 << ": q1 = " << q1[line_nmb] << " q2 = " << q2[line_nmb] << " q3 = " << q3[line_nmb] << " q4 = " << q4[line_nmb] << " q5 = " << q5[line_nmb] << endl;
         ++line_nmb;
+    }
+
+  //      cout << "Plik ma " << line_nmb << " wierszy" << endl;
 }
 
-        cout << "Plik ma " << line_nmb << " wierszy" << endl;
-}
-
-void QNode::czytajPunkty()
+void QNode::readPoints()
 {
-    punkty.open( "punkty.txt", ios::in | ios::out | ios::app);
-    if( punkty.good() == true )
+    line_nmb=0;
+    points.open( "punkty.txt", ios::in | ios::out | ios::app);
+    if( points.good() == true )
     {
         cout << "Uzyskano dostep do pliku!" << endl;
-        czytaj_zmienne();
-        punkty.close();
-        konwersjaDoTablicy2d();
+        readJointsFromFile(); //Czyta jointy z pliku punkty.txt
+        points.close();
+        convertTo2dArray(); // Konwertuje odczytane jointy do tablicy
     }
 
     else cout << "Brak dostępu do pliku" << endl;
 }
 
-void pkt(string punkt)
+void pointNumberStringToInt(string point)
 {
-        cout << " do punktu: "  << punkt << endl;
-int pkt = atoi(punkt.c_str());
-        cout << "q1 = " << P[pkt][0] << " q2 = " << P[pkt][1] << " q3 = " << P[pkt][2] << " q4 = " << P[pkt][3] << " q5 = " << P[pkt][4] << endl;
+    //    cout << " do punktu: "  << punkt << endl;
+int pkt = atoi(point.c_str());
+    //    cout << "q1 = " << P[pkt][0] << " q2 = " << P[pkt][1] << " q3 = " << P[pkt][2] << " q4 = " << P[pkt][3] << " q5 = " << P[pkt][4] << endl;
 
 }
 
-void czytajProgram()
+void readProgram()
 {
+    //string temp_kom;
+    string line[100];
+    int row_number=0;
+    fstream file;
 
-    string temp_kom;
-    string wiersz[100];
-    int wiersz_nmb=0;
-    fstream plik;
-
-
-    plik.open( "program.txt", ios::in | ios::out | ios::app);
-    if( plik.good() == true )
+    file.open( "program.txt", ios::in | ios::out | ios::app);
+    if( file.good() == true )
     {
         cout << "Uzyskano dostep do pliku!" << endl;
-        while (getline(plik, wiersz[wiersz_nmb]))
+        while (getline(file, line[row_number]))
         {
-        cout << wiersz[wiersz_nmb] << endl;
-        ++wiersz_nmb;
+       // cout << line[row_number] << endl;
+        ++row_number;
         }
-        cout << "Plik ma " << wiersz_nmb << " wierszy" << endl;
-        plik.close();
+        cout << "Plik ma " << row_number << " wierszy" << endl;
+        file.close();
     }
 
     else
     {
         cout << "Brak dostępu do pliku" << endl; // przerwać funkcje
     }
-    string temp_pkt[wiersz_nmb];
-    string komenda[wiersz_nmb];
-    string punkt[wiersz_nmb];
+    string temp_point[row_number];
+    string command[row_number];
+    string point[row_number];
 
-        for (int i = 0; i<wiersz_nmb;  i++)
+        for (int i = 0; i<row_number;  i++)
     {
-        komenda[i] = wiersz[i].substr (0,3);
-        temp_pkt[i] = wiersz[i].substr (4,1);
-        punkt[i] = wiersz[i].substr (5,2);
-        if (komenda[i]=="PTP")
-            stan++;
+        command[i] = line[i].substr (0,3);
+        temp_point[i] = line[i].substr (4,1);
+        point[i] = line[i].substr (5,2);
+        if (command[i]=="PTP")
+            state++;
         else
             cout << "Nieznana komenda" << endl;
-        if (temp_pkt[i]=="P")
-            stan++;
+        if (temp_point[i]=="P")
+            state++;
         else
             cout << "Błędnie wprowadzony punkt" << endl;
-        if (atoi(punkt[i].c_str())<=line_nmb)
-            stan++;
+        if (atoi(point[i].c_str())<=line_nmb)
+            state++;
         else
-            cout << "Punkt P" << punkt[i] << " nie został zdefiniowany" << endl;
+            cout << "Punkt P" << point[i] << " nie został zdefiniowany" << endl;
     }
-        if (stan/3!=wiersz_nmb)
+        if (state/3!=row_number)
         {
          cout << "Błąd składni kodu" << endl; // wyprowadzić log i przerwać funkcje
         }
         else
         {
-         for (int i=0;i<wiersz_nmb;i++)
-         pkt(punkt[i]);
+         for (int i=0;i<row_number;i++)
+         pointNumberStringToInt(point[i]);
         }
 
    }
 
-
-
-void QNode::execute_program()
+void QNode::executeProgram()
 {
-        cout << "GÓWNO" << endl;
         line_nmb=0;
-        stan=0;
+        state=0;
 
-        czytajPunkty();
-        czytajProgram();
+        readPoints();
+        readProgram();
 
 }
 
-void QNode::load_points_list()
+std::string QNode::showPoint(int i)
 {
 
+
+        forwardKinematic(q1[i],q2[i],q3[i],q4[i],q5[i]);
+
+    std::stringstream msg;
+    msg<< "P" << i+1 << ":  x: " << list_x << " y: " << list_y << " z: " << list_z
+       <<  " roll: " << list_roll << " pitch: " << list_pitch << " yaw: " << list_yaw <<endl;
+    cout << msg.str()<<endl;
+    addToList(msg.str());
+    return msg.str();
+
 }
+
+void QNode::loadPointsList()
+{
+    string msg="";
+    for (int i=0; i<line_nmb; i++)
+    {
+        msg=showPoint(i);
+
+    }
+}
+
+void QNode::list(const std::string &msg)
+{
+    list_model.insertRows(list_model.rowCount(),1);
+    std::stringstream list_model_msg;
+    list_model_msg << msg;
+    QVariant new_row(QString(list_model_msg.str().c_str()));
+    list_model.setData(list_model.index(list_model.rowCount()-1),new_row);
+    Q_EMIT listUpdated(); // used to readjust the scrollbar
+}
+
+void QNode::addToList(std::string bufor)
+{
+
+    std::string msg = bufor;
+    list(msg);
+}
+
+
+
 
 
 QNode::QNode(int argc, char** argv ) :
@@ -456,21 +416,16 @@ QNode::~QNode() {
 	wait();
 }
 
-bool QNode::init() {
+bool QNode::init()
+{
 	ros::init(init_argc,init_argv,"youbot_gui");
 	if ( ! ros::master::check() ) {
                 return false;
 	}
-	ros::start(); // explicitly needed since our nodehandle is going out of scope.
+        ros::start();
 	ros::NodeHandle n;
-	// Add your ros communications here.
-        //chatter_publisher = n.advertise<std_msgs::String>("chatter", 1000);
-        //ros::Publisher armPositionsPublisher;
-        //ros::Publisher gripperPositionPublisher;
-
         armPositionsPublisher = n.advertise<brics_actuator::JointPositions > ("arm_1/arm_controller/position_command", 1);
         gripperPositionPublisher = n.advertise<brics_actuator::JointPositions > ("arm_1/gripper_controller/position_command", 1);
-
         armPositionsSubscriber = n.subscribe<brics_actuator::JointPositions >("arm_1/arm_controller/position_command", 1, chatterCallback);
 
 
@@ -479,7 +434,8 @@ bool QNode::init() {
 	return true;
 }
 
-bool QNode::init(const std::string &master_url, const std::string &host_url) {
+bool QNode::init(const std::string &master_url, const std::string &host_url)
+{
 	std::map<std::string,std::string> remappings;
 	remappings["__master"] = master_url;
 	remappings["__hostname"] = host_url;
@@ -493,12 +449,10 @@ bool QNode::init(const std::string &master_url, const std::string &host_url) {
         //chatter_publisher = n.advertise<std_msgs::String>("chatter", 1000);
 	start();
 	return true;
-
 }
 
-
-
-void QNode::run() {
+void QNode::run()
+{
         ros::Rate loop_rate(4); //zmienione z 1 na 20
 	int count = 0;
 
@@ -507,15 +461,13 @@ void QNode::run() {
 
 	while ( ros::ok() ) {
 
-          brics_actuator::JointPositions command;
-              vector <brics_actuator::JointValue> armJointPositions;
-           vector <brics_actuator::JointValue> gripperJointPositions;
+            brics_actuator::JointPositions command;
+            vector <brics_actuator::JointValue> armJointPositions;
+            vector <brics_actuator::JointValue> gripperJointPositions;
 
             armJointPositions.resize(numberOfArmJoints); //TODO:change that
             gripperJointPositions.resize(numberOfGripperJoints);
-
             std::stringstream jointName;
-
 
             armJointPositions[0].value = MainWindow::joint_1;
             armJointPositions[1].value = MainWindow::joint_2;
@@ -524,25 +476,25 @@ void QNode::run() {
             armJointPositions[4].value = MainWindow::joint_5;
             //gripperJointPositions[0].value = gripper_1;
             //gripperJointPositions[1].value = gripper_2;
-            for (int i = 0; i < numberOfArmJoints; ++i) {
-            //cout << "Please type in value for joint " << i + 1 << endl;
-            //cin >> readValue;
+            for (int i = 0; i < numberOfArmJoints; ++i)
+            {
+                //cout << "Please type in value for joint " << i + 1 << endl;
+                //cin >> readValue;
 
-            jointName.str("");
-            jointName << "arm_joint_" << (i + 1);
+                jointName.str("");
+                jointName << "arm_joint_" << (i + 1);
 
-            armJointPositions[i].joint_uri = jointName.str();
-            //armJointPositions[i].value = readValue;
+                armJointPositions[i].joint_uri = jointName.str();
+                //armJointPositions[i].value = readValue;
 
-            armJointPositions[i].unit = boost::units::to_string(boost::units::si::radians);
-            //cout << "Joint " << armJointPositions[i].joint_uri << " = " << armJointPositions[i].value << " " << armJointPositions[i].unit << endl;
+                armJointPositions[i].unit = boost::units::to_string(boost::units::si::radians);
+                //cout << "Joint " << armJointPositions[i].joint_uri << " = " << armJointPositions[i].value << " " << armJointPositions[i].unit << endl;
             };
-
 
 		std_msgs::String msg;
 		std::stringstream ss;
-                double zmienna = MainWindow::joint_1;
-                ss << "hello world " << count << zmienna;
+                double var = MainWindow::joint_1;
+                ss << "hello world " << count << var;
 		msg.data = ss.str();
                 //chatter_publisher.publish(msg);
                 command.positions = armJointPositions;
@@ -567,8 +519,6 @@ void QNode::run() {
 	std::cout << "Ros shutdown, proceeding to close the gui." << std::endl;
 	Q_EMIT rosShutdown(); // used to signal the gui for a shutdown (useful to roslaunch)
 }
-
-
 
 void QNode::log( const LogLevel &level, const std::string &msg) {
 	logging_model.insertRows(logging_model.rowCount(),1);

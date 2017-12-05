@@ -39,24 +39,29 @@ using namespace std;
 
 double min_1 = 0.0100692;
 double max_1 = 5.84014;
-double MainWindow::joint_1 = 0.0100692;
+//double MainWindow::joint_1 = 0.0100692;
 //static double joint_1 = 0.0100692;
+double MainWindow::joint_1 = QNode::subscriber_joint1;
 
 double min_2 = 0.0100692;
 double max_2 = 2.61799;
-double MainWindow::joint_2 = 0.0100692;
+//double MainWindow::joint_2 = 0.0100692;
+double MainWindow::joint_2 = QNode::subscriber_joint2;
 
 double min_3 = -5.02655;
 double max_3 = -0.015708;
-double MainWindow::joint_3 = -0.015708;
+//double MainWindow::joint_3 = -0.015708;
+double MainWindow::joint_3 = QNode::subscriber_joint3;
 
 double min_4 = 0.0221239;
 double max_4 = 3.4292;
-double MainWindow::joint_4 = 0.0221239;
+//double MainWindow::joint_4 = 0.0221239;
+double MainWindow::joint_4 = QNode::subscriber_joint4;
 
 double min_5 = 0.110619;
 double max_5 = 5.64159;
-double MainWindow::joint_5 = 0.110619;
+//double MainWindow::joint_5 = 0.110619;
+double MainWindow::joint_5 = QNode::subscriber_joint5;
 
 double min_6 = 0;
 double max_6 = 0.011;
@@ -79,6 +84,8 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
 	setWindowIcon(QIcon(":/images/icon.png"));
 
     	QObject::connect(&qnode, SIGNAL(rosShutdown()), this, SLOT(close()));
+        ui.points_list->setModel(qnode.listModel());
+        QObject::connect(&qnode, SIGNAL(listUpdated()), this, SLOT(updateListView()));
 
 
         /*********************
@@ -87,20 +94,9 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
         ui.view_logging->setModel(qnode.loggingModel());
         QObject::connect(&qnode, SIGNAL(loggingUpdated()), this, SLOT(updateLoggingView()));
 
-
-//        ui.point_window0->setModel(pointsListModel());
-
 }
 
-//void MainWindow::points_list(const std::string &msg)
-//{
-//          points_list_model.insertRows(points_list_model.rowCount(),1);
-//          std::stringstream points_list_model_msg;
-//          points_list_model_msg <<
-//}
 
-/*MainWindow::MainWindow()//: QMainWindow(parent), qnode(argc,argv)
-{}*/
 
 MainWindow::~MainWindow() {}
 
@@ -108,36 +104,16 @@ MainWindow::~MainWindow() {}
 ** Implementation [Slots]
 *****************************************************************************/
 
-void MainWindow::showQ1PlusMsg()
-{
-	QMessageBox msgBox;
-	msgBox.setText("Zwiekszam q1");
-	msgBox.exec();
-}
-
-void MainWindow::showQ1MinusMsg()
-{
-	QMessageBox msgBox;
-	msgBox.setText("Zmniejszam q1");
-	msgBox.exec();
-}
-
-
-void MainWindow::runYoubotDriver()
-{
-        system("gnome-terminal -x sh -c 'cd ~/youbot ; source devel/setup.bash ; roslaunch youbot_driver_ros_interface youbot_driver.launch'");
-}
-
 void MainWindow::on_run_driver_clicked(bool check)
 {
-        runYoubotDriver();
+        system("gnome-terminal -x sh -c 'cd ~/youbot ; source devel/setup.bash ; roslaunch youbot_driver_ros_interface youbot_driver.launch'");
 }
 
 void MainWindow::on_connect_master_clicked(bool check)
 {
         qnode.init();
-        qnode.czytajPunkty();
-        qnode.wyswietl_pkt();
+        qnode.readPoints();
+
 }
 
 void MainWindow::on_fold_clicked(bool check)
@@ -145,40 +121,34 @@ void MainWindow::on_fold_clicked(bool check)
 
 }
 
-void MainWindow::on_candle_clicked(bool check)
-{
-
-}
-
-void MainWindow::on_save_clicked(bool check)
+void MainWindow::on_save_clicked(bool check) //zapisz punkt
 {
     string line[100];
-    int line_nmb=0;
-    fstream plik;
-    fstream plik_temp;
-    int nr_pkt = 0;
+    fstream file;
+    fstream file_temp;
+    int point_number = 0;
 
-    plik_temp.open( "punkty.txt", ios::in | ios::out | ios::app);
-        if( plik.good() == true )
+    file_temp.open( "punkty.txt", ios::in | ios::out | ios::app);
+        if( file.good() == true )
         {
-            while (getline(plik_temp, line[nr_pkt]))
+            while (getline(file_temp, line[point_number]))
             {
-              nr_pkt++;
+              point_number++;
             }
-            plik_temp.close();
+            file_temp.close();
         }
         else cout << "Dostep do pliku zostal zabroniony!" << endl;
 
 
-        plik.open( "punkty.txt", ios::in | ios::out | ios::app);
-            if( plik.good() == true )
+        file.open( "punkty.txt", ios::in | ios::out | ios::app);
+            if( file.good() == true )
             {
                 cout << "Uzyskano dostep do pliku!" << endl;
-                cout<<nr_pkt<<endl;
-                //plik << "P0;1;1.1;1.1;1.1;1.1;" << endl;
-                plik<<"P"<<nr_pkt+1<<";"<< QNode::subscriber_joint1 <<";"<< QNode::subscriber_joint2 <<";"<< QNode::subscriber_joint3 <<";"
+                cout<<point_number<<endl;
+                //file << "P0;1;1.1;1.1;1.1;1.1;" << endl;
+                file<<"P"<<point_number+1<<";"<< QNode::subscriber_joint1 <<";"<< QNode::subscriber_joint2 <<";"<< QNode::subscriber_joint3 <<";"
                      << QNode::subscriber_joint4 <<";"<< QNode::subscriber_joint5 <<";"<<endl;
-                plik.close();
+                file.close();
             }
 
             else cout << "Dostep do pliku zostal zabroniony!" << endl;
@@ -193,7 +163,8 @@ void MainWindow::on_edit_list_clicked(bool check)
 }
 void  MainWindow::on_load_list_clicked(bool check)
 {
-        qnode.load_points_list();
+        qnode.readPoints();
+        qnode.loadPointsList();
 }
 
 void MainWindow::on_edit_clicked(bool check)
@@ -203,7 +174,7 @@ void MainWindow::on_edit_clicked(bool check)
 }
 void MainWindow::on_execute_clicked(bool check)
 {
-      qnode.execute_program();
+      qnode.executeProgram();
 }
 void MainWindow::on_x_plus_clicked(bool check)
 {
@@ -294,8 +265,13 @@ void MainWindow::on_q5_minus_clicked(bool check)
 
 void MainWindow::updateLoggingView() {
         ui.view_logging->scrollToBottom();
+
 }
 
+void MainWindow::updateListView() {
+        ui.points_list->scrollToBottom();
+
+}
 
 //komentarz
 /*****************************************************************************

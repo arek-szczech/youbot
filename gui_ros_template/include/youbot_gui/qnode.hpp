@@ -56,12 +56,12 @@ public:
         static double subscriber_joint5;
 
 
-        static double pkt_x;
-        static double pkt_y;
-        static double pkt_z;
-        static double pkt_roll;
-        static double pkt_pitch;
-        static double pkt_yaw;
+        static double list_x;
+        static double list_y;
+        static double list_z;
+        static double list_roll;
+        static double list_pitch;
+        static double list_yaw;
 
         Ui::MainWindowDesign ui;
 
@@ -71,12 +71,13 @@ public:
 	bool init();
 	bool init(const std::string &master_url, const std::string &host_url);
         void run();
-        void execute_program();
-        void kin_prosta(double q1, double q2,double q3,double q4,double q5);
-        void czytajPunkty();
-        void wyswietl_pkt();
+        void executeProgram();
+        void forwardKinematic(double q1, double q2,double q3,double q4,double q5);
+        void readPoints();
+        std::string showPoint(int i);
         void ptp(double q1, double q2,double q3,double q4,double q5);
-        void load_points_list();
+        void loadPointsList();
+
 	/*********************
 	** Logging
 	**********************/
@@ -91,9 +92,15 @@ public:
 	QStringListModel* loggingModel() { return &logging_model; }
 	void log( const LogLevel &level, const std::string &msg);
 
+        QStringListModel* listModel() { return &list_model; }
+        void list(const std::string &msg);
+        void addToList(std::string bufor);
+
+
 Q_SIGNALS:
 	void loggingUpdated();
     	void rosShutdown();
+        void listUpdated();
 
 private:
 	int init_argc;
@@ -105,6 +112,8 @@ private:
         ros::Subscriber armPositionsSubscriber;
 
     	QStringListModel logging_model;
+        QStringListModel list_model;
+
         //MainWindow obiekt;
 };
 
