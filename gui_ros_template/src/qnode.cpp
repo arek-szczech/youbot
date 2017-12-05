@@ -32,6 +32,7 @@
 #include <fstream>
 #include <stdlib.h>
 #include <cstdlib>
+#include <vector>
 #include "../include/youbot_gui/qnode.hpp"
 
 /*****************************************************************************
@@ -63,6 +64,8 @@ double QNode::list_z;
 double QNode::list_roll;
 double QNode::list_pitch;
 double QNode::list_yaw;
+
+
 
 //*********Zmienne do funkcji executeProgram****************
 string line[100];
@@ -110,36 +113,15 @@ void QNode::forwardKinematic(double q1, double q2,double q3,double q4,double q5)
 
 void QNode::ptp(double q1, double q2,double q3,double q4,double q5)
 {
-//      brics_actuator::JointPositions command;
-//      vector <brics_actuator::JointValue> armJointPositions;
-//      vector <brics_actuator::JointValue> gripperJointPositions;
+    double q1_temp=q1;
+    double q2_temp=q2;
+    double q3_temp=q3;
+    double q4_temp=q4;
+    double q5_temp=q5;
 
-//      armJointPositions.resize(numberOfArmJoints); //TODO:change that
-//      gripperJointPositions.resize(numberOfGripperJoints);
+    QNode::jointPublisher(q1_temp, q2_temp, q3_temp, q4_temp, q5_temp);
 
-//      std::stringstream jointName;
-
-
-//      armJointPositions[0].value = q1;
-//      armJointPositions[1].value = q2;
-//      armJointPositions[2].value = q3;
-//      armJointPositions[3].value = q4;
-//      armJointPositions[4].value = q5;
-//      //gripperJointPositions[0].value = gripper_1;
-//      //gripperJointPositions[1].value = gripper_2;
-//      for (int i = 0; i < numberOfArmJoints; ++i) {
-//      //cout << "Please type in value for joint " << i + 1 << endl;
-//      //cin >> readValue;
-
-//      jointName.str("");
-//      jointName << "arm_joint_" << (i + 1);
-
-//      armJointPositions[i].joint_uri = jointName.str();
-//      //armJointPositions[i].value = readValue;
-
-//      armJointPositions[i].unit = boost::units::to_string(boost::units::si::radians);
-//      //cout << "Joint " << armJointPositions[i].joint_uri << " = " << armJointPositions[i].value << " " << armJointPositions[i].unit << endl;
-//      };
+    ros::Duration(5).sleep();
 }
 
 
@@ -189,6 +171,11 @@ void chatterCallback(const brics_actuator::JointPositionsConstPtr& youbotArmComm
         QNode::subscriber_joint4 = th_4;
         QNode::subscriber_joint5 = th_5;
 
+        MainWindow::joint_1 = QNode::subscriber_joint1;
+        MainWindow::joint_2 = QNode::subscriber_joint2;
+        MainWindow::joint_3 = QNode::subscriber_joint3;
+        MainWindow::joint_4 = QNode::subscriber_joint4;
+        MainWindow::joint_5 = QNode::subscriber_joint5;
         //gripperJointPositions[0].value = gripper_1;
         //gripperJointPositions[1].value = gripper_2;
         for (int i = 0; i < numberOfArmJoints; ++i)
@@ -289,7 +276,7 @@ int pkt = atoi(point.c_str());
 
 }
 
-void readProgram()
+void QNode::readProgram()
 {
     //string temp_kom;
     string line[100];
@@ -315,13 +302,13 @@ void readProgram()
     }
     string temp_point[row_number];
     string command[row_number];
-    string point[row_number];
+    int point[row_number];
 
         for (int i = 0; i<row_number;  i++)
     {
         command[i] = line[i].substr (0,3);
         temp_point[i] = line[i].substr (4,1);
-        point[i] = line[i].substr (5,2);
+        point[i] = atoi((line[i].substr (5,2)).c_str());
         if (command[i]=="PTP")
             state++;
         else
@@ -330,7 +317,7 @@ void readProgram()
             state++;
         else
             cout << "Błędnie wprowadzony punkt" << endl;
-        if (atoi(point[i].c_str())<=line_nmb)
+        if (point[i]<=line_nmb)
             state++;
         else
             cout << "Punkt P" << point[i] << " nie został zdefiniowany" << endl;
@@ -342,8 +329,12 @@ void readProgram()
         else
         {
          for (int i=0;i<row_number;i++)
-         pointNumberStringToInt(point[i]);
-         ros::Duration(5).sleep();
+
+         {
+         //pointNumberStringToInt(point[i]);
+         ptp(P[point[i]][0],P[point[i]][1],P[point[i]][2],P[point[i]][3],P[point[i]][4]);
+         }
+
         }
 
    }
@@ -402,7 +393,39 @@ void QNode::addToList(std::string bufor)
 
 void QNode::jointPublisher(double q1, double q2,double q3,double q4,double q5)
 {
+    static const int numberOfArmJoints = 5;
+    static const int numberOfGripperJoints = 2;
+    brics_actuator::JointPositions command;
+    vector <brics_actuator::JointValue> armJointPositions;
+    vector <brics_actuator::JointValue> gripperJointPositions;
 
+    armJointPositions.resize(numberOfArmJoints); //TODO:change that
+    gripperJointPositions.resize(numberOfGripperJoints);
+    std::stringstream jointName;
+
+    armJointPositions[0].value = q1;
+    armJointPositions[1].value = q2;
+    armJointPositions[2].value = q3;
+    armJointPositions[3].value = q4;
+    armJointPositions[4].value = q5;
+    //gripperJointPositions[0].value = gripper_1;
+    //gripperJointPositions[1].value = gripper_2;
+    for (int i = 0; i < numberOfArmJoints; ++i)
+    {
+        //cout << "Please type in value for joint " << i + 1 << endl;
+        //cin >> readValue;
+
+        jointName.str("");
+        jointName << "arm_joint_" << (i + 1);
+
+        armJointPositions[i].joint_uri = jointName.str();
+        //armJointPositions[i].value = readValue;
+
+        armJointPositions[i].unit = boost::units::to_string(boost::units::si::radians);
+        //cout << "Joint " << armJointPositions[i].joint_uri << " = " << armJointPositions[i].value << " " << armJointPositions[i].unit << endl;
+    };
+    command.positions = armJointPositions;
+    armPositionsPublisher.publish(command);
 }
 
 
@@ -457,43 +480,48 @@ bool QNode::init(const std::string &master_url, const std::string &host_url)
 
 void QNode::run()
 {
-        ros::Rate loop_rate(4); //zmienione z 1 na 20
+        ros::Rate loop_rate(1); //zmienione z 1 na 20
 	int count = 0;
-
-        static const int numberOfArmJoints = 5;
-        static const int numberOfGripperJoints = 2;
+        MainWindow::joint_1 = QNode::subscriber_joint1;
+        MainWindow::joint_2 = QNode::subscriber_joint2;
+        MainWindow::joint_3 = QNode::subscriber_joint3;
+        MainWindow::joint_4 = QNode::subscriber_joint4;
+        MainWindow::joint_5 = QNode::subscriber_joint5;
+        cout<<MainWindow::joint_1<<endl;
+//        static const int numberOfArmJoints = 5;
+//        static const int numberOfGripperJoints = 2;
 
 	while ( ros::ok() ) {
 
-            brics_actuator::JointPositions command;
-            vector <brics_actuator::JointValue> armJointPositions;
-            vector <brics_actuator::JointValue> gripperJointPositions;
+//            brics_actuator::JointPositions command;
+//            vector <brics_actuator::JointValue> armJointPositions;
+//            vector <brics_actuator::JointValue> gripperJointPositions;
 
-            armJointPositions.resize(numberOfArmJoints); //TODO:change that
-            gripperJointPositions.resize(numberOfGripperJoints);
-            std::stringstream jointName;
+//            armJointPositions.resize(numberOfArmJoints); //TODO:change that
+//            gripperJointPositions.resize(numberOfGripperJoints);
+//            std::stringstream jointName;
 
-            armJointPositions[0].value = MainWindow::joint_1;
-            armJointPositions[1].value = MainWindow::joint_2;
-            armJointPositions[2].value = MainWindow::joint_3;
-            armJointPositions[3].value = MainWindow::joint_4;
-            armJointPositions[4].value = MainWindow::joint_5;
-            //gripperJointPositions[0].value = gripper_1;
-            //gripperJointPositions[1].value = gripper_2;
-            for (int i = 0; i < numberOfArmJoints; ++i)
-            {
-                //cout << "Please type in value for joint " << i + 1 << endl;
-                //cin >> readValue;
+//            armJointPositions[0].value = MainWindow::joint_1;
+//            armJointPositions[1].value = MainWindow::joint_2;
+//            armJointPositions[2].value = MainWindow::joint_3;
+//            armJointPositions[3].value = MainWindow::joint_4;
+//            armJointPositions[4].value = MainWindow::joint_5;
+//            //gripperJointPositions[0].value = gripper_1;
+//            //gripperJointPositions[1].value = gripper_2;
+//            for (int i = 0; i < numberOfArmJoints; ++i)
+//            {
+//                //cout << "Please type in value for joint " << i + 1 << endl;
+//                //cin >> readValue;
 
-                jointName.str("");
-                jointName << "arm_joint_" << (i + 1);
+//                jointName.str("");
+//                jointName << "arm_joint_" << (i + 1);
 
-                armJointPositions[i].joint_uri = jointName.str();
-                //armJointPositions[i].value = readValue;
+//                armJointPositions[i].joint_uri = jointName.str();
+//                //armJointPositions[i].value = readValue;
 
-                armJointPositions[i].unit = boost::units::to_string(boost::units::si::radians);
-                //cout << "Joint " << armJointPositions[i].joint_uri << " = " << armJointPositions[i].value << " " << armJointPositions[i].unit << endl;
-            };
+//                armJointPositions[i].unit = boost::units::to_string(boost::units::si::radians);
+//                //cout << "Joint " << armJointPositions[i].joint_uri << " = " << armJointPositions[i].value << " " << armJointPositions[i].unit << endl;
+//            };
 
 		std_msgs::String msg;
 		std::stringstream ss;
@@ -501,10 +529,13 @@ void QNode::run()
                 ss << "hello world " << count << var;
 		msg.data = ss.str();
                 //chatter_publisher.publish(msg);
-                command.positions = armJointPositions;
-                armPositionsPublisher.publish(command);
+//                command.positions = armJointPositions;
+//                armPositionsPublisher.publish(command);
                 //log(Info,std::string("I sent: ")+msg.data);
                 //MainWindow::refresh_value(true);
+
+                //QNode::jointPublisher(MainWindow::joint_1, MainWindow::joint_2,MainWindow::joint_3,MainWindow::joint_4,MainWindow::joint_5);
+
                 this->ui.lcd_q1->display(QNode::subscriber_joint1);
                 this->ui.lcd_q2->display(QNode::subscriber_joint2);
                 this->ui.lcd_q3->display(QNode::subscriber_joint3);

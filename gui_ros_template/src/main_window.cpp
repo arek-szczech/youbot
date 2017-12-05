@@ -226,60 +226,70 @@ void MainWindow::on_q1_plus_clicked(bool check)
 {
         if(joint_1 < max_1 - ((max_1 - min_1)/100))
         joint_1 = joint_1 + (max_1 - min_1)/100;
+        qnode.jointPublisher(MainWindow::joint_1, MainWindow::joint_2,MainWindow::joint_3,MainWindow::joint_4,MainWindow::joint_5);
 }
 
 void MainWindow::on_q1_minus_clicked(bool check)
 {
         if(joint_1 > min_1 + ((max_1 - min_1)/100))
         joint_1 = joint_1 - (max_1 - min_1)/100;
+        qnode.jointPublisher(MainWindow::joint_1, MainWindow::joint_2,MainWindow::joint_3,MainWindow::joint_4,MainWindow::joint_5);
 }
 
 void MainWindow::on_q2_plus_clicked(bool check)
 {
         if(joint_2 < max_2 - ((max_2 - min_2)/100))
         joint_2 = joint_2 + (max_2 - min_2)/100;
+        qnode.jointPublisher(MainWindow::joint_1, MainWindow::joint_2,MainWindow::joint_3,MainWindow::joint_4,MainWindow::joint_5);
 }
 
 void MainWindow::on_q2_minus_clicked(bool check)
 {
         if(joint_2 > min_2 + ((max_2 - min_2)/100))
         joint_2 = joint_2 - (max_2 - min_2)/100;
+        qnode.jointPublisher(MainWindow::joint_1, MainWindow::joint_2,MainWindow::joint_3,MainWindow::joint_4,MainWindow::joint_5);
 }
 
 void MainWindow::on_q3_plus_clicked(bool check)
 {
         if(joint_3 < max_3 - ((max_3 - min_3)/100))
         joint_3 = joint_3 + (max_3 - min_3)/100;
+        qnode.jointPublisher(MainWindow::joint_1, MainWindow::joint_2,MainWindow::joint_3,MainWindow::joint_4,MainWindow::joint_5);
 }
 
 void MainWindow::on_q3_minus_clicked(bool check)
 {
         if(joint_3 > min_3 + ((max_3 - min_3)/100))
         joint_3 = joint_3 - (max_3 - min_3)/100;
+        qnode.jointPublisher(MainWindow::joint_1, MainWindow::joint_2,MainWindow::joint_3,MainWindow::joint_4,MainWindow::joint_5);
 }
 
 void MainWindow::on_q4_plus_clicked(bool check)
 {
         if(joint_4 < max_4 - ((max_4 - min_4)/100))
         joint_4 = joint_4 + (max_4 - min_4)/100;
+        qnode.jointPublisher(MainWindow::joint_1, MainWindow::joint_2,MainWindow::joint_3,MainWindow::joint_4,MainWindow::joint_5);
 }
 
 void MainWindow::on_q4_minus_clicked(bool check)
 {
         if(joint_4 > min_4 + ((max_4 - min_4)/100))
         joint_4 = joint_4 - (max_4 - min_4)/100;
+        qnode.jointPublisher(MainWindow::joint_1, MainWindow::joint_2,MainWindow::joint_3,MainWindow::joint_4,MainWindow::joint_5);
 }
 
 void MainWindow::on_q5_plus_clicked(bool check)
 {
         if(joint_5 < max_5 - ((max_5 - min_5)/100))
         joint_5 = joint_5 + (max_5 - min_5)/100;
+        qnode.jointPublisher(MainWindow::joint_1, MainWindow::joint_2,MainWindow::joint_3,MainWindow::joint_4,MainWindow::joint_5);
 }
 
 void MainWindow::on_q5_minus_clicked(bool check)
 {
         if(joint_5 > min_5 + ((max_5 - min_5)/100))
         joint_5 = joint_5 - (max_5 - min_5)/100;
+        qnode.jointPublisher(MainWindow::joint_1, MainWindow::joint_2,MainWindow::joint_3,MainWindow::joint_4,MainWindow::joint_5);
 }
 
 
