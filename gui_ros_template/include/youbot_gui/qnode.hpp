@@ -77,6 +77,7 @@ public:
         std::string showPoint(int i);
         void ptp(double q1, double q2,double q3,double q4,double q5);
         void loadPointsList();
+        void jointPublisher(double q1, double q2,double q3,double q4,double q5);
 
 	/*********************
 	** Logging

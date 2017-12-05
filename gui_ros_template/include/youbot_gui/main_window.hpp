@@ -47,15 +47,22 @@ public:
         static double joint_5;
 
 public Q_SLOTS:
+        void on_edit_clicked(bool check);
+        void on_execute_clicked(bool check);
+        void on_pause_clicked(bool check);
+        void on_stop_clicked(bool check);
+        void on_previous_clicked(bool check);
+        void on_next_clicked(bool check);
+        void on_home_clicked(bool check);
+
         void on_run_driver_clicked(bool check);
         void on_connect_master_clicked(bool check);
-        void on_fold_clicked(bool check);
 
         void on_save_clicked(bool check);
         void on_edit_list_clicked(bool check);
         void on_load_list_clicked(bool check);
-        void on_edit_clicked(bool check);
-        void on_execute_clicked(bool check);
+
+
 
         void on_x_plus_clicked(bool check);
         void on_x_minus_clicked(bool check);

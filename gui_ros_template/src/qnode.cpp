@@ -343,6 +343,7 @@ void readProgram()
         {
          for (int i=0;i<row_number;i++)
          pointNumberStringToInt(point[i]);
+         ros::Duration(5).sleep();
         }
 
    }
@@ -399,7 +400,10 @@ void QNode::addToList(std::string bufor)
     list(msg);
 }
 
+void QNode::jointPublisher(double q1, double q2,double q3,double q4,double q5)
+{
 
+}
 
 
 

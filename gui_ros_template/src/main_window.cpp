@@ -104,6 +104,42 @@ MainWindow::~MainWindow() {}
 ** Implementation [Slots]
 *****************************************************************************/
 
+void MainWindow::on_edit_clicked(bool check)
+{
+
+        system("bash -c ''cd ~/youbot ; gedit program.txt''");
+}
+
+void MainWindow::on_execute_clicked(bool check)
+{
+        qnode.executeProgram();
+}
+
+void MainWindow::on_pause_clicked(bool check)
+{
+
+}
+
+void MainWindow::on_stop_clicked(bool check)
+{
+
+}
+
+void MainWindow::on_previous_clicked(bool check)
+{
+
+}
+
+void MainWindow::on_next_clicked(bool check)
+{
+
+}
+
+void MainWindow::on_home_clicked(bool check)
+{
+
+}
+
 void MainWindow::on_run_driver_clicked(bool check)
 {
         system("gnome-terminal -x sh -c 'cd ~/youbot ; source devel/setup.bash ; roslaunch youbot_driver_ros_interface youbot_driver.launch'");
@@ -113,12 +149,6 @@ void MainWindow::on_connect_master_clicked(bool check)
 {
         qnode.init();
         qnode.readPoints();
-
-}
-
-void MainWindow::on_fold_clicked(bool check)
-{
-
 }
 
 void MainWindow::on_save_clicked(bool check) //zapisz punkt
@@ -167,15 +197,6 @@ void  MainWindow::on_load_list_clicked(bool check)
         qnode.loadPointsList();
 }
 
-void MainWindow::on_edit_clicked(bool check)
-{
-
-        system("bash -c ''cd ~/youbot ; gedit program.txt''");
-}
-void MainWindow::on_execute_clicked(bool check)
-{
-      qnode.executeProgram();
-}
 void MainWindow::on_x_plus_clicked(bool check)
 {
 
