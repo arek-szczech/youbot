@@ -66,7 +66,15 @@
 
 using namespace std;
 
+int sgn(double v)
+{
+        if (v < 0) return -1;
+        if (v >= 0) return 1;
+}
+
 int main(int argc, char **argv) {
+
+
 
 	ros::init(argc, argv, "ik_test");
 	ros::NodeHandle n;
@@ -84,9 +92,9 @@ int main(int argc, char **argv) {
 	double a3 = 135;
 	double d5 = 218;
 
-	double x; //wspolrzedna x koncowki manipulatora
-	double y; //wspolrzedna y koncowki manipulatora
-	double z; //wspolrzedna z koncowki manipulatora
+	double xk; //wspolrzedna x koncowki manipulatora
+	double yk; //wspolrzedna y koncowki manipulatora
+	double zk; //wspolrzedna z koncowki manipulatora
 	double Rz; //kat R wg RPY
 	double Ry; //kat P wg RPY
 	double Rx; //kat Y wg RPY
@@ -95,9 +103,13 @@ int main(int argc, char **argv) {
 	double RPY_3_2; //element r32 z macierzy RPY
 	double RPY_3_3; //element r33 z macierzy RPY
 
-	double xp4; //wspolrzedna x pkt4
-	double yp4; //wspolrzedna y pkt4
-	double zp4; //wspolrzedna z pkt4
+	double xp4; //wspolrzedna x pkt4 od pkt zerowego
+	double yp4; //wspolrzedna y pkt4 od pkt zerowego
+	double zp4; //wspolrzedna z pkt4 od pkt zerowego
+
+	double x4; //wspolrzedna x pkt4 od pkt1
+	double y4; //wspolrzedna y pkt4 od pkt1
+	double z4; //wspolrzedna z pkt4 od pkt1 
 
 	double l; //odleglosc od pkt2 do pk4
 
@@ -119,146 +131,251 @@ int main(int argc, char **argv) {
 	double theta_4;
 	double theta_5;
 
-//offsety od svena
-/*	double offset1 = 2.9496;
-    double offset2 = 1.1344;
-    double offset3 = -2.5481;
-    double offset4 = 1.7990;
-    double offset5 = 2.9234; */
+	double offset1 = 2.8668;
+    double offset2 = 2.59191;
+    double offset3 = -2.52113;
+    double offset4 = 1.75973;
+    double offset5 = 2.93141; 
 
-//offsety z pozycji folded_v2
-   	double offset1 = -2.9395308;
-	double offset2 = 2.7138692;
-	double offset3 = -2.562508;
-	double offset4 = 1.8093239;
-	double offset5 = -2.812781;
-
-//offsety z pozycji folded_v1
-/*	double offset1 = 0.2020612;
-	double offset2 = 0.009639505;
-	double offset3 = 2.434182;
-	double offset4 = -1.2206461;
-	double offset5 = 0.110619; */
-
-
-	//double xk;
-	//double yk;
-	//double zk;
 
 	static const int numberOfArmJoints = 5;
 	static const int numberOfGripperJoints = 2;
-	while (n.ok()) {
+	while (n.ok()) 
+	{
 		brics_actuator::JointPositions command;
 		vector <brics_actuator::JointValue> armJointPositions;
 		vector <brics_actuator::JointValue> gripperJointPositions;
 
-		armJointPositions.resize(numberOfArmJoints); //TODO:change that
+		armJointPositions.resize(numberOfArmJoints);
 		gripperJointPositions.resize(numberOfGripperJoints);
 
 		std::stringstream jointName;
 
-	cout << "Podaj pozycje x: ";
-	cin >> x;
-	cout << "Podaj pozycje y: ";
-	cin >> y;
-	cout << "Podaj pozycje z: ";
-	cin >> z;
-	cout << "Podaj rotacje wokol osi z: ";
-	cin >> Rz;
-	cout << "Podaj rotacje wokol osi y: ";
-	cin >> Ry;
-	cout << "Podaj rotacje wokol osi x: ";
-	cin >> Rx;
+		cout << "Podaj pozycje x: ";
+		cin >> xk;
+		cout << "Podaj pozycje y: ";
+		cin >> yk;
+		cout << "Podaj pozycje z: ";
+		cin >> zk;
+		cout << "Podaj rotacje wokol osi z: ";
+		cin >> Rz;
+		cout << "Podaj rotacje wokol osi y: ";
+		cin >> Ry;
+		cout << "Podaj rotacje wokol osi x: ";
+		cin >> Rx;
 
 		cout << " " << endl;
 		cout << "Liczenie kinematyki odwrotnej: " << endl;
 
-	//Obliczanie macierzy RPY
-	RPY_3_1 = cos(Rz)*sin(Ry)*cos(Rx) + sin(Rz)*sin(Rx);
-		cout << "RPY_3_1: " <<  RPY_3_1 << endl;	
-	RPY_3_2 = sin(Rz)*sin(Ry)*cos(Rx) - cos(Rz)*sin(Rx);
-		cout << "RPY_3_2: " <<  RPY_3_2 << endl;
-	RPY_3_3 = cos(Ry)*cos(Rx);
-		cout << "RPY_3_3: " <<  RPY_3_3 << endl;
+		//Obliczanie macierzy RPY
+		RPY_3_1 = cos(Rz)*sin(Ry)*cos(Rx) + sin(Rz)*sin(Rx);
+		RPY_3_2 = sin(Rz)*sin(Ry)*cos(Rx) - cos(Rz)*sin(Rx);
+		RPY_3_3 = cos(Ry)*cos(Rx);
 
-	// Odwrotna
-	theta_1 = atan2(y,x);
-		cout << "theta_1: " <<  theta_1 << endl;
+		xk = round(xk*100)/100;
+		yk = round(yk*100)/100;
+		zk = round(zk*100)/100;
 
-	beta = atan2(RPY_3_3,sqrt(RPY_3_1*RPY_3_1 + RPY_3_2*RPY_3_2));
-		cout << "beta: " <<  beta << endl;
+		// Odwrotna
+		theta_1 = atan2(yk,xk);
 
-	xp4 = x - a1*cos(theta_1) - d5*cos(theta_1)*cos(beta);
-		cout << "xp4: " <<  xp4 << endl;
-	yp4 = y - a1*sin(theta_1) - d5*sin(theta_1)*cos(beta);
-		cout << "yp4: " <<  yp4 << endl;
-	zp4 = z - d1 - d5*sin(beta);
-		cout << "zp4: " <<  zp4 << endl;
+		beta = atan2(RPY_3_3,sqrt(RPY_3_1*RPY_3_1 + RPY_3_2*RPY_3_2));
 
-	l = sqrt(xp4*xp4 + yp4*yp4 + zp4*zp4);
-		cout << "l: " <<  l << endl;
+                xp4 = round((xk - d5*cos(theta_1)*cos(beta))*100)/100;
+                yp4 = round((yk - d5*sin(theta_1)*cos(beta))*100)/100;
+                zp4 = zk - d5*sin(beta);
+                cout<<yk<<endl;
+                cout<<yp4<<endl;
+                cout<<sgn(xk)<<endl;
+                cout<<sgn(yk)<<endl;
+                cout<<sgn(xp4)<<endl;
+                cout<<sgn(yp4)<<endl;
 
-	cos_phi = (a2*a2 + a3*a3 - l*l)/(2*a2*a3);
-		cout << "cos_phi: " <<  cos_phi << endl;
-	sin_phi = sqrt(1 - cos_phi*cos_phi);
-		cout << "sin_phi: " <<  sin_phi << endl;
+                if (sgn(xp4)!=sgn(xk) || sgn(yp4)!=sgn(yk))
+		{
+			theta_1 = atan2(yp4,xp4);
+   
+   			x4 = xp4 - a1*cos(theta_1);
+   			y4 = yp4 - a1*sin(theta_1);
+   			z4 = zp4 - d1;
 
-	phi = atan2(sin_phi,cos_phi);
-		cout << "phi: " <<  phi << endl;
-	if (Rx == 0)
-		theta_3 = (-1)*(M_PI - phi);
-	else if (Rx == M_PI)
-		theta_3 = M_PI - phi;
-//
-	A = atan2(zp4,sqrt(xp4*xp4 + yp4*yp4));
-		cout << "A: " <<  A << endl;
+    		l = sqrt(x4*x4 + y4*y4 + z4*z4);
+    
+    		cos_phi = (a2*a2 + a3*a3 - l*l)/(2*a2*a3);
+    		sin_phi = sqrt(1 - cos_phi*cos_phi);
+    
+    		phi = atan2(sin_phi,cos_phi);
 
-	cos_B = (a2*a2 + l*l - a3*a3)/(2*l*a2);
-		cout << "cos_B: " <<  cos_B << endl;	
-	sin_B = sqrt(1-cos_B*cos_B);
-		cout << "sin_B: " <<  sin_B << endl;
-	B = atan2(sin_B,cos_B);
-		cout << "B: " <<  B << endl;
+    		theta_3 = (-1)*(M_PI - phi);
+    		//theta_3 = (M_PI - phi);
+    
+    		A = atan2(z4,sqrt(x4*x4 + y4*y4));
+    
+   			cos_B = (a2*a2 + l*l - a3*a3)/(2*l*a2);
+    		sin_B = sqrt(1 - cos_B*cos_B);
+ 
+    		B = atan2(sin_B,cos_B);
 
-	if (theta_3 < 0)
-    	theta_2 = (-1)*(A - B);
-	else if (theta_3 > 0)
-    	theta_2 = (-1)*(A + B);
-	else if (theta_3 == 0)
-    	theta_2 = atan2(zp4,sqrt(xp4*xp4 + yp4*yp4));
-	else if (theta_3 == (-1)*M_PI)
-    	theta_2 = atan2(zp4,sqrt(xp4*xp4 + yp4*yp4));
+    		if (theta_3 < 0)
+    		{
+   				theta_2 = (-1)*(A - B);
+   			}
+    		else if (theta_3 > 0)
+    		{
+    			theta_2 = (-1)*(A+B);
+   			}
+    		else if (theta_3 == 0 || theta_3 == M_PI)
+    		{
+    			theta_2 = (-1)*atan2(z4*z4,sqrt(x4*x4 + y4*y4));
+   			}
 
-    theta_4 = (-1)*(beta + theta_2 + theta_3);
+    		theta_4 = (-1)*(beta + theta_2 + theta_3) - M_PI;
 
-    theta_5 = 0;
+    		theta_5 = 0;
 
-    cout << "" << endl;
-	cout << "Wyliczona z IK theta_1: " << theta_1 << endl;
-	cout << "Wyliczona z IK theta_2: " << theta_2 << endl;
-	cout << "Wyliczona z IK theta_3: " << theta_3 << endl;
-	cout << "Wyliczona z IK theta_4: " << theta_4 << endl;
-	cout << "Wyliczona z IK theta_5: " << theta_5 << endl;
+    		double th1 = theta_1;
+    		double th2 = theta_2;
+    		double th3 = theta_3;
+                double th4 = theta_4-M_PI/2;
+    		double th5 = theta_5;
 
-/*	armJointPositions[0].value = theta_1;
-	armJointPositions[1].value = theta_2;
-	armJointPositions[2].value = theta_3;
-	armJointPositions[3].value = theta_4;
-	armJointPositions[4].value = theta_5; */
+    		double x = a1*cos(th1) - d5*(cos(th4)*(cos(th1)*cos(th2)*sin(th3) + cos(th1)*cos(th3)*sin(th2)) - sin(th4)*(cos(th1)*sin(th2)*sin(th3) - cos(th1)*cos(th2)*cos(th3))) + a2*cos(th1)*cos(th2) + a3*cos(th1)*cos(th2)*cos(th3) - a3*cos(th1)*sin(th2)*sin(th3);
+			double y = a1*sin(th1) - d5*(cos(th4)*(cos(th2)*sin(th1)*sin(th3) + cos(th3)*sin(th1)*sin(th2)) - sin(th4)*(sin(th1)*sin(th2)*sin(th3) - cos(th2)*cos(th3)*sin(th1))) + a2*cos(th2)*sin(th1) + a3*cos(th2)*cos(th3)*sin(th1) - a3*sin(th1)*sin(th2)*sin(th3);
+			double z = d1 - a2*sin(th2) - d5*(cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2))) - a3*cos(th2)*sin(th3) - a3*cos(th3)*sin(th2);
 
-	armJointPositions[0].value = theta_1 + offset1;
-	armJointPositions[1].value = theta_2 + offset2;
-	armJointPositions[2].value = theta_3 + offset3;
-	armJointPositions[3].value = theta_4 + offset4;
-	armJointPositions[4].value = theta_5 + offset5; 
+			//double roll = atan2(- cos(th1)*sin(th5) - cos(th5)*(cos(th4)*(sin(th1)*sin(th2)*sin(th3) - cos(th2)*cos(th3)*sin(th1)) + sin(th4)*(cos(th2)*sin(th1)*sin(th3) + cos(th3)*sin(th1)*sin(th2))), sin(th1)*sin(th5) - cos(th5)*(cos(th4)*(cos(th1)*sin(th2)*sin(th3) - cos(th1)*cos(th2)*cos(th3)) + sin(th4)*(cos(th1)*cos(th2)*sin(th3) + cos(th1)*cos(th3)*sin(th2))));
+			//double pitch = atan2(cos(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))), sqrt(sin(th5)*sin(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)))*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))) + (cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)))*(cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)))));
+			//double yaw = atan2(sin(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))), sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) - cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)));
 
-    cout << "" << endl;
-    cout << "Wysylana do robota theta_1: " << armJointPositions[0].value << endl;
-    cout << "Wysylana do robota theta_2: " << armJointPositions[1].value << endl;
-    cout << "Wysylana do robota theta_3: " << armJointPositions[2].value << endl;
-    cout << "Wysylana do robota theta_4: " << armJointPositions[3].value << endl;
-	cout << "Wysylana do robota theta_5: " << armJointPositions[4].value << endl;
-	cout << "" << endl;
+                        x = round(x*100)/100;
+                        cout<<x<<endl;
+                        y = round(y*100)/100;
+                        cout<<y<<endl;
+                        z = round(z*100)/100;
+                        cout<<z<<endl;
+                        cout<<xk<<endl;
+                        cout<<yk<<endl;
+                        cout<<zk<<endl;
+
+			if (xk == x && yk == y && zk == z)
+			{
+				cout << "" << endl;
+				cout << "Wyliczona z IK theta_1: " << theta_1 << endl;
+				cout << "Wyliczona z IK theta_2: " << theta_2 << endl;
+				cout << "Wyliczona z IK theta_3: " << theta_3 << endl;
+				cout << "Wyliczona z IK theta_4: " << theta_4 << endl;
+				cout << "Wyliczona z IK theta_5: " << theta_5 << endl;
+
+				armJointPositions[0].value = theta_1 + offset1;
+				armJointPositions[1].value = theta_2 + offset2;
+				armJointPositions[2].value = theta_3 + offset3;
+				armJointPositions[3].value = theta_4 + offset4;
+				armJointPositions[4].value = theta_5 + offset5; 
+
+    			cout << "" << endl;
+    			cout << "Wysylana do robota theta_1: " << armJointPositions[0].value << endl;
+    			cout << "Wysylana do robota theta_2: " << armJointPositions[1].value << endl;
+    			cout << "Wysylana do robota theta_3: " << armJointPositions[2].value << endl;
+    			cout << "Wysylana do robota theta_4: " << armJointPositions[3].value << endl;
+				cout << "Wysylana do robota theta_5: " << armJointPositions[4].value << endl;
+			}
+			else
+			{
+				cout << "BRAK ROZWIAZANIA!" << endl;
+			}
+		}
+                else if (sgn(xp4)==sgn(xk) || sgn(yp4)==sgn(yk))
+		{
+			theta_1 = atan2(yk,xk);
+   
+   			x4 = xp4 - a1*cos(theta_1);
+   			y4 = yp4 - a1*sin(theta_1);
+   			z4 = zp4 - d1;
+
+    		l = sqrt(x4*x4 + y4*y4 + z4*z4);
+    
+    		cos_phi = (a2*a2 + a3*a3 - l*l)/(2*a2*a3);
+    		sin_phi = sqrt(1 - cos_phi*cos_phi);
+    
+    		phi = atan2(sin_phi,cos_phi);
+
+    		theta_3 = (-1)*(M_PI - phi);
+    		//theta_3 = (M_PI - phi);
+    
+    		A = atan2(z4,sqrt(x4*x4 + y4*y4));
+    
+   			cos_B = (a2*a2 + l*l - a3*a3)/(2*l*a2);
+    		sin_B = sqrt(1 - cos_B*cos_B);
+ 
+    		B = atan2(sin_B,cos_B);
+
+    		if (theta_3 < 0)
+    		{
+   				theta_2 = (-1)*(A - B);
+   			}
+    		else if (theta_3 > 0)
+    		{
+    			theta_2 = (-1)*(A+B);
+   			}
+    		else if (theta_3 == 0 || theta_3 == M_PI)
+    		{
+    			theta_2 = (-1)*atan2(z4*z4,sqrt(x4*x4 + y4*y4));
+   			}
+
+    		theta_4 = (-1)*(beta + theta_2 + theta_3);
+
+    		theta_5 = 0;
+
+    		double th1 = theta_1;
+    		double th2 = theta_2;
+    		double th3 = theta_3;
+                double th4 = theta_4-M_PI/2;
+    		double th5 = theta_5;
+
+    		double x = a1*cos(th1) - d5*(cos(th4)*(cos(th1)*cos(th2)*sin(th3) + cos(th1)*cos(th3)*sin(th2)) - sin(th4)*(cos(th1)*sin(th2)*sin(th3) - cos(th1)*cos(th2)*cos(th3))) + a2*cos(th1)*cos(th2) + a3*cos(th1)*cos(th2)*cos(th3) - a3*cos(th1)*sin(th2)*sin(th3);
+			double y = a1*sin(th1) - d5*(cos(th4)*(cos(th2)*sin(th1)*sin(th3) + cos(th3)*sin(th1)*sin(th2)) - sin(th4)*(sin(th1)*sin(th2)*sin(th3) - cos(th2)*cos(th3)*sin(th1))) + a2*cos(th2)*sin(th1) + a3*cos(th2)*cos(th3)*sin(th1) - a3*sin(th1)*sin(th2)*sin(th3);
+			double z = d1 - a2*sin(th2) - d5*(cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2))) - a3*cos(th2)*sin(th3) - a3*cos(th3)*sin(th2);
+
+			//double roll = atan2(- cos(th1)*sin(th5) - cos(th5)*(cos(th4)*(sin(th1)*sin(th2)*sin(th3) - cos(th2)*cos(th3)*sin(th1)) + sin(th4)*(cos(th2)*sin(th1)*sin(th3) + cos(th3)*sin(th1)*sin(th2))), sin(th1)*sin(th5) - cos(th5)*(cos(th4)*(cos(th1)*sin(th2)*sin(th3) - cos(th1)*cos(th2)*cos(th3)) + sin(th4)*(cos(th1)*cos(th2)*sin(th3) + cos(th1)*cos(th3)*sin(th2))));
+			//double pitch = atan2(cos(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))), sqrt(sin(th5)*sin(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)))*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))) + (cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)))*(cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)))));
+			//double yaw = atan2(sin(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))), sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) - cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)));
+
+			x = round(x*100)/100;
+                        cout<<x<<endl;
+			y = round(y*100)/100;
+                        cout<<y<<endl;
+                        z = round(z*100)/100;
+                        cout<<z<<endl;
+                        cout<<xk<<endl;
+                        cout<<yk<<endl;
+                        cout<<zk<<endl;
+			if (xk == x && yk == y && zk == z)
+			{
+				cout << "" << endl;
+				cout << "Wyliczona z IK theta_1: " << theta_1 << endl;
+				cout << "Wyliczona z IK theta_2: " << theta_2 << endl;
+				cout << "Wyliczona z IK theta_3: " << theta_3 << endl;
+				cout << "Wyliczona z IK theta_4: " << theta_4 << endl;
+				cout << "Wyliczona z IK theta_5: " << theta_5 << endl;
+
+				armJointPositions[0].value = theta_1 + offset1;
+				armJointPositions[1].value = theta_2 + offset2;
+				armJointPositions[2].value = theta_3 + offset3;
+				armJointPositions[3].value = theta_4 + offset4;
+				armJointPositions[4].value = theta_5 + offset5; 
+
+    			cout << "" << endl;
+    			cout << "Wysylana do robota theta_1: " << armJointPositions[0].value << endl;
+    			cout << "Wysylana do robota theta_2: " << armJointPositions[1].value << endl;
+    			cout << "Wysylana do robota theta_3: " << armJointPositions[2].value << endl;
+    			cout << "Wysylana do robota theta_4: " << armJointPositions[3].value << endl;
+				cout << "Wysylana do robota theta_5: " << armJointPositions[4].value << endl;
+			}
+			else
+			{
+				cout << "BRAK ROZWIAZANIA!" << endl;
+			}
+		}
 
 		// ::io::base_unit_info <boost::units::si::angular_velocity>).name();
 		for (int i = 0; i < numberOfArmJoints; ++i) {

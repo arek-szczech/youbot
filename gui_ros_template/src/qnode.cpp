@@ -33,6 +33,7 @@
 #include <stdlib.h>
 #include <cstdlib>
 #include <vector>
+#include <unistd.h>
 #include "../include/youbot_gui/qnode.hpp"
 
 /*****************************************************************************
@@ -64,6 +65,8 @@ double QNode::list_z;
 double QNode::list_roll;
 double QNode::list_pitch;
 double QNode::list_yaw;
+
+int QNode::program_state;
 
 
 
@@ -111,19 +114,49 @@ void QNode::forwardKinematic(double q1, double q2,double q3,double q4,double q5)
 
 
 
-void QNode::ptp(double q1, double q2,double q3,double q4,double q5)
+trajectory_msgs::JointTrajectory createArmPositionCommand(std::vector<double>& newPositions)
 {
-    double q1_temp=q1;
-    double q2_temp=q2;
-    double q3_temp=q3;
-    double q4_temp=q4;
-    double q5_temp=q5;
+        int numberOfJoints = 5;
+        trajectory_msgs::JointTrajectory msg;
 
-    QNode::jointPublisher(q1_temp, q2_temp, q3_temp, q4_temp, q5_temp);
+        trajectory_msgs::JointTrajectoryPoint point;
 
-    ros::Duration(5).sleep();
+        for (int i = 0; i < 5; i++) {
+                point.positions.push_back(newPositions[i]);
+                point.velocities.push_back(5);//byly zera
+                point.accelerations.push_back(3);
+        }
+        point.time_from_start = ros::Duration(0.1);//było 0.5
+        msg.points.push_back(point);
+
+        for (int i = 0; i < 5; i++) {
+                std::stringstream jointName;
+                jointName << "arm_joint_" << (i + 1);
+                msg.joint_names.push_back(jointName.str());
+        }
+
+        msg.header.frame_id = "arm_link_0";
+        msg.header.stamp = ros::Time::now();
+
+        return msg;
 }
 
+void QNode::moveArm(double q1, double q2,double q3,double q4,double q5) {
+        trajectory_msgs::JointTrajectory msg;
+
+        std::vector<double> jointvalues(5);
+
+
+        jointvalues[0] = q1;
+        jointvalues[1] = q2;
+        jointvalues[2] = q3;
+        jointvalues[3] = q4;
+        jointvalues[4] = q5;
+        msg = createArmPositionCommand(jointvalues);
+        armPublisher.publish(msg);
+        //ros::Duration(5).sleep();
+
+}
 
 void chatterCallback(const brics_actuator::JointPositionsConstPtr& youbotArmCommand)
 {
@@ -339,15 +372,7 @@ void QNode::readProgram()
 
    }
 
-void QNode::executeProgram()
-{
-        line_nmb=0;
-        state=0;
 
-        readPoints();
-        readProgram();
-
-}
 
 std::string QNode::showPoint(int i)
 {
@@ -426,9 +451,32 @@ void QNode::jointPublisher(double q1, double q2,double q3,double q4,double q5)
     };
     command.positions = armJointPositions;
     armPositionsPublisher.publish(command);
+    QNode::moveArm( q1,  q2, q3, q4, q5);
 }
 
+void QNode::ptp(double q1, double q2,double q3,double q4,double q5)
+{
+    double q1_temp=q1;
+    double q2_temp=q2;
+    double q3_temp=q3;
+    double q4_temp=q4;
+    double q5_temp=q5;
 
+    QNode::jointPublisher(q1_temp, q2_temp, q3_temp, q4_temp, q5_temp);
+
+    //ros::Duration(5).sleep();
+    usleep(5000000);
+}
+
+void QNode::executeProgram()
+{
+        line_nmb=0;
+        state=0;
+
+        readPoints();
+        readProgram();
+
+}
 
 QNode::QNode(int argc, char** argv ) :
 	init_argc(argc),
@@ -454,7 +502,7 @@ bool QNode::init()
         armPositionsPublisher = n.advertise<brics_actuator::JointPositions > ("arm_1/arm_controller/position_command", 1);
         gripperPositionPublisher = n.advertise<brics_actuator::JointPositions > ("arm_1/gripper_controller/position_command", 1);
         armPositionsSubscriber = n.subscribe<brics_actuator::JointPositions >("arm_1/arm_controller/position_command", 1, chatterCallback);
-
+        armPublisher = n.advertise<trajectory_msgs::JointTrajectory>("arm_1/arm_controller/command", 1);
 
 
         start();
@@ -480,14 +528,14 @@ bool QNode::init(const std::string &master_url, const std::string &host_url)
 
 void QNode::run()
 {
-        ros::Rate loop_rate(1); //zmienione z 1 na 20
+        ros::Rate loop_rate(5); //zmienione z 1 na 20
 	int count = 0;
         MainWindow::joint_1 = QNode::subscriber_joint1;
         MainWindow::joint_2 = QNode::subscriber_joint2;
         MainWindow::joint_3 = QNode::subscriber_joint3;
         MainWindow::joint_4 = QNode::subscriber_joint4;
         MainWindow::joint_5 = QNode::subscriber_joint5;
-        cout<<MainWindow::joint_1<<endl;
+//        cout<<MainWindow::joint_1<<endl;
 //        static const int numberOfArmJoints = 5;
 //        static const int numberOfGripperJoints = 2;
 
@@ -523,11 +571,11 @@ void QNode::run()
 //                //cout << "Joint " << armJointPositions[i].joint_uri << " = " << armJointPositions[i].value << " " << armJointPositions[i].unit << endl;
 //            };
 
-		std_msgs::String msg;
-		std::stringstream ss;
-                double var = MainWindow::joint_1;
-                ss << "hello world " << count << var;
-		msg.data = ss.str();
+//		std_msgs::String msg;
+//		std::stringstream ss;
+//                double var = MainWindow::joint_1;
+//                ss << "hello world " << count << var;
+//		msg.data = ss.str();
                 //chatter_publisher.publish(msg);
 //                command.positions = armJointPositions;
 //                armPositionsPublisher.publish(command);

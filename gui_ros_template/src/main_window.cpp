@@ -127,12 +127,18 @@ void MainWindow::on_stop_clicked(bool check)
 
 void MainWindow::on_previous_clicked(bool check)
 {
-
+    if(QNode::program_state>0)
+    {
+        QNode::program_state--;
+    }
 }
 
 void MainWindow::on_next_clicked(bool check)
 {
-
+    if(QNode::program_state<0)
+    {
+        QNode::program_state--;
+    }
 }
 
 void MainWindow::on_home_clicked(bool check)

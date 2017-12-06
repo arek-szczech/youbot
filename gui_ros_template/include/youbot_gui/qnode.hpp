@@ -63,6 +63,8 @@ public:
         static double list_pitch;
         static double list_yaw;
 
+        static int program_state;
+
         Ui::MainWindowDesign ui;
 
 
@@ -79,6 +81,7 @@ public:
         void loadPointsList();
         void readProgram();
         void jointPublisher(double q1, double q2,double q3,double q4,double q5);
+        void moveArm(double q1, double q2,double q3,double q4,double q5);
 
 	/*********************
 	** Logging
@@ -110,6 +113,8 @@ private:
         //ros::Publisher chatter_publisher;
         ros::Publisher armPositionsPublisher;
         ros::Publisher gripperPositionPublisher;
+
+        ros::Publisher armPublisher;
 
         ros::Subscriber armPositionsSubscriber;
 
