@@ -71,6 +71,9 @@ int QNode::program_line_number;
 int QNode::point[100];
 bool QNode::back_to_home;
 
+bool QNode::execute_movement_flag=true;
+int QNode::movement_iteration=0;
+
 
 
 //*********Zmienne do funkcji executeProgram****************
@@ -222,6 +225,11 @@ void chatterCallback(const brics_actuator::JointPositionsConstPtr& youbotArmComm
             armJointPositions[i].joint_uri = jointName.str();
             armJointPositions[i].unit = boost::units::to_string(boost::units::si::radians);
         };
+//if(QNode::execute_movement_flag==false)
+//{
+//QNode::execute_movement_flag=true;
+////QNode::readProgram();
+//}
 
 }
 
@@ -367,14 +375,27 @@ void QNode::readProgram()
         }
         else
         {
-         for (int i=0;i<row_number;i++)
+//         for (int i=0;i<row_number;i++)
 
-         {
-         //pointNumberStringToInt(point[i]);
-         //ptp(P[point[i]][0],P[point[i]][1],P[point[i]][2],P[point[i]][3],P[point[i]][4]);
-         }
+//         {
+//         //pointNumberStringToInt(point[i]);
+//         ptp(P[point[i]][0],P[point[i]][1],P[point[i]][2],P[point[i]][3],P[point[i]][4]);
+//         }
+
+//            do
+//            {
+////                    QNode::ptp(P[point[QNode::movement_iteration]][0],P[point[QNode::movement_iteration]][1],
+////                            P[point[QNode::movement_iteration]][2],P[point[QNode::movement_iteration]][3],
+////                            P[point[QNode::movement_iteration]][4]);
+
+////                    QNode::movement_iteration++;
+////                    QNode::execute_movement_flag=false;
+//            }
+//            while (QNode::execute_movement_flag);
+
 
         }
+
 
    }
 

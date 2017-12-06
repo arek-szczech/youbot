@@ -67,6 +67,8 @@ public:
         static int program_line_number;
         static int point[100];
         static bool back_to_home;
+        static bool execute_movement_flag;
+        static int movement_iteration;
 
         Ui::MainWindowDesign ui;
 
@@ -86,6 +88,7 @@ public:
         void jointPublisher(double q1, double q2,double q3,double q4,double q5);
         void moveArm(double q1, double q2,double q3,double q4,double q5);
         void executePTP(int i);
+       // void chatterCallback(const brics_actuator::JointPositionsConstPtr& youbotArmCommand);
 
 	/*********************
 	** Logging
