@@ -127,18 +127,44 @@ void MainWindow::on_stop_clicked(bool check)
 
 void MainWindow::on_previous_clicked(bool check)
 {
+    qnode.readPoints();
+    qnode.readProgram();
+
+    cout<<"Przed dek: "<<QNode::program_state<<endl;
+
     if(QNode::program_state>0)
     {
+        cout<<"Prev_prog_line_numb: "<<QNode::program_line_number<<endl;
+        if(QNode::program_state==QNode::program_line_number)
+        {
+            QNode::program_state=QNode::program_state-2;
+        }
+        else
+        {
         QNode::program_state--;
+        }
+        qnode.executePTP(QNode::program_state);
+
     }
+    cout<<"Po dek: "<<QNode::program_state<<endl;
 }
 
 void MainWindow::on_next_clicked(bool check)
 {
-    if(QNode::program_state<0)
+    qnode.readPoints();
+    qnode.readProgram();
+
+    cout<<"Przed ink: "<<QNode::program_state<<endl;
+
+    if(QNode::program_state<QNode::program_line_number)
     {
-        QNode::program_state--;
+        cout<<"Next_prog_line_numb: "<<QNode::program_line_number<<endl;
+        qnode.executePTP(QNode::program_state);
+
+            QNode::program_state++;
+
     }
+    cout<<"Po ink: "<<QNode::program_state<<endl;
 }
 
 void MainWindow::on_home_clicked(bool check)

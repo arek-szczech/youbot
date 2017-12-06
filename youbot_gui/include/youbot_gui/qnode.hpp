@@ -64,6 +64,9 @@ public:
         static double list_yaw;
 
         static int program_state;
+        static int program_line_number;
+        static int point[100];
+        static bool back_to_home;
 
         Ui::MainWindowDesign ui;
 
@@ -82,6 +85,7 @@ public:
         void readProgram();
         void jointPublisher(double q1, double q2,double q3,double q4,double q5);
         void moveArm(double q1, double q2,double q3,double q4,double q5);
+        void executePTP(int i);
 
 	/*********************
 	** Logging

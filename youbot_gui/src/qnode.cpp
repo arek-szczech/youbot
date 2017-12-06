@@ -67,6 +67,9 @@ double QNode::list_pitch;
 double QNode::list_yaw;
 
 int QNode::program_state;
+int QNode::program_line_number;
+int QNode::point[100];
+bool QNode::back_to_home;
 
 
 
@@ -315,6 +318,7 @@ void QNode::readProgram()
     string line[100];
     int row_number=0;
     fstream file;
+    state = 0;
 
     file.open( "program.txt", ios::in | ios::out | ios::app);
     if( file.good() == true )
@@ -327,6 +331,7 @@ void QNode::readProgram()
         }
         cout << "Plik ma " << row_number << " wierszy" << endl;
         file.close();
+        QNode::program_line_number=row_number;
     }
 
     else
@@ -335,7 +340,7 @@ void QNode::readProgram()
     }
     string temp_point[row_number];
     string command[row_number];
-    int point[row_number];
+    //int point[row_number];
 
         for (int i = 0; i<row_number;  i++)
     {
@@ -357,6 +362,7 @@ void QNode::readProgram()
     }
         if (state/3!=row_number)
         {
+         cout << state << endl;
          cout << "Błąd składni kodu" << endl; // wyprowadzić log i przerwać funkcje
         }
         else
@@ -365,7 +371,7 @@ void QNode::readProgram()
 
          {
          //pointNumberStringToInt(point[i]);
-         ptp(P[point[i]][0],P[point[i]][1],P[point[i]][2],P[point[i]][3],P[point[i]][4]);
+         //ptp(P[point[i]][0],P[point[i]][1],P[point[i]][2],P[point[i]][3],P[point[i]][4]);
          }
 
         }
@@ -465,7 +471,20 @@ void QNode::ptp(double q1, double q2,double q3,double q4,double q5)
     QNode::jointPublisher(q1_temp, q2_temp, q3_temp, q4_temp, q5_temp);
 
     //ros::Duration(5).sleep();
-    usleep(5000000);
+   // usleep(5000000);
+}
+
+void QNode::executePTP(int i)
+{
+         ptp(P[point[i]][0],P[point[i]][1],P[point[i]][2],P[point[i]][3],P[point[i]][4]);
+         cout<<"Numer pkt: "<<i<<endl;
+
+         std_msgs::String msg;
+         std::stringstream ss;
+         ss << point[i];
+         msg.data = ss.str();
+
+         log(Info,std::string("Wykonano ruch PTP P")+msg.data);
 }
 
 void QNode::executeProgram()
@@ -571,15 +590,15 @@ void QNode::run()
 //                //cout << "Joint " << armJointPositions[i].joint_uri << " = " << armJointPositions[i].value << " " << armJointPositions[i].unit << endl;
 //            };
 
-//		std_msgs::String msg;
-//		std::stringstream ss;
+//                std_msgs::String msg;
+//                std::stringstream ss;
 //                double var = MainWindow::joint_1;
 //                ss << "hello world " << count << var;
-//		msg.data = ss.str();
-                //chatter_publisher.publish(msg);
-//                command.positions = armJointPositions;
-//                armPositionsPublisher.publish(command);
-                //log(Info,std::string("I sent: ")+msg.data);
+//                msg.data = ss.str();
+//                //chatter_publisher.publish(msg);
+////                command.positions = armJointPositions;
+////                armPositionsPublisher.publish(command);
+//                log(Info,std::string("I sent: ")+msg.data);
                 //MainWindow::refresh_value(true);
 
                 //QNode::jointPublisher(MainWindow::joint_1, MainWindow::joint_2,MainWindow::joint_3,MainWindow::joint_4,MainWindow::joint_5);
@@ -614,12 +633,12 @@ void QNode::log( const LogLevel &level, const std::string &msg) {
 		}
 		case(Info) : {
 				ROS_INFO_STREAM(msg);
-				logging_model_msg << "[INFO] [" << ros::Time::now() << "]: " << msg;
+                                logging_model_msg << "[INFO]: " << msg;
 				break;
 		}
 		case(Warn) : {
 				ROS_WARN_STREAM(msg);
-				logging_model_msg << "[INFO] [" << ros::Time::now() << "]: " << msg;
+                                logging_model_msg << "[INFO] [" << ros::Time::now() << "]: " << msg;
 				break;
 		}
 		case(Error) : {
