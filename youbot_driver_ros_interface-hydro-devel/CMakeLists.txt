@@ -39,7 +39,7 @@ install(DIRECTORY launch/
 ## run sudo command to enable direct network access
 ## disabled here by default because it is set by Debian postinst command
 
-OPTION(USE_SETCAP "Set permissions to access ethernet interface without sudo" OFF)
+OPTION(USE_SETCAP "Set permissions to access ethernet interface without sudo" ON)
 
 SET(SUDO_COMMAND gksudo)
 IF($ENV{USE_NORMAL_SUDO})
@@ -75,10 +75,6 @@ add_executable(ik_test
 )
 target_link_libraries(ik_test ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${youbot_driver_LIBRARIES})
 
-add_executable(fk_test_1 
-    src/examples/fk_test_1.cpp 
-)
-target_link_libraries(fk_test_1 ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${youbot_driver_LIBRARIES})
 
 add_executable(arm_keyboard_control 
     src/examples/arm_keyboard_control.cpp 

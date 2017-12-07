@@ -55,6 +55,11 @@ public:
         static double subscriber_joint4;
         static double subscriber_joint5;
 
+        static double ik_th1;
+        static double ik_th2;
+        static double ik_th3;
+        static double ik_th4;
+        static double ik_th5;
 
         static double list_x;
         static double list_y;
@@ -62,6 +67,13 @@ public:
         static double list_roll;
         static double list_pitch;
         static double list_yaw;
+
+        static double x_temp;
+        static double y_temp;
+        static double z_temp;
+        static double roll_temp;
+        static double pitch_temp;
+        static double yaw_temp;
 
         static int program_state;
         static int program_line_number;
@@ -88,6 +100,8 @@ public:
         void jointPublisher(double q1, double q2,double q3,double q4,double q5);
         void moveArm(double q1, double q2,double q3,double q4,double q5);
         void executePTP(int i);
+        void inverseKinematics(double xk, double yk, double zk, double Rz, double Ry, double Rx);
+        int sgn(double v);
        // void chatterCallback(const brics_actuator::JointPositionsConstPtr& youbotArmCommand);
 
 	/*********************
