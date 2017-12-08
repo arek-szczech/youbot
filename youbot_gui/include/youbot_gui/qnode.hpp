@@ -81,6 +81,8 @@ public:
         static bool back_to_home;
         static bool execute_movement_flag;
         static int movement_iteration;
+        //static double P[100][5];
+        static double home[5];
 
         Ui::MainWindowDesign ui;
 
@@ -102,7 +104,10 @@ public:
         void executePTP(int i);
         void inverseKinematics(double xk, double yk, double zk, double Rz, double Ry, double Rx);
         int sgn(double v);
-       // void chatterCallback(const brics_actuator::JointPositionsConstPtr& youbotArmCommand);
+        void moveHome();
+        void jointSimulator(int i);
+        bool isAchievePosition(int movement_iteration_temp);
+        //void jointsCallback(const sensor_msgs::JointStateConstPtr& youbotArmState);
 
 	/*********************
 	** Logging
@@ -136,11 +141,15 @@ private:
         ros::Publisher gripperPositionPublisher;
 
         ros::Publisher armPublisher;
+        ros::Publisher jointsPublisher;
 
         ros::Subscriber armPositionsSubscriber;
+        ros::Subscriber jointsSubscriber;
 
     	QStringListModel logging_model;
         QStringListModel list_model;
+
+        ros::Time currentTime;
 
         //MainWindow obiekt;
 };

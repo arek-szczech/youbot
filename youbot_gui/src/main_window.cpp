@@ -37,29 +37,29 @@ using namespace std;
 ** Implementation [MainWindow]
 *****************************************************************************/
 
-double min_1 = 0.0100692;
-double max_1 = 5.84014;
+double MainWindow::min_1 = 0.0100692;
+double MainWindow::max_1 = 5.84014;
 //double MainWindow::joint_1 = 0.0100692;
 //static double joint_1 = 0.0100692;
 double MainWindow::joint_1 = QNode::subscriber_joint1;
 
-double min_2 = 0.0100692;
-double max_2 = 2.61799;
+double MainWindow::min_2 = 0.0100692;
+double MainWindow::max_2 = 2.61799;
 //double MainWindow::joint_2 = 0.0100692;
 double MainWindow::joint_2 = QNode::subscriber_joint2;
 
-double min_3 = -5.02655;
-double max_3 = -0.015708;
+double MainWindow::min_3 = -5.02655;
+double MainWindow::max_3 = -0.015708;
 //double MainWindow::joint_3 = -0.015708;
 double MainWindow::joint_3 = QNode::subscriber_joint3;
 
-double min_4 = 0.0221239;
-double max_4 = 3.4292;
+double MainWindow::min_4 = 0.0221239;
+double MainWindow::max_4 = 3.4292;
 //double MainWindow::joint_4 = 0.0221239;
 double MainWindow::joint_4 = QNode::subscriber_joint4;
 
-double min_5 = 0.110619;
-double max_5 = 5.64159;
+double MainWindow::min_5 = 0.110619;
+double MainWindow::max_5 = 5.64159;
 //double MainWindow::joint_5 = 0.110619;
 double MainWindow::joint_5 = QNode::subscriber_joint5;
 
@@ -71,6 +71,7 @@ double min_7 = 0;
 double max_7 = 0.011;
 static double gripper_2 = 0;
 
+int MainWindow::zmienna=0;
 
 MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
 	: QMainWindow(parent)
@@ -169,7 +170,7 @@ void MainWindow::on_next_clicked(bool check)
 
 void MainWindow::on_home_clicked(bool check)
 {
-
+     qnode.moveHome();
 }
 
 void MainWindow::on_run_driver_clicked(bool check)
@@ -275,6 +276,54 @@ void MainWindow::on_z_minus_clicked(bool check)
     qnode.inverseKinematics(QNode::x, QNode::y, QNode::z_temp, QNode::roll, QNode::pitch, QNode::yaw);
 }
 
+void MainWindow::on_roll_plus_clicked(bool check)
+{
+    QNode::roll_temp=QNode::roll;
+    QNode::roll_temp=QNode::roll_temp+0.1;
+    cout<<QNode::z_temp<<endl;
+    qnode.inverseKinematics(QNode::x, QNode::y, QNode::z, QNode::roll_temp, QNode::pitch, QNode::yaw);
+}
+void MainWindow::on_roll_minus_clicked(bool check)
+{
+    QNode::roll_temp=QNode::roll;
+    QNode::roll_temp=QNode::roll_temp-0.1;
+    cout<<QNode::z_temp<<endl;
+    qnode.inverseKinematics(QNode::x, QNode::y, QNode::z, QNode::roll_temp, QNode::pitch, QNode::yaw);
+}
+void MainWindow::on_pitch_plus_clicked(bool check)
+{
+    QNode::pitch_temp=QNode::pitch;
+    QNode::pitch_temp=QNode::pitch_temp+0.1;
+    cout<<QNode::z_temp<<endl;
+    qnode.inverseKinematics(QNode::x, QNode::y, QNode::z, QNode::roll, QNode::pitch_temp, QNode::yaw);
+}
+void MainWindow::on_pitch_minus_clicked(bool check)
+{
+    QNode::pitch_temp=QNode::pitch;
+    QNode::pitch_temp=QNode::pitch_temp-0.1;
+    cout<<QNode::z_temp<<endl;
+    qnode.inverseKinematics(QNode::x, QNode::y, QNode::z, QNode::roll, QNode::pitch_temp, QNode::yaw);
+}
+void MainWindow::on_yaw_plus_clicked(bool check)
+{
+    zmienna++;
+    cout<<"zmienna: "<<zmienna<<endl;
+     qnode.jointSimulator(MainWindow::zmienna);
+//    QNode::yaw_temp=QNode::yaw;
+//    QNode::yaw_temp=QNode::yaw_temp+0.1;
+//    cout<<QNode::z_temp<<endl;
+//    qnode.inverseKinematics(QNode::x, QNode::y, QNode::z, QNode::roll, QNode::pitch, QNode::yaw_temp);
+}
+void MainWindow::on_yaw_minus_clicked(bool check)
+{
+    zmienna--;
+    cout<<"zmienna: "<<zmienna<<endl;
+//    QNode::yaw_temp=QNode::yaw;
+//    QNode::yaw_temp=QNode::yaw_temp-0.1;
+//    cout<<QNode::z_temp<<endl;
+//    qnode.inverseKinematics(QNode::x, QNode::y, QNode::z, QNode::roll, QNode::pitch, QNode::yaw_temp);
+    qnode.jointSimulator(MainWindow::zmienna);
+}
 void MainWindow::on_q1_plus_clicked(bool check)
 {
         if(joint_1 < max_1 - ((max_1 - min_1)/100))

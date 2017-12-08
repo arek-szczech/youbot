@@ -46,6 +46,20 @@ public:
         static double joint_4;
         static double joint_5;
 
+        static double min_1;
+        static double min_2;
+        static double min_3;
+        static double min_4;
+        static double min_5;
+
+        static double max_1;
+        static double max_2;
+        static double max_3;
+        static double max_4;
+        static double max_5;
+
+        static int zmienna;
+
 public Q_SLOTS:
         void on_edit_clicked(bool check);
         void on_execute_clicked(bool check);
@@ -70,6 +84,13 @@ public Q_SLOTS:
         void on_y_minus_clicked(bool check);
         void on_z_plus_clicked(bool check);
         void on_z_minus_clicked(bool check);
+
+        void on_roll_plus_clicked(bool check);
+        void on_roll_minus_clicked(bool check);
+        void on_pitch_plus_clicked(bool check);
+        void on_pitch_minus_clicked(bool check);
+        void on_yaw_plus_clicked(bool check);
+        void on_yaw_minus_clicked(bool check);
 
         void on_q1_plus_clicked(bool check);
         void on_q1_minus_clicked(bool check);
