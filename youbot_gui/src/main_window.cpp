@@ -20,6 +20,7 @@
 #include <string>
 #include <QProcess>
 #include <QLCDNumber>
+#include <std_msgs/String.h>
 /*****************************************************************************
 ** Namespaces
 *****************************************************************************/
@@ -113,59 +114,72 @@ void MainWindow::on_edit_clicked(bool check)
 
 void MainWindow::on_execute_clicked(bool check)
 {
-        qnode.executeProgram();
+    qnode.log(qnode.Info,std::string("[Tryb automatyczny] Wykonywanie programu w trybie automatycznym"));
+    QNode::play_program=true;
+    qnode.executeProgram();
 }
 
 void MainWindow::on_pause_clicked(bool check)
 {
-
+    qnode.log(qnode.Info,std::string("[Tryb automatyczny] Wykonywanie programu wstrzymane"));
+    QNode::play_program=false;
+    QNode::execute_movement_flag=true;
 }
 
 void MainWindow::on_stop_clicked(bool check)
 {
-
+    qnode.log(qnode.Info,std::string("[Tryb automatyczny] Wykonywanie programu zatrzymane"));
+    QNode::play_program=false;
+    QNode::movement_iteration=0;
+    QNode::execute_movement_flag=true;
 }
 
 void MainWindow::on_previous_clicked(bool check)
 {
+    if(QNode::play_program==false)
+    {
     qnode.readPoints();
     qnode.readProgram();
 
-    cout<<"Przed dek: "<<QNode::program_state<<endl;
+    cout<<"Przed dek: "<<QNode::movement_iteration<<endl;
 
-    if(QNode::program_state>0)
+    if(QNode::movement_iteration>0)
     {
         cout<<"Prev_prog_line_numb: "<<QNode::program_line_number<<endl;
-        if(QNode::program_state==QNode::program_line_number)
+        if(QNode::movement_iteration==QNode::program_line_number)
         {
-            QNode::program_state=QNode::program_state-2;
+            QNode::movement_iteration=QNode::movement_iteration-2;
         }
         else
         {
-        QNode::program_state--;
+        QNode::movement_iteration--;
         }
-        qnode.executePTP(QNode::program_state);
+        qnode.executePTP(QNode::movement_iteration);
 
     }
-    cout<<"Po dek: "<<QNode::program_state<<endl;
+    cout<<"Po dek: "<<QNode::movement_iteration<<endl;
+    }
 }
 
 void MainWindow::on_next_clicked(bool check)
 {
+    if(QNode::play_program==false)
+    {
     qnode.readPoints();
     qnode.readProgram();
 
-    cout<<"Przed ink: "<<QNode::program_state<<endl;
+    cout<<"Przed ink: "<<QNode::movement_iteration<<endl;
 
-    if(QNode::program_state<QNode::program_line_number)
+    if(QNode::movement_iteration<QNode::program_line_number)
     {
         cout<<"Next_prog_line_numb: "<<QNode::program_line_number<<endl;
-        qnode.executePTP(QNode::program_state);
+        qnode.executePTP(QNode::movement_iteration);
 
-            QNode::program_state++;
+            QNode::movement_iteration++;
 
     }
-    cout<<"Po ink: "<<QNode::program_state<<endl;
+    cout<<"Po ink: "<<QNode::movement_iteration<<endl;
+    }
 }
 
 void MainWindow::on_home_clicked(bool check)
@@ -175,7 +189,8 @@ void MainWindow::on_home_clicked(bool check)
 
 void MainWindow::on_run_driver_clicked(bool check)
 {
-        system("gnome-terminal -x sh -c 'cd ~/youbot ; source devel/setup.bash ; roslaunch youbot_driver_ros_interface youbot_driver.launch'");
+    qnode.log(qnode.Info,std::string("Uruchamianie sterownika..."));
+    system("gnome-terminal -x sh -c 'cd ~/youbot ; source devel/setup.bash ; roslaunch youbot_driver_ros_interface youbot_driver.launch'");
 }
 
 void MainWindow::on_connect_master_clicked(bool check)
@@ -216,6 +231,11 @@ void MainWindow::on_save_clicked(bool check) //zapisz punkt
 
             else cout << "Dostep do pliku zostal zabroniony!" << endl;
       // cout<< QNode::x;
+            std_msgs::String msg;
+            std::stringstream ss;
+            ss << point_number+1;
+            msg.data = ss.str();
+            qnode.log(qnode.Info,std::string("Zapisano punkt P")+msg.data);
 }
 
 
@@ -226,8 +246,9 @@ void MainWindow::on_edit_list_clicked(bool check)
 }
 void  MainWindow::on_load_list_clicked(bool check)
 {
-        qnode.readPoints();
-        qnode.loadPointsList();
+    qnode.log(qnode.Info,std::string("Wczytano listę punktów"));
+    qnode.readPoints();
+    qnode.loadPointsList();
 }
 
 void MainWindow::on_x_plus_clicked(bool check)

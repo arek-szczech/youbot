@@ -73,7 +73,7 @@
           <item>
            <widget class="QPushButton" name="pause">
             <property name="text">
-             <string>Zatrzymaj program</string>
+             <string>Wstrzymaj program</string>
             </property>
            </widget>
           </item>

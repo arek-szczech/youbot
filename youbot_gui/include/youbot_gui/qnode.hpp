@@ -18,6 +18,7 @@
 
 
 #include <ros/ros.h>
+//#include "diagnostic_msgs/DiagnosticArray.h"
 #include <string>
 #include <QThread>
 #include <QStringListModel>
@@ -83,6 +84,11 @@ public:
         static int movement_iteration;
         //static double P[100][5];
         static double home[5];
+        static bool play_program;
+        static bool ethercat_connection;
+        static bool ethercat_connection_temp;
+        static bool ethercat_connection_temp2;
+
 
         Ui::MainWindowDesign ui;
 
@@ -146,6 +152,7 @@ private:
         ros::Subscriber armPositionsSubscriber;
         ros::Subscriber jointsSubscriber;
         ros::Subscriber diagnosticsSubscriber;
+
 
     	QStringListModel logging_model;
         QStringListModel list_model;

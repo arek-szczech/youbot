@@ -88,7 +88,10 @@ bool QNode::back_to_home;
 
 bool QNode::execute_movement_flag=true;
 int QNode::movement_iteration=0;
-
+bool QNode::play_program=false;
+bool QNode::ethercat_connection=false;
+bool QNode::ethercat_connection_temp=false;
+bool QNode::ethercat_connection_temp2=false;
 
 
 //*********Zmienne do funkcji executeProgram****************
@@ -522,10 +525,10 @@ bool QNode::isAchievePosition(int movement_iteration_temp)
                 }
            else
            {
-               cout<<"P[point[movement_iteration_temp]][0]: "<<P[point[movement_iteration_temp]][0]<<endl;
-               cout<<"subscriber_joint1: "<<subscriber_joint1<<endl;
-               cout<<"roznica: "<<P[point[movement_iteration_temp]][0]-subscriber_joint1<<endl;
-               cout<<"F_Abs: "<<abs(P[point[movement_iteration_temp]][0]-subscriber_joint1)<<endl;
+               //cout<<"P[point[movement_iteration_temp]][0]: "<<P[point[movement_iteration_temp]][0]<<endl;
+               //cout<<"subscriber_joint1: "<<subscriber_joint1<<endl;
+               //cout<<"roznica: "<<P[point[movement_iteration_temp]][0]-subscriber_joint1<<endl;
+               //cout<<"F_Abs: "<<abs(P[point[movement_iteration_temp]][0]-subscriber_joint1)<<endl;
                std_msgs::String msg;
                std::stringstream ss;
                ss << "F_Abs: "<<abs(P[point[movement_iteration_temp]][0]-subscriber_joint1);
@@ -697,7 +700,27 @@ void chatterCallback(const brics_actuator::JointPositionsConstPtr& youbotArmComm
 
 void diagnosticsCallback(const diagnostic_msgs::DiagnosticArrayConstPtr& youbotArmDiagnostic)
 {
+    //DiagnosticStatus[]
+    cout<<youbotArmDiagnostic->status[0]; //kompiluje
+    cout<<youbotArmDiagnostic->status[0].message;//jw.
 
+    if(youbotArmDiagnostic->status[0].message=="EtherCAT connnection is established")
+    {
+        if(QNode::ethercat_connection==false)
+        {
+        QNode::ethercat_connection_temp=true;
+        }
+        QNode::ethercat_connection=true;
+    }
+
+    if(youbotArmDiagnostic->status[0].message=="EtherCAT connnection lost")
+    {
+        if(QNode::ethercat_connection==true)
+        {
+        QNode::ethercat_connection_temp2=true;
+        }
+        QNode::ethercat_connection=false;
+    }
 }
 
 void convertTo2dArray()
@@ -849,15 +872,26 @@ void QNode::readProgram()
 //         ptp(P[point[i]][0],P[point[i]][1],P[point[i]][2],P[point[i]][3],P[point[i]][4]);
 //         }
 
-            if(movement_iteration!=row_number)
+            if((movement_iteration==row_number)&&(play_program==true))
+            {
+                play_program=false;
+                movement_iteration=0;
+            }
+
+            if((movement_iteration!=row_number)&&(play_program==true))
             {
             do
             {
+                    std_msgs::String msg;
+                    std::stringstream ss;
+                    ss << point[QNode::movement_iteration];
+                    msg.data = ss.str();
+                    log(Info,std::string("[Tryb automatyczny] Wykonano ruch PTP P")+msg.data);
 
                     QNode::ptp(P[point[QNode::movement_iteration]][0],P[point[QNode::movement_iteration]][1],
                             P[point[QNode::movement_iteration]][2],P[point[QNode::movement_iteration]][3],
                             P[point[QNode::movement_iteration]][4]);
-                    cout<<"Ważny test: "<<point[QNode::movement_iteration]<<endl;
+                    //cout<<"Ważny test: "<<point[QNode::movement_iteration]<<endl;
 
                     QNode::execute_movement_flag=false;
             }
@@ -872,23 +906,20 @@ void QNode::readProgram()
 
 std::string QNode::showPoint(int i)
 {
-
-
-        forwardKinematic(q1[i],q2[i],q3[i],q4[i],q5[i]);
-
+    forwardKinematic(q1[i],q2[i],q3[i],q4[i],q5[i]);
     std::stringstream msg;
-    msg<< "P" << i+1 << ":  x: " << list_x << " y: " << list_y << " z: " << list_z
-       <<  " roll: " << list_roll << " pitch: " << list_pitch << " yaw: " << list_yaw <<endl;
+    msg<< "P" << i+1 << ": x: " << list_x << "\ty: " << list_y << "\tz: " << list_z
+       <<  "\troll: " << list_roll << "\tpitch: " << list_pitch << "\tyaw: " << list_yaw;
     cout << msg.str()<<endl;
     addToList(msg.str());
     return msg.str();
-
 }
 
 void QNode::loadPointsList()
 {
+    list_model.removeRows(0,list_model.rowCount());
     string msg="";
-    for (int i=0; i<line_nmb; i++)
+    for (int i=-1; i<line_nmb; i++)
     {
         msg=showPoint(i);
 
@@ -897,6 +928,7 @@ void QNode::loadPointsList()
 
 void QNode::list(const std::string &msg)
 {
+    list_model.setData(list_model.index(0),"    [mm]\t[mm]\t[mm]\t[rad]\t[rad]\t[rad]");
     list_model.insertRows(list_model.rowCount(),1);
     std::stringstream list_model_msg;
     list_model_msg << msg;
@@ -980,7 +1012,7 @@ void QNode::executePTP(int i)
          ss << point[i];
          msg.data = ss.str();
 
-         log(Info,std::string("Wykonano ruch PTP P")+msg.data);
+         log(Info,std::string("[Tryb ręczny] Wykonano ruch PTP P")+msg.data);
 }
 
 void QNode::executeProgram()
@@ -1161,6 +1193,8 @@ bool QNode::init()
         home[3]=P[0][3];
         home[4]=P[0][4];
 
+        QNode::log(Info,std::string("Połączono ze sterownikiem robota"));
+
         start();
 	return true;
 }
@@ -1184,61 +1218,15 @@ bool QNode::init(const std::string &master_url, const std::string &host_url)
 
 void QNode::run()
 {
-        ros::Rate loop_rate(2); //zmienione z 1 na 20
+        ros::Rate loop_rate(1); //zmienione z 1 na 20
 	int count = 0;
         MainWindow::joint_1 = QNode::subscriber_joint1;
         MainWindow::joint_2 = QNode::subscriber_joint2;
         MainWindow::joint_3 = QNode::subscriber_joint3;
         MainWindow::joint_4 = QNode::subscriber_joint4;
         MainWindow::joint_5 = QNode::subscriber_joint5;
-//        cout<<MainWindow::joint_1<<endl;
-//        static const int numberOfArmJoints = 5;
-//        static const int numberOfGripperJoints = 2;
 
 	while ( ros::ok() ) {
-
-//            brics_actuator::JointPositions command;
-//            vector <brics_actuator::JointValue> armJointPositions;
-//            vector <brics_actuator::JointValue> gripperJointPositions;
-
-//            armJointPositions.resize(numberOfArmJoints); //TODO:change that
-//            gripperJointPositions.resize(numberOfGripperJoints);
-//            std::stringstream jointName;
-
-//            armJointPositions[0].value = MainWindow::joint_1;
-//            armJointPositions[1].value = MainWindow::joint_2;
-//            armJointPositions[2].value = MainWindow::joint_3;
-//            armJointPositions[3].value = MainWindow::joint_4;
-//            armJointPositions[4].value = MainWindow::joint_5;
-//            //gripperJointPositions[0].value = gripper_1;
-//            //gripperJointPositions[1].value = gripper_2;
-//            for (int i = 0; i < numberOfArmJoints; ++i)
-//            {
-//                //cout << "Please type in value for joint " << i + 1 << endl;
-//                //cin >> readValue;
-
-//                jointName.str("");
-//                jointName << "arm_joint_" << (i + 1);
-
-//                armJointPositions[i].joint_uri = jointName.str();
-//                //armJointPositions[i].value = readValue;
-
-//                armJointPositions[i].unit = boost::units::to_string(boost::units::si::radians);
-//                //cout << "Joint " << armJointPositions[i].joint_uri << " = " << armJointPositions[i].value << " " << armJointPositions[i].unit << endl;
-//            };
-
-//                std_msgs::String msg;
-//                std::stringstream ss;
-//                double var = MainWindow::joint_1;
-//                ss << "hello world " << count << var;
-//                msg.data = ss.str();
-//                //chatter_publisher.publish(msg);
-////                command.positions = armJointPositions;
-////                armPositionsPublisher.publish(command);
-//                log(Info,std::string("I sent: ")+msg.data);
-                //MainWindow::refresh_value(true);
-
-                //QNode::jointPublisher(MainWindow::joint_1, MainWindow::joint_2,MainWindow::joint_3,MainWindow::joint_4,MainWindow::joint_5);
 
                 this->ui.lcd_q1->display(QNode::subscriber_joint1);
                 this->ui.lcd_q2->display(QNode::subscriber_joint2);
@@ -1257,7 +1245,17 @@ void QNode::run()
                 if(QNode::execute_movement_flag = QNode::isAchievePosition(QNode::movement_iteration))
                 {QNode::readProgram();}
             }
+            if (QNode::ethercat_connection_temp==true)
+            {
+            //log(Info,std::string("Sterownik został uruchomiony"));
 
+                QNode::ethercat_connection_temp=false;
+            }
+            else if (QNode::ethercat_connection_temp2==true)
+            {
+              // log(Info,std::string("Utracono łączność EtherCAT"));
+                QNode::ethercat_connection_temp2=false;
+            }
 		ros::spinOnce();
 		loop_rate.sleep();
 		++count;
