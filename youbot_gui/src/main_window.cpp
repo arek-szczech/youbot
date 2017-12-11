@@ -37,28 +37,28 @@ using namespace std;
 ** Implementation [MainWindow]
 *****************************************************************************/
 
-double MainWindow::min_1 = 0.0100692;
+double MainWindow::min_1 = 0.0100693;
 double MainWindow::max_1 = 5.84014;
 //double MainWindow::joint_1 = 0.0100692;
 //static double joint_1 = 0.0100692;
 double MainWindow::joint_1 = QNode::subscriber_joint1;
 
-double MainWindow::min_2 = 0.0100692;
+double MainWindow::min_2 = 0.0100693;
 double MainWindow::max_2 = 2.61799;
 //double MainWindow::joint_2 = 0.0100692;
 double MainWindow::joint_2 = QNode::subscriber_joint2;
 
 double MainWindow::min_3 = -5.02655;
-double MainWindow::max_3 = -0.015708;
+double MainWindow::max_3 = -0.015709;
 //double MainWindow::joint_3 = -0.015708;
 double MainWindow::joint_3 = QNode::subscriber_joint3;
 
-double MainWindow::min_4 = 0.0221239;
+double MainWindow::min_4 = 0.0221240;
 double MainWindow::max_4 = 3.4292;
 //double MainWindow::joint_4 = 0.0221239;
 double MainWindow::joint_4 = QNode::subscriber_joint4;
 
-double MainWindow::min_5 = 0.110619;
+double MainWindow::min_5 = 0.110620;
 double MainWindow::max_5 = 5.64159;
 //double MainWindow::joint_5 = 0.110619;
 double MainWindow::joint_5 = QNode::subscriber_joint5;

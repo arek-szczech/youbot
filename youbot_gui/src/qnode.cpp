@@ -26,6 +26,7 @@
 #include <boost/units/conversion.hpp>
 #include "brics_actuator/JointPositions.h"
 #include "sensor_msgs/JointState.h"
+#include "diagnostic_msgs/DiagnosticArray.h"
 #include <boost/units/systems/si/length.hpp>
 #include <boost/units/systems/si/plane_angle.hpp>
 #include <signal.h>
@@ -694,6 +695,11 @@ void chatterCallback(const brics_actuator::JointPositionsConstPtr& youbotArmComm
 
 }
 
+void diagnosticsCallback(const diagnostic_msgs::DiagnosticArrayConstPtr& youbotArmDiagnostic)
+{
+
+}
+
 void convertTo2dArray()
 {
         for (int j=0;j<5;j++)
@@ -1087,7 +1093,9 @@ bool QNode::init()
         armPositionsSubscriber = n.subscribe<brics_actuator::JointPositions >("arm_1/arm_controller/position_command", 1, chatterCallback);
         armPublisher = n.advertise<trajectory_msgs::JointTrajectory>("arm_1/arm_controller/command", 1);
         jointsSubscriber = n.subscribe<sensor_msgs::JointState >("/joint_states", 10, jointsCallback);
+        diagnosticsSubscriber = n.subscribe<diagnostic_msgs::DiagnosticArray >("/diagnostics", 10, diagnosticsCallback);
         jointsPublisher = n.advertise<sensor_msgs::JointState>("/joint_states", 1);
+
 
 //**********************Publisher joint_state***************
 //        currentTime = ros::Time::now();

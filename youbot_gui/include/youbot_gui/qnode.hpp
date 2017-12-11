@@ -145,6 +145,7 @@ private:
 
         ros::Subscriber armPositionsSubscriber;
         ros::Subscriber jointsSubscriber;
+        ros::Subscriber diagnosticsSubscriber;
 
     	QStringListModel logging_model;
         QStringListModel list_model;
