@@ -81,6 +81,20 @@ double QNode::roll_temp;
 double QNode::pitch_temp;
 double QNode::yaw_temp;
 
+double QNode::lin_x;
+double QNode::lin_y;
+double QNode::lin_z;
+double QNode::lin_roll;
+double QNode::lin_pitch;
+double QNode::lin_yaw;
+
+double QNode::lin_x_actual;
+double QNode::lin_y_actual;
+double QNode::lin_z_actual;
+double QNode::lin_roll_actual;
+double QNode::lin_pitch_actual;
+double QNode::lin_yaw_actual;
+
 int QNode::program_state;
 int QNode::program_line_number;
 int QNode::point[100];
@@ -507,6 +521,25 @@ void QNode::moveArm(double q1, double q2,double q3,double q4,double q5) {
 
 }
 
+void QNode::moveGripper(double left, double right)
+{
+//                cout << "Please type in value for a left jaw of the gripper " << endl;
+//                cin >> readValue;
+//                gripperJointPositions[0].joint_uri = "gripper_finger_joint_l";
+//                gripperJointPositions[0].value = readValue;
+//                gripperJointPositions[0].unit = boost::units::to_string(boost::units::si::meter);
+
+//                cout << "Please type in value for a right jaw of the gripper " << endl;
+//                cin >> readValue;
+//                gripperJointPositions[1].joint_uri = "gripper_finger_joint_r";
+//                gripperJointPositions[1].value = readValue;
+//                gripperJointPositions[1].unit = boost::units::to_string(boost::units::si::meter);
+
+//                command.positions = gripperJointPositions;
+//                gripperPositionPublisher.publish(command);
+
+}
+
 bool QNode::isAchievePosition(int movement_iteration_temp)
 {
            if(
@@ -845,7 +878,7 @@ void QNode::readProgram()
         command[i] = line[i].substr (0,3);
         temp_point[i] = line[i].substr (4,1);
         point[i] = atoi((line[i].substr (5,2)).c_str());
-        if (command[i]=="PTP")
+        if ((command[i]=="PTP")||(command[i]=="LIN"))
             state++;
         else
             cout << "Nieznana komenda" << endl;
@@ -1013,6 +1046,129 @@ void QNode::executePTP(int i)
          msg.data = ss.str();
 
          log(Info,std::string("[Tryb ręczny] Wykonano ruch PTP P")+msg.data);
+}
+
+void QNode::lin(double q1, double q2,double q3,double q4,double q5)
+{
+    double q1_actual; //odczyty aktualnych katow
+    double q2_actual;
+    double q3_actual;
+    double q4_actual;
+    double q5_actual;
+
+    double th_1=q1;
+    double th_2=q2;
+    double th_3=q3;
+    double th_4=q4;
+    double th_5=q5;
+
+    double th1 = th_1 - 2.8668;
+    double th2 = th_2 - 2.5919;
+    double th3 = th_3 + 2.5211;
+    double th4 = th_4 - 3.3305;
+    double th5 = th_5 - 2.9314;
+
+    double a1 = 33;
+    double d1 = 147;
+    double a2 = 155;
+    double a3 = 135;
+    double d5 = 218;
+
+    QNode::lin_x = a1*cos(th1) - d5*(cos(th4)*(cos(th1)*cos(th2)*sin(th3) + cos(th1)*cos(th3)*sin(th2)) - sin(th4)*(cos(th1)*sin(th2)*sin(th3) - cos(th1)*cos(th2)*cos(th3))) + a2*cos(th1)*cos(th2) + a3*cos(th1)*cos(th2)*cos(th3) - a3*cos(th1)*sin(th2)*sin(th3);
+    QNode::lin_y = a1*sin(th1) - d5*(cos(th4)*(cos(th2)*sin(th1)*sin(th3) + cos(th3)*sin(th1)*sin(th2)) - sin(th4)*(sin(th1)*sin(th2)*sin(th3) - cos(th2)*cos(th3)*sin(th1))) + a2*cos(th2)*sin(th1) + a3*cos(th2)*cos(th3)*sin(th1) - a3*sin(th1)*sin(th2)*sin(th3);
+    QNode::lin_z = d1 - a2*sin(th2) - d5*(cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2))) - a3*cos(th2)*sin(th3) - a3*cos(th3)*sin(th2);
+
+    QNode::lin_roll = atan2(- cos(th1)*sin(th5) - cos(th5)*(cos(th4)*(sin(th1)*sin(th2)*sin(th3) - cos(th2)*cos(th3)*sin(th1)) + sin(th4)*(cos(th2)*sin(th1)*sin(th3) + cos(th3)*sin(th1)*sin(th2))), sin(th1)*sin(th5) - cos(th5)*(cos(th4)*(cos(th1)*sin(th2)*sin(th3) - cos(th1)*cos(th2)*cos(th3)) + sin(th4)*(cos(th1)*cos(th2)*sin(th3) + cos(th1)*cos(th3)*sin(th2))));
+    QNode::lin_pitch = atan2(cos(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))), sqrt(sin(th5)*sin(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)))*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))) + (cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)))*(cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)))));
+    QNode::lin_yaw = atan2(sin(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))), sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) - cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)));
+
+    QNode::lin_x = round(QNode::lin_x);
+    QNode::lin_y = round(QNode::lin_y);
+    QNode::lin_z = round(QNode::lin_z);
+
+    QNode::lin_roll = round(QNode::lin_roll*100)/100;
+    QNode::lin_pitch = round(QNode::lin_pitch*100)/100;
+    QNode::lin_yaw = round(QNode::lin_yaw*100)/100;
+
+    th_1=q1_actual;
+    th_2=q2_actual;
+    th_3=q3_actual;
+    th_4=q4_actual;
+    th_5=q5_actual;
+
+    th1 = th_1 - 2.8668;
+    th2 = th_2 - 2.5919;
+    th3 = th_3 + 2.5211;
+    th4 = th_4 - 3.3305;
+    th5 = th_5 - 2.9314;
+
+    QNode::lin_x_actual = a1*cos(th1) - d5*(cos(th4)*(cos(th1)*cos(th2)*sin(th3) + cos(th1)*cos(th3)*sin(th2)) - sin(th4)*(cos(th1)*sin(th2)*sin(th3) - cos(th1)*cos(th2)*cos(th3))) + a2*cos(th1)*cos(th2) + a3*cos(th1)*cos(th2)*cos(th3) - a3*cos(th1)*sin(th2)*sin(th3);
+    QNode::lin_y_actual = a1*sin(th1) - d5*(cos(th4)*(cos(th2)*sin(th1)*sin(th3) + cos(th3)*sin(th1)*sin(th2)) - sin(th4)*(sin(th1)*sin(th2)*sin(th3) - cos(th2)*cos(th3)*sin(th1))) + a2*cos(th2)*sin(th1) + a3*cos(th2)*cos(th3)*sin(th1) - a3*sin(th1)*sin(th2)*sin(th3);
+    QNode::lin_z_actual = d1 - a2*sin(th2) - d5*(cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2))) - a3*cos(th2)*sin(th3) - a3*cos(th3)*sin(th2);
+
+    QNode::lin_roll_actual = atan2(- cos(th1)*sin(th5) - cos(th5)*(cos(th4)*(sin(th1)*sin(th2)*sin(th3) - cos(th2)*cos(th3)*sin(th1)) + sin(th4)*(cos(th2)*sin(th1)*sin(th3) + cos(th3)*sin(th1)*sin(th2))), sin(th1)*sin(th5) - cos(th5)*(cos(th4)*(cos(th1)*sin(th2)*sin(th3) - cos(th1)*cos(th2)*cos(th3)) + sin(th4)*(cos(th1)*cos(th2)*sin(th3) + cos(th1)*cos(th3)*sin(th2))));
+    QNode::lin_pitch_actual = atan2(cos(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))), sqrt(sin(th5)*sin(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)))*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))) + (cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)))*(cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)))));
+    QNode::lin_yaw_actual = atan2(sin(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))), sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) - cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)));
+
+    QNode::lin_x_actual = round(QNode::lin_x_actual);
+    QNode::lin_y_actual = round(QNode::lin_y_actual);
+    QNode::lin_z_actual = round(QNode::lin_z_actual);
+
+    QNode::lin_roll_actual = round(QNode::lin_roll_actual*100)/100;
+    QNode::lin_pitch_actual = round(QNode::lin_pitch_actual*100)/100;
+    QNode::lin_yaw_actual = round(QNode::lin_yaw_actual*100)/100;
+
+    double l_x = lin_x - lin_x_actual;
+    double l_y = lin_y - lin_y_actual;
+    double l_z = lin_z - lin_z_actual;
+
+    double greatestValue;
+
+    if (abs(l_x) >= abs(l_y))
+    {
+        if(abs(l_x) >= abs(l_z))
+        {
+            greatestValue = abs(l_x);
+        }
+        else
+        {
+            greatestValue = abs(l_z);
+        }
+    }
+    else
+    {
+        if(abs(l_y) >= abs(l_z))
+        {
+            greatestValue = abs(l_y);
+        }
+        else
+        {
+            greatestValue = abs(l_z);
+        }
+    }
+
+
+    for (int i=1; i <= greatestValue; i++)
+    {
+        lin_x_actual = lin_x_actual + l_x/greatestValue;
+        lin_y_actual = lin_y_actual + l_y/greatestValue;
+        lin_z_actual = lin_z_actual + l_z/greatestValue;
+
+        inverseKinematics(lin_x_actual,lin_y_actual,lin_z_actual,lin_roll_actual,lin_pitch_actual,lin_yaw_actual);
+    }
+}
+
+void QNode::executeLIN(int i)
+{
+         lin(P[point[i]][0],P[point[i]][1],P[point[i]][2],P[point[i]][3],P[point[i]][4]);
+         cout<<"Numer pkt: "<<i<<endl;
+
+         std_msgs::String msg;
+         std::stringstream ss;
+         ss << point[i];
+         msg.data = ss.str();
+
+         log(Info,std::string("Wykonano ruch LIN P")+msg.data);
 }
 
 void QNode::executeProgram()

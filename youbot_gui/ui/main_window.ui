@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>948</width>
+    <width>1280</width>
     <height>704</height>
    </rect>
   </property>
@@ -158,7 +158,7 @@
      </layout>
     </item>
     <item>
-     <layout class="QVBoxLayout" name="prawa">
+     <layout class="QVBoxLayout" name="srodek">
       <item>
        <layout class="QVBoxLayout" name="punkty">
         <item>
@@ -678,6 +678,105 @@
       </item>
      </layout>
     </item>
+    <item>
+     <layout class="QVBoxLayout" name="prawa">
+      <item>
+       <layout class="QVBoxLayout" name="chwytak">
+        <item>
+         <widget class="QLabel" name="label_6">
+          <property name="font">
+           <font>
+            <pointsize>12</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Chwytak</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_21">
+          <item>
+           <widget class="QPushButton" name="gripper_open">
+            <property name="text">
+             <string>Otwórz</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="gripper_close">
+            <property name="text">
+             <string>Zamknij</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="ustawienia">
+        <item>
+         <widget class="QLabel" name="label_7">
+          <property name="font">
+           <font>
+            <pointsize>12</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Ustawienia</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_19">
+          <item>
+           <widget class="QRadioButton" name="elbow_up">
+            <property name="text">
+             <string>Łokieć - góra</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="elbow_down">
+            <property name="text">
+             <string>Łokieć - dół</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="inne">
+        <item>
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -685,7 +784,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>948</width>
+     <width>1280</width>
      <height>25</height>
     </rect>
    </property>

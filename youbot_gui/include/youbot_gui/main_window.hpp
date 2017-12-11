@@ -103,6 +103,8 @@ public Q_SLOTS:
         void on_q5_plus_clicked(bool check);
         void on_q5_minus_clicked(bool check);
 
+        void on_gripper_open_clicked(bool check);
+        void on_gripper_close_clicked(bool check);
 
 
 

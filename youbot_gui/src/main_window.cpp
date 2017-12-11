@@ -415,6 +415,15 @@ void MainWindow::on_q5_minus_clicked(bool check)
         qnode.jointPublisher(MainWindow::joint_1, MainWindow::joint_2,MainWindow::joint_3,MainWindow::joint_4,MainWindow::joint_5);
 }
 
+void MainWindow::on_gripper_open_clicked(bool check)
+{
+
+}
+
+void MainWindow::on_gripper_close_clicked(bool check)
+{
+
+}
 
 
 void MainWindow::updateLoggingView() {
