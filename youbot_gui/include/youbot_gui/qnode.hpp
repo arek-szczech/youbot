@@ -131,6 +131,8 @@ public:
         void moveGripper(double left, double right);
         void lin(double q1, double q2,double q3,double q4,double q5);
         void executeLIN(int i);
+        void specialInverseKinematics(double xk, double yk, double zk, double Rz, double Ry, double Rx);
+        bool checkLinearMovementPossibility(double q1, double q2,double q3,double q4,double q5);
         //void jointsCallback(const sensor_msgs::JointStateConstPtr& youbotArmState);
 
 	/*********************

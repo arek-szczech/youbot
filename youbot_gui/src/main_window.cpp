@@ -327,23 +327,27 @@ void MainWindow::on_pitch_minus_clicked(bool check)
 }
 void MainWindow::on_yaw_plus_clicked(bool check)
 {
-    zmienna++;
-    cout<<"zmienna: "<<zmienna<<endl;
-     qnode.jointSimulator(MainWindow::zmienna);
+//    zmienna++;
+//    cout<<"zmienna: "<<zmienna<<endl;
+//     qnode.jointSimulator(MainWindow::zmienna);
+
 //    QNode::yaw_temp=QNode::yaw;
 //    QNode::yaw_temp=QNode::yaw_temp+0.1;
 //    cout<<QNode::z_temp<<endl;
 //    qnode.inverseKinematics(QNode::x, QNode::y, QNode::z, QNode::roll, QNode::pitch, QNode::yaw_temp);
+    qnode.executeLIN(1);
 }
 void MainWindow::on_yaw_minus_clicked(bool check)
 {
-    zmienna--;
-    cout<<"zmienna: "<<zmienna<<endl;
+//    zmienna--;
+//    cout<<"zmienna: "<<zmienna<<endl;
+//    qnode.jointSimulator(MainWindow::zmienna);
+
 //    QNode::yaw_temp=QNode::yaw;
 //    QNode::yaw_temp=QNode::yaw_temp-0.1;
 //    cout<<QNode::z_temp<<endl;
 //    qnode.inverseKinematics(QNode::x, QNode::y, QNode::z, QNode::roll, QNode::pitch, QNode::yaw_temp);
-    qnode.jointSimulator(MainWindow::zmienna);
+
 }
 void MainWindow::on_q1_plus_clicked(bool check)
 {
