@@ -275,29 +275,29 @@ void QNode::inverseKinematics(double xk, double yk, double zk, double Rz, double
 
         else
         {
-            cout << "Wpisana wspolrzedna X: " << xk << endl;
-            cout << "Obliczona wspolrzedna X: " << x << endl;
-            cout << "Wpisana wspolrzedna Y: " << yk << endl;
-            cout << "Obliczona wspolrzedna Y: " << y << endl;
-            cout << "Wpisana wspolrzedna Z: " << zk << endl;
-            cout << "Obliczona wspolrzedna Z: " << z << endl;
+//            cout << "Wpisana wspolrzedna X: " << xk << endl;
+//            cout << "Obliczona wspolrzedna X: " << x << endl;
+//            cout << "Wpisana wspolrzedna Y: " << yk << endl;
+//            cout << "Obliczona wspolrzedna Y: " << y << endl;
+//            cout << "Wpisana wspolrzedna Z: " << zk << endl;
+//            cout << "Obliczona wspolrzedna Z: " << z << endl;
 
             if (xk == x && yk == y && zk == z)
             {
                 QNode::jointPublisher(ik_th1, ik_th2, ik_th3, ik_th4, ik_th5);
-                cout << "Wyliczona z IK theta_1: " << theta_1 << endl;
-                cout << "Wyliczona z IK theta_2: " << theta_2 << endl;
-                cout << "Wyliczona z IK theta_3: " << theta_3 << endl;
-                cout << "Wyliczona z IK theta_4: " << theta_4 << endl;
-                cout << "Wyliczona z IK theta_5: " << theta_5 << endl;
-                cout << "" << endl;
+//                cout << "Wyliczona z IK theta_1: " << theta_1 << endl;
+//                cout << "Wyliczona z IK theta_2: " << theta_2 << endl;
+//                cout << "Wyliczona z IK theta_3: " << theta_3 << endl;
+//                cout << "Wyliczona z IK theta_4: " << theta_4 << endl;
+//                cout << "Wyliczona z IK theta_5: " << theta_5 << endl;
+//                cout << "" << endl;
 
-                cout << "Wysylana do robota theta_1: " << theta_1 + offset1 << endl;
-                cout << "Wysylana do robota theta_2: " << theta_2 + offset2 << endl;
-                cout << "Wysylana do robota theta_3: " << theta_3 + offset3 << endl;
-                cout << "Wysylana do robota theta_4: " << theta_4 + offset4 << endl;
-                cout << "Wysylana do robota theta_5: " << theta_5 + offset5 << endl;
-                cout << "" << endl;
+//                cout << "Wysylana do robota theta_1: " << theta_1 + offset1 << endl;
+//                cout << "Wysylana do robota theta_2: " << theta_2 + offset2 << endl;
+//                cout << "Wysylana do robota theta_3: " << theta_3 + offset3 << endl;
+//                cout << "Wysylana do robota theta_4: " << theta_4 + offset4 << endl;
+//                cout << "Wysylana do robota theta_5: " << theta_5 + offset5 << endl;
+//                cout << "" << endl;
             }
             else
             {
@@ -307,7 +307,7 @@ void QNode::inverseKinematics(double xk, double yk, double zk, double Rz, double
                 QNode::ik_th4 = QNode::subscriber_joint4;
                 QNode::ik_th5 = QNode::subscriber_joint5;
                 log(Warn,std::string("Nie można osiągnąć zadanej pozycji"));
-                cout << "BRAK ROZWIAZANIA!" << endl;
+//              cout << "BRAK ROZWIAZANIA!" << endl;
                 cout << "" << endl;
             }
         }
@@ -395,30 +395,30 @@ void QNode::inverseKinematics(double xk, double yk, double zk, double Rz, double
 
         else
         {
-            cout << "Wpisana wspolrzedna X: " << xk << endl;
-            cout << "Obliczona wspolrzedna X: " << x << endl;
-            cout << "Wpisana wspolrzedna Y: " << yk << endl;
-            cout << "Obliczona wspolrzedna Y: " << y << endl;
-            cout << "Wpisana wspolrzedna Z: " << zk << endl;
-            cout << "Obliczona wspolrzedna Z: " << z << endl;
+//            cout << "Wpisana wspolrzedna X: " << xk << endl;
+//            cout << "Obliczona wspolrzedna X: " << x << endl;
+//            cout << "Wpisana wspolrzedna Y: " << yk << endl;
+//            cout << "Obliczona wspolrzedna Y: " << y << endl;
+//            cout << "Wpisana wspolrzedna Z: " << zk << endl;
+//            cout << "Obliczona wspolrzedna Z: " << z << endl;
 
             if (xk == x && yk == y && zk == z)
             {
                 QNode::jointPublisher(ik_th1, ik_th2, ik_th3, ik_th4, ik_th5);
-                cout << "" << endl;
-                cout << "Wyliczona z IK theta_1: " << theta_1 << endl;
-                cout << "Wyliczona z IK theta_2: " << theta_2 << endl;
-                cout << "Wyliczona z IK theta_3: " << theta_3 << endl;
-                cout << "Wyliczona z IK theta_4: " << theta_4 << endl;
-                cout << "Wyliczona z IK theta_5: " << theta_5 << endl;
-                cout << "" << endl;
+//                cout << "" << endl;
+//                cout << "Wyliczona z IK theta_1: " << theta_1 << endl;
+//                cout << "Wyliczona z IK theta_2: " << theta_2 << endl;
+//                cout << "Wyliczona z IK theta_3: " << theta_3 << endl;
+//                cout << "Wyliczona z IK theta_4: " << theta_4 << endl;
+//                cout << "Wyliczona z IK theta_5: " << theta_5 << endl;
+//                cout << "" << endl;
 
-                cout << "Wysylana do robota theta_1: " << theta_1 + offset1 << endl;
-                cout << "Wysylana do robota theta_2: " << theta_2 + offset2 << endl;
-                cout << "Wysylana do robota theta_3: " << theta_3 + offset3 << endl;
-                cout << "Wysylana do robota theta_4: " << theta_4 + offset4 << endl;
-                cout << "Wysylana do robota theta_5: " << theta_5 + offset5 << endl;
-                cout << "" << endl;
+//                cout << "Wysylana do robota theta_1: " << theta_1 + offset1 << endl;
+//                cout << "Wysylana do robota theta_2: " << theta_2 + offset2 << endl;
+//                cout << "Wysylana do robota theta_3: " << theta_3 + offset3 << endl;
+//                cout << "Wysylana do robota theta_4: " << theta_4 + offset4 << endl;
+//                cout << "Wysylana do robota theta_5: " << theta_5 + offset5 << endl;
+//                cout << "" << endl;
             }
             else
             {
@@ -431,7 +431,7 @@ void QNode::inverseKinematics(double xk, double yk, double zk, double Rz, double
 
                 log(Warn,std::string("Nie można osiągnąć zadanej pozycji"));
 
-                cout << "BRAK ROZWIAZANIA!" << endl;
+//                cout << "BRAK ROZWIAZANIA!" << endl;
             }
         }
 
@@ -543,16 +543,16 @@ void QNode::moveGripper(double left, double right)
 bool QNode::isAchievePosition(int movement_iteration_temp)
 {
            if(
-             (abs(P[point[movement_iteration_temp]][0]-subscriber_joint1)<0.001) &&
-             (abs(P[point[movement_iteration_temp]][1]-subscriber_joint2)<0.001) &&
-             (abs(P[point[movement_iteration_temp]][2]-subscriber_joint3)<0.001) &&
-             (abs(P[point[movement_iteration_temp]][3]-subscriber_joint4)<0.001) &&
-             (abs(P[point[movement_iteration_temp]][4]-subscriber_joint5)<0.001)
+             (abs(P[point[movement_iteration_temp]][0]-subscriber_joint1)<0.05) &&
+             (abs(P[point[movement_iteration_temp]][1]-subscriber_joint2)<0.05) &&
+             (abs(P[point[movement_iteration_temp]][2]-subscriber_joint3)<0.05) &&
+             (abs(P[point[movement_iteration_temp]][3]-subscriber_joint4)<0.05) &&
+             (abs(P[point[movement_iteration_temp]][4]-subscriber_joint5)<0.05)
             )
                 {
-                    cout<<"Nr punktu gdzie dojechano: "<<point[movement_iteration_temp]<<endl;
-                    cout<<"Wartość joint 1: "<<P[point[movement_iteration_temp]][0]<<endl;
-                    cout<<"T_Abs: "<<abs(P[point[movement_iteration_temp]][0]-subscriber_joint1)<<endl;
+//                    cout<<"Nr punktu gdzie dojechano: "<<point[movement_iteration_temp]<<endl;
+//                    cout<<"Wartość joint 1: "<<P[point[movement_iteration_temp]][0]<<endl;
+//                    cout<<"T_Abs: "<<abs(P[point[movement_iteration_temp]][0]-subscriber_joint1)<<endl;
                     QNode::movement_iteration++;
                     return true;
                 }
@@ -562,12 +562,12 @@ bool QNode::isAchievePosition(int movement_iteration_temp)
                //cout<<"subscriber_joint1: "<<subscriber_joint1<<endl;
                //cout<<"roznica: "<<P[point[movement_iteration_temp]][0]-subscriber_joint1<<endl;
                //cout<<"F_Abs: "<<abs(P[point[movement_iteration_temp]][0]-subscriber_joint1)<<endl;
-               std_msgs::String msg;
-               std::stringstream ss;
-               ss << "F_Abs: "<<abs(P[point[movement_iteration_temp]][0]-subscriber_joint1);
-               msg.data = ss.str();
+//               std_msgs::String msg;
+//               std::stringstream ss;
+//               ss << "F_Abs: "<<abs(P[point[movement_iteration_temp]][0]-subscriber_joint1);
+//               msg.data = ss.str();
 
-               log(Info,std::string("")+msg.data);
+//               log(Info,std::string("")+msg.data);
 
                return false;
            }
@@ -582,11 +582,11 @@ void jointsCallback(const sensor_msgs::JointStateConstPtr& youbotArmState)
     double th_4 = youbotArmState->position[3];
     double th_5 = youbotArmState->position[4];
 
-    cout<<"th_1: "<<th_1<<endl;
-    cout<<"th_2: "<<th_2<<endl;
-    cout<<"th_3: "<<th_3<<endl;
-    cout<<"th_4: "<<th_4<<endl;
-    cout<<"th_5: "<<th_5<<endl;
+//    cout<<"th_1: "<<th_1<<endl;
+//    cout<<"th_2: "<<th_2<<endl;
+//    cout<<"th_3: "<<th_3<<endl;
+//    cout<<"th_4: "<<th_4<<endl;
+//    cout<<"th_5: "<<th_5<<endl;
 
     double th1 = th_1 - 2.8668;
     double th2 = th_2 - 2.5919;
@@ -734,10 +734,10 @@ void chatterCallback(const brics_actuator::JointPositionsConstPtr& youbotArmComm
 void diagnosticsCallback(const diagnostic_msgs::DiagnosticArrayConstPtr& youbotArmDiagnostic)
 {
     //DiagnosticStatus[]
-    cout<<youbotArmDiagnostic->status[0]; //kompiluje
-    cout<<youbotArmDiagnostic->status[0].message;//jw.
+    cout<<endl<<"->status[1]: "<<youbotArmDiagnostic->status[2]<<endl; //kompiluje
+    cout<<endl<<"->status[1].message: "<<youbotArmDiagnostic->status[2].message<<endl;//jw.
 
-    if(youbotArmDiagnostic->status[0].message=="EtherCAT connnection is established")
+    if(youbotArmDiagnostic->status[2].message=="EtherCAT connnection is established")
     {
         if(QNode::ethercat_connection==false)
         {
@@ -746,7 +746,7 @@ void diagnosticsCallback(const diagnostic_msgs::DiagnosticArrayConstPtr& youbotA
         QNode::ethercat_connection=true;
     }
 
-    if(youbotArmDiagnostic->status[0].message=="EtherCAT connnection lost")
+    if(youbotArmDiagnostic->status[2].message=="EtherCAT connnection lost")
     {
         if(QNode::ethercat_connection==true)
         {
@@ -1374,7 +1374,7 @@ bool QNode::init(const std::string &master_url, const std::string &host_url)
 
 void QNode::run()
 {
-        ros::Rate loop_rate(1); //zmienione z 1 na 20
+        ros::Rate loop_rate(2); //zmienione z 1 na 20
 	int count = 0;
         MainWindow::joint_1 = QNode::subscriber_joint1;
         MainWindow::joint_2 = QNode::subscriber_joint2;
@@ -1403,13 +1403,13 @@ void QNode::run()
             }
             if (QNode::ethercat_connection_temp==true)
             {
-            //log(Info,std::string("Sterownik został uruchomiony"));
+            log(Info,std::string("Nawiązano łączność EtherCAT"));
 
                 QNode::ethercat_connection_temp=false;
             }
             else if (QNode::ethercat_connection_temp2==true)
             {
-              // log(Info,std::string("Utracono łączność EtherCAT"));
+               log(Info,std::string("Utracono łączność EtherCAT"));
                 QNode::ethercat_connection_temp2=false;
             }
 		ros::spinOnce();
