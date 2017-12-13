@@ -62,21 +62,6 @@ public:
         static double ik_th4;
         static double ik_th5;
 
-        static double list_x;
-        static double list_y;
-        static double list_z;
-        static double list_roll;
-        static double list_pitch;
-        static double list_yaw;
-
-        static double x_temp;
-        static double y_temp;
-        static double z_temp;
-        static double roll_temp;
-        static double pitch_temp;
-        static double yaw_temp;
-
-
         static double lin_x;
         static double lin_y;
         static double lin_z;
@@ -114,7 +99,7 @@ public:
 	bool init(const std::string &master_url, const std::string &host_url);
         void run();
         void executeProgram();
-        void forwardKinematic(double q1, double q2,double q3,double q4,double q5);
+        double* forwardKinematic(double q1, double q2,double q3,double q4,double q5);
         void readPoints();
         std::string showPoint(int i);
         void ptp(double q1, double q2,double q3,double q4,double q5);
@@ -123,7 +108,7 @@ public:
         void jointPublisher(double q1, double q2,double q3,double q4,double q5);
         void moveArm(double q1, double q2,double q3,double q4,double q5);
         void executePTP(int i);
-        void inverseKinematics(double xk, double yk, double zk, double Rz, double Ry, double Rx);
+        double* inverseKinematic(double xk, double yk, double zk, double Rz, double Ry, double Rx);
         int sgn(double v);
         void moveHome();
         void jointSimulator(int i);

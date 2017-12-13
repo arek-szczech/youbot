@@ -251,79 +251,87 @@ void  MainWindow::on_load_list_clicked(bool check)
     qnode.loadPointsList();
 }
 
+
 void MainWindow::on_x_plus_clicked(bool check)
 {
-    QNode::x_temp=QNode::x;
-    QNode::x_temp=QNode::x_temp+1;
-    cout<<QNode::x_temp<<endl;
-
-    qnode.inverseKinematics(QNode::x_temp, QNode::y, QNode::z, QNode::roll, QNode::pitch, QNode::yaw);
-
-    //armJointPositions[0].value = theta_1 + offset1;
+    double *q;
+    double x_temp=QNode::x;
+    x_temp=x_temp+1;
+    q = qnode.inverseKinematic(x_temp, QNode::y, QNode::z, QNode::roll, QNode::pitch, QNode::yaw);
+    qnode.jointPublisher(q[0],q[1],q[2],q[3],q[4]);
 }
 void MainWindow::on_x_minus_clicked(bool check)
 {
-    QNode::x_temp=QNode::x;
-    QNode::x_temp=QNode::x_temp-1;
-    cout<<QNode::x_temp<<endl;
-    qnode.inverseKinematics(QNode::x_temp, QNode::y, QNode::z, QNode::roll, QNode::pitch, QNode::yaw);
+    double *q;
+    double x_temp=QNode::x;
+    x_temp=x_temp-1;
+    q = qnode.inverseKinematic(x_temp, QNode::y, QNode::z, QNode::roll, QNode::pitch, QNode::yaw);
+    qnode.jointPublisher(q[0],q[1],q[2],q[3],q[4]);
 }
 void MainWindow::on_y_plus_clicked(bool check)
 {
-    QNode::y_temp=QNode::y;
-    QNode::y_temp=QNode::y_temp+1;
-    cout<<QNode::y_temp<<endl;
-    qnode.inverseKinematics(QNode::x, QNode::y_temp, QNode::z, QNode::roll, QNode::pitch, QNode::yaw);
+    double *q;
+    double y_temp=QNode::y;
+    y_temp=y_temp+1;
+    q = qnode.inverseKinematic(QNode::x,y_temp, QNode::z, QNode::roll, QNode::pitch, QNode::yaw);
+    qnode.jointPublisher(q[0],q[1],q[2],q[3],q[4]);
 }
 void MainWindow::on_y_minus_clicked(bool check)
 {
-    QNode::y_temp=QNode::y;
-    QNode::y_temp=QNode::y_temp-1;
-    cout<<QNode::y_temp<<endl;
-    qnode.inverseKinematics(QNode::x, QNode::y_temp, QNode::z, QNode::roll, QNode::pitch, QNode::yaw);
+    double *q;
+    double y_temp=QNode::y;
+    y_temp=y_temp-1;
+    q = qnode.inverseKinematic(QNode::x, y_temp, QNode::z, QNode::roll, QNode::pitch, QNode::yaw);
+    qnode.jointPublisher(q[0],q[1],q[2],q[3],q[4]);
 }
 void MainWindow::on_z_plus_clicked(bool check)
 {
-    QNode::z_temp=QNode::z;
-    QNode::z_temp=QNode::z_temp+1;
-    cout<<QNode::z_temp<<endl;
-    qnode.inverseKinematics(QNode::x, QNode::y, QNode::z_temp, QNode::roll, QNode::pitch, QNode::yaw);
+    double *q;
+    double z_temp=QNode::z;
+    z_temp=z_temp+1;
+    q = qnode.inverseKinematic(QNode::x, QNode::y, z_temp, QNode::roll, QNode::pitch, QNode::yaw);
+    qnode.jointPublisher(q[0],q[1],q[2],q[3],q[4]);
 }
 void MainWindow::on_z_minus_clicked(bool check)
 {
-    QNode::z_temp=QNode::z;
-    QNode::z_temp=QNode::z_temp-1;
-    cout<<QNode::z_temp<<endl;
-    qnode.inverseKinematics(QNode::x, QNode::y, QNode::z_temp, QNode::roll, QNode::pitch, QNode::yaw);
+    double *q;
+    double z_temp=QNode::z;
+    z_temp=z_temp-1;
+    q = qnode.inverseKinematic(QNode::x, QNode::y, z_temp, QNode::roll, QNode::pitch, QNode::yaw);
+    qnode.jointPublisher(q[0],q[1],q[2],q[3],q[4]);
 }
 
 void MainWindow::on_roll_plus_clicked(bool check)
 {
-    QNode::roll_temp=QNode::roll;
-    QNode::roll_temp=QNode::roll_temp+0.1;
-    cout<<QNode::z_temp<<endl;
-    qnode.inverseKinematics(QNode::x, QNode::y, QNode::z, QNode::roll_temp, QNode::pitch, QNode::yaw);
+    double *q;
+    double roll_temp=QNode::roll;
+    roll_temp=roll_temp+0.1;
+    q = qnode.inverseKinematic(QNode::x, QNode::y, QNode::z, roll_temp, QNode::pitch, QNode::yaw);
+    qnode.jointPublisher(q[0],q[1],q[2],q[3],q[4]);
 }
 void MainWindow::on_roll_minus_clicked(bool check)
 {
-    QNode::roll_temp=QNode::roll;
-    QNode::roll_temp=QNode::roll_temp-0.1;
-    cout<<QNode::z_temp<<endl;
-    qnode.inverseKinematics(QNode::x, QNode::y, QNode::z, QNode::roll_temp, QNode::pitch, QNode::yaw);
+    double *q;
+    double roll_temp=QNode::roll;
+    roll_temp=roll_temp-0.1;
+    q = qnode.inverseKinematic(QNode::x, QNode::y, QNode::z, roll_temp, QNode::pitch, QNode::yaw);
+    qnode.jointPublisher(q[0],q[1],q[2],q[3],q[4]);
 }
 void MainWindow::on_pitch_plus_clicked(bool check)
 {
-    QNode::pitch_temp=QNode::pitch;
-    QNode::pitch_temp=QNode::pitch_temp+0.1;
-    cout<<QNode::z_temp<<endl;
-    qnode.inverseKinematics(QNode::x, QNode::y, QNode::z, QNode::roll, QNode::pitch_temp, QNode::yaw);
+    double *q;
+    double pitch_temp=QNode::pitch;
+    pitch_temp=pitch_temp+0.1;
+    q = qnode.inverseKinematic(QNode::x, QNode::y, QNode::z, QNode::roll, pitch_temp, QNode::yaw);
+    qnode.jointPublisher(q[0],q[1],q[2],q[3],q[4]);
 }
 void MainWindow::on_pitch_minus_clicked(bool check)
 {
-    QNode::pitch_temp=QNode::pitch;
-    QNode::pitch_temp=QNode::pitch_temp-0.1;
-    cout<<QNode::z_temp<<endl;
-    qnode.inverseKinematics(QNode::x, QNode::y, QNode::z, QNode::roll, QNode::pitch_temp, QNode::yaw);
+    double *q;
+    double pitch_temp=QNode::pitch;
+    pitch_temp=pitch_temp-0.1;
+    q = qnode.inverseKinematic(QNode::x, QNode::y, QNode::z, QNode::roll, pitch_temp, QNode::yaw);
+    qnode.jointPublisher(q[0],q[1],q[2],q[3],q[4]);
 }
 void MainWindow::on_yaw_plus_clicked(bool check)
 {
@@ -331,10 +339,9 @@ void MainWindow::on_yaw_plus_clicked(bool check)
 //    cout<<"zmienna: "<<zmienna<<endl;
 //     qnode.jointSimulator(MainWindow::zmienna);
 
-//    QNode::yaw_temp=QNode::yaw;
-//    QNode::yaw_temp=QNode::yaw_temp+0.1;
-//    cout<<QNode::z_temp<<endl;
-//    qnode.inverseKinematics(QNode::x, QNode::y, QNode::z, QNode::roll, QNode::pitch, QNode::yaw_temp);
+//    double yaw_temp=QNode::yaw;
+//    yaw_temp=yaw_temp+0.1;
+//    qnode.inverseKinematics(QNode::x, QNode::y, QNode::z, QNode::roll, QNode::pitch, yaw_temp);
     qnode.executeLIN(1);
 }
 void MainWindow::on_yaw_minus_clicked(bool check)
@@ -343,10 +350,9 @@ void MainWindow::on_yaw_minus_clicked(bool check)
 //    cout<<"zmienna: "<<zmienna<<endl;
 //    qnode.jointSimulator(MainWindow::zmienna);
 
-//    QNode::yaw_temp=QNode::yaw;
-//    QNode::yaw_temp=QNode::yaw_temp-0.1;
-//    cout<<QNode::z_temp<<endl;
-//    qnode.inverseKinematics(QNode::x, QNode::y, QNode::z, QNode::roll, QNode::pitch, QNode::yaw_temp);
+//    double yaw_temp=QNode::yaw;
+//    yaw_temp=yaw_temp-0.1;
+//    qnode.inverseKinematics(QNode::x, QNode::y, QNode::z, QNode::roll, QNode::pitch, yaw_temp);
 
 }
 void MainWindow::on_q1_plus_clicked(bool check)
