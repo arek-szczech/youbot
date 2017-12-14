@@ -1,5 +1,4 @@
-﻿
-#include "../include/youbot_gui/main_window.hpp" //Kolejność includów jest krytyczna xD Musi być na górze
+﻿#include "../include/youbot_gui/main_window.hpp" //Kolejność includów jest krytyczna xD Musi być na górze
 #include <ros/ros.h>
 #include <ros/network.h>
 #include <string.h>
@@ -672,43 +671,22 @@ trajectory_msgs::JointTrajectory createArmPositionCommand(std::vector<double>& n
 
         return msg;
 }
-void QNode::moveArm(double q1, double q2,double q3,double q4,double q5) {
+void QNode::moveArm(double q1, double q2,double q3,double q4,double q5)
+{
         trajectory_msgs::JointTrajectory msg;
-
         std::vector<double> jointvalues(5);
-
 
         jointvalues[0] = q1;
         jointvalues[1] = q2;
         jointvalues[2] = q3;
         jointvalues[3] = q4;
         jointvalues[4] = q5;
+
         msg = createArmPositionCommand(jointvalues);
         armPublisher.publish(msg);
-        //ros::Duration(5).sleep();
-
 }
 
-void QNode::moveGripper(double left, double right)
-{
-//                cout << "Please type in value for a left jaw of the gripper " << endl;
-//                cin >> readValue;
-//                gripperJointPositions[0].joint_uri = "gripper_finger_joint_l";
-//                gripperJointPositions[0].value = readValue;
-//                gripperJointPositions[0].unit = boost::units::to_string(boost::units::si::meter);
-
-//                cout << "Please type in value for a right jaw of the gripper " << endl;
-//                cin >> readValue;
-//                gripperJointPositions[1].joint_uri = "gripper_finger_joint_r";
-//                gripperJointPositions[1].value = readValue;
-//                gripperJointPositions[1].unit = boost::units::to_string(boost::units::si::meter);
-
-//                command.positions = gripperJointPositions;
-//                gripperPositionPublisher.publish(command);
-
-}
-
-bool QNode::isAchievePosition(int movement_iteration_temp)
+bool QNode::isPositionAchived(int movement_iteration_temp)
 {
            if(
              (abs(P[point[movement_iteration_temp]][0]-subscriber_joint1)<0.05) &&
@@ -744,79 +722,45 @@ bool QNode::isAchievePosition(int movement_iteration_temp)
 //żeby przywrócić wersję przed joint_state należy zakomentować ciało jointsCallaback i odkomentować chatterCallback
 void jointsCallback(const sensor_msgs::JointStateConstPtr& youbotArmState)
 {
-    double th_1 = youbotArmState->position[0];
-    double th_2 = youbotArmState->position[1];
-    double th_3 = youbotArmState->position[2];
-    double th_4 = youbotArmState->position[3];
-    double th_5 = youbotArmState->position[4];
+    double q1 = youbotArmState->position[0];
+    double q2 = youbotArmState->position[1];
+    double q3 = youbotArmState->position[2];
+    double q4 = youbotArmState->position[3];
+    double q5 = youbotArmState->position[4];
 
-//    cout<<"th_1: "<<th_1<<endl;
-//    cout<<"th_2: "<<th_2<<endl;
-//    cout<<"th_3: "<<th_3<<endl;
-//    cout<<"th_4: "<<th_4<<endl;
-//    cout<<"th_5: "<<th_5<<endl;
+    q1 = q1 - offset1;
+    q2 = q2 - offset2;
+    q3 = q3 - offset3;
+    q4 = q4 - offset4 - M_PI/2;
+    q5 = q5 - offset5;
 
-    double th1 = th_1 - 2.8668;
-    double th2 = th_2 - 2.5919;
-    double th3 = th_3 + 2.5211;
-    double th4 = th_4 - 3.3305;
-    double th5 = th_5 -	2.9314;
-
-    double a1 = 33;
-    double d1 = 147;
-    double a2 = 155;
-    double a3 = 135;
-    double d5 = 218;
-
-    QNode::x = a1*cos(th1) - d5*(cos(th4)*(cos(th1)*cos(th2)*sin(th3) + cos(th1)*cos(th3)*sin(th2)) - sin(th4)*(cos(th1)*sin(th2)*sin(th3) - cos(th1)*cos(th2)*cos(th3))) + a2*cos(th1)*cos(th2) + a3*cos(th1)*cos(th2)*cos(th3) - a3*cos(th1)*sin(th2)*sin(th3);
-    QNode::y = a1*sin(th1) - d5*(cos(th4)*(cos(th2)*sin(th1)*sin(th3) + cos(th3)*sin(th1)*sin(th2)) - sin(th4)*(sin(th1)*sin(th2)*sin(th3) - cos(th2)*cos(th3)*sin(th1))) + a2*cos(th2)*sin(th1) + a3*cos(th2)*cos(th3)*sin(th1) - a3*sin(th1)*sin(th2)*sin(th3);
-    QNode::z = d1 - a2*sin(th2) - d5*(cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2))) - a3*cos(th2)*sin(th3) - a3*cos(th3)*sin(th2);
+    QNode::x = a1*cos(q1) - d5*(cos(q4)*(cos(q1)*cos(q2)*sin(q3) + cos(q1)*cos(q3)*sin(q2)) - sin(q4)*(cos(q1)*sin(q2)*sin(q3) - cos(q1)*cos(q2)*cos(q3))) + a2*cos(q1)*cos(q2) + a3*cos(q1)*cos(q2)*cos(q3) - a3*cos(q1)*sin(q2)*sin(q3);
+    QNode::y = a1*sin(q1) - d5*(cos(q4)*(cos(q2)*sin(q1)*sin(q3) + cos(q3)*sin(q1)*sin(q2)) - sin(q4)*(sin(q1)*sin(q2)*sin(q3) - cos(q2)*cos(q3)*sin(q1))) + a2*cos(q2)*sin(q1) + a3*cos(q2)*cos(q3)*sin(q1) - a3*sin(q1)*sin(q2)*sin(q3);
+    QNode::z = d1 - a2*sin(q2) - d5*(cos(q4)*(cos(q2)*cos(q3) - sin(q2)*sin(q3)) - sin(q4)*(cos(q2)*sin(q3) + cos(q3)*sin(q2))) - a3*cos(q2)*sin(q3) - a3*cos(q3)*sin(q2);
 
     QNode::x = round(QNode::x);
     QNode::y = round(QNode::y);
     QNode::z = round(QNode::z);
 
-    QNode::roll = atan2(- cos(th1)*sin(th5) - cos(th5)*(cos(th4)*(sin(th1)*sin(th2)*sin(th3) - cos(th2)*cos(th3)*sin(th1)) + sin(th4)*(cos(th2)*sin(th1)*sin(th3) + cos(th3)*sin(th1)*sin(th2))), sin(th1)*sin(th5) - cos(th5)*(cos(th4)*(cos(th1)*sin(th2)*sin(th3) - cos(th1)*cos(th2)*cos(th3)) + sin(th4)*(cos(th1)*cos(th2)*sin(th3) + cos(th1)*cos(th3)*sin(th2))));
-    QNode::pitch = atan2(cos(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))), sqrt(sin(th5)*sin(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)))*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))) + (cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)))*(cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)))));
-    QNode::yaw = atan2(sin(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))), sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) - cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)));
+    QNode::roll = atan2(- cos(q1)*sin(q5) - cos(q5)*(cos(q4)*(sin(q1)*sin(q2)*sin(q3) - cos(q2)*cos(q3)*sin(q1)) + sin(q4)*(cos(q2)*sin(q1)*sin(q3) + cos(q3)*sin(q1)*sin(q2))), sin(q1)*sin(q5) - cos(q5)*(cos(q4)*(cos(q1)*sin(q2)*sin(q3) - cos(q1)*cos(q2)*cos(q3)) + sin(q4)*(cos(q1)*cos(q2)*sin(q3) + cos(q1)*cos(q3)*sin(q2))));
+    QNode::pitch = atan2(cos(q5)*(cos(q4)*(cos(q2)*sin(q3) + cos(q3)*sin(q2)) + sin(q4)*(cos(q2)*cos(q3) - sin(q2)*sin(q3))), sqrt(sin(q5)*sin(q5)*(cos(q4)*(cos(q2)*sin(q3) + cos(q3)*sin(q2)) + sin(q4)*(cos(q2)*cos(q3) - sin(q2)*sin(q3)))*(cos(q4)*(cos(q2)*sin(q3) + cos(q3)*sin(q2)) + sin(q4)*(cos(q2)*cos(q3) - sin(q2)*sin(q3))) + (cos(q4)*(cos(q2)*cos(q3) - sin(q2)*sin(q3)) - sin(q4)*(cos(q2)*sin(q3) + cos(q3)*sin(q2)))*(cos(q4)*(cos(q2)*cos(q3) - sin(q2)*sin(q3)) - sin(q4)*(cos(q2)*sin(q3) + cos(q3)*sin(q2)))));
+    QNode::yaw = atan2(sin(q5)*(cos(q4)*(cos(q2)*sin(q3) + cos(q3)*sin(q2)) + sin(q4)*(cos(q2)*cos(q3) - sin(q2)*sin(q3))), sin(q4)*(cos(q2)*sin(q3) + cos(q3)*sin(q2)) - cos(q4)*(cos(q2)*cos(q3) - sin(q2)*sin(q3)));
 
     QNode::roll = round(QNode::roll*100)/100;
     QNode::pitch = round(QNode::pitch*100)/100;
     QNode::yaw = round(QNode::yaw*100)/100;
 
-    static const int numberOfArmJoints = 5;
-    static const int numberOfGripperJoints = 2;
-
-    //brics_actuator::JointPositions command;
-    vector <brics_actuator::JointValue> armJointPositions;
-    vector <brics_actuator::JointValue> gripperJointPositions;
-
-    armJointPositions.resize(numberOfArmJoints); //TODO:change that
-    gripperJointPositions.resize(numberOfGripperJoints);
-    std::stringstream jointName;
-
-    QNode::subscriber_joint1 = th_1;
-    QNode::subscriber_joint2 = th_2;
-    QNode::subscriber_joint3 = th_3;
-    QNode::subscriber_joint4 = th_4;
-    QNode::subscriber_joint5 = th_5;
+    QNode::subscriber_joint1 = youbotArmState->position[0];
+    QNode::subscriber_joint2 = youbotArmState->position[1];
+    QNode::subscriber_joint3 = youbotArmState->position[2];
+    QNode::subscriber_joint4 = youbotArmState->position[3];
+    QNode::subscriber_joint5 = youbotArmState->position[4];
 
     MainWindow::joint_1 = QNode::subscriber_joint1;
     MainWindow::joint_2 = QNode::subscriber_joint2;
     MainWindow::joint_3 = QNode::subscriber_joint3;
     MainWindow::joint_4 = QNode::subscriber_joint4;
     MainWindow::joint_5 = QNode::subscriber_joint5;
-    //gripperJointPositions[0].value = gripper_1;
-    //gripperJointPositions[1].value = gripper_2;
-    for (int i = 0; i < numberOfArmJoints; ++i)
-    {
-        jointName.str("");
-        jointName << "arm_joint_" << (i + 1);
-
-        armJointPositions[i].joint_uri = jointName.str();
-        armJointPositions[i].unit = boost::units::to_string(boost::units::si::radians);
-    };
-
 }
 
 void chatterCallback(const brics_actuator::JointPositionsConstPtr& youbotArmCommand)
@@ -894,17 +838,13 @@ void chatterCallback(const brics_actuator::JointPositionsConstPtr& youbotArmComm
     //if(QNode::execute_movement_flag==false)
 //{
 //QNode::execute_movement_flag=true;
-////QNode::readProgram();
+////QNode::readProgramFromFile();
 //}
 
 }
 
 void diagnosticsCallback(const diagnostic_msgs::DiagnosticArrayConstPtr& youbotArmDiagnostic)
 {
-    //DiagnosticStatus[]
-    //cout<<endl<<"->status[1]: "<<youbotArmDiagnostic->status[2]<<endl; //kompiluje
-    //cout<<endl<<"->status[1].message: "<<youbotArmDiagnostic->status[2].message<<endl;//jw.
-
     if(youbotArmDiagnostic->status[2].message=="EtherCAT connnection is established")
     {
         if(QNode::ethercat_connection==false)
@@ -924,38 +864,6 @@ void diagnosticsCallback(const diagnostic_msgs::DiagnosticArrayConstPtr& youbotA
     }
 }
 
-void convertTo2dArray()
-{
-        for (int j=0;j<5;j++)
-        {
-                for (int i=1;i<=line_nmb;i++)
-                {
-                if(j==0)
-                {
-                        P[i][j] = q1[i-1];
-                }
-                else if (j==1)
-                {
-                        P[i][j] = q2[i-1];
-                }
-                else if (j==2)
-                {
-                        P[i][j] = q3[i-1];
-                }
-                else if (j==3)
-                {
-                        P[i][j] = q4[i-1];
-                }
-                else
-                {
-                        P[i][j] = q5[i-1];
-                }
-                }
-
-        }
-
-}
-
 double stringToDouble (string q)
 {
     std::replace(q.begin(), q.end(), '.', ','); // Na kompilatorze terminalowym czyta kropki, zapisuje jako kropki
@@ -964,56 +872,62 @@ double stringToDouble (string q)
     return q_d;
 }
 
-void readJointsFromFile()
-{
-
-    while (getline(points, line[line_nmb]))
-    {
-
-        pos1 = line[line_nmb].find(";",1);
-        pos2 = line[line_nmb].find(";",pos1+1);
-        pos3 = line[line_nmb].find(";",pos2+1);
-        pos4 = line[line_nmb].find(";",pos3+1);
-        pos5 = line[line_nmb].find(";",pos4+1);
-        pos6 = line[line_nmb].find(";",pos5+1);
-        q1[line_nmb] = stringToDouble(line[line_nmb].substr(pos1+1,pos2-(pos1+1)));
-        q2[line_nmb] = stringToDouble(line[line_nmb].substr(pos2+1,pos3-(pos2+1)));
-        q3[line_nmb] = stringToDouble(line[line_nmb].substr(pos3+1,pos4-(pos3+1)));
-        q4[line_nmb] = stringToDouble(line[line_nmb].substr(pos4+1,pos5-(pos4+1)));
-        q5[line_nmb] = stringToDouble(line[line_nmb].substr(pos5+1,pos6-(pos5+1)));
- //       cout << "PKT " << line_nmb+1 << ": q1 = " << q1[line_nmb] << " q2 = " << q2[line_nmb] << " q3 = " << q3[line_nmb] << " q4 = " << q4[line_nmb] << " q5 = " << q5[line_nmb] << endl;
-        ++line_nmb;
-    }
-
-  //      cout << "Plik ma " << line_nmb << " wierszy" << endl;
-}
-
-void QNode::readPoints()
+void QNode::readPointsFromFile()
 {
     line_nmb=0;
     points.open( "punkty.txt", ios::in | ios::out | ios::app);
     if( points.good() == true )
     {
         cout << "Uzyskano dostep do pliku!" << endl;
-        readJointsFromFile(); //Czyta jointy z pliku punkty.txt
+        while (getline(points, line[line_nmb]))
+        {
+            pos1 = line[line_nmb].find(";",1);
+            pos2 = line[line_nmb].find(";",pos1+1);
+            pos3 = line[line_nmb].find(";",pos2+1);
+            pos4 = line[line_nmb].find(";",pos3+1);
+            pos5 = line[line_nmb].find(";",pos4+1);
+            pos6 = line[line_nmb].find(";",pos5+1);
+            q1[line_nmb] = stringToDouble(line[line_nmb].substr(pos1+1,pos2-(pos1+1)));
+            q2[line_nmb] = stringToDouble(line[line_nmb].substr(pos2+1,pos3-(pos2+1)));
+            q3[line_nmb] = stringToDouble(line[line_nmb].substr(pos3+1,pos4-(pos3+1)));
+            q4[line_nmb] = stringToDouble(line[line_nmb].substr(pos4+1,pos5-(pos4+1)));
+            q5[line_nmb] = stringToDouble(line[line_nmb].substr(pos5+1,pos6-(pos5+1)));
+            ++line_nmb;
+        } //Czyta jointy z pliku punkty.txt
         points.close();
-        convertTo2dArray(); // Konwertuje odczytane jointy do tablicy
+        for (int j=0;j<5;j++)
+        {
+            for (int i=1;i<=line_nmb;i++)
+            {
+                if(j==0)
+                {
+                    P[i][j] = q1[i-1];
+                }
+                else if (j==1)
+                {
+                    P[i][j] = q2[i-1];
+                }
+                else if (j==2)
+                {
+                    P[i][j] = q3[i-1];
+                }
+                else if (j==3)
+                {
+                    P[i][j] = q4[i-1];
+                }
+                else
+                {
+                    P[i][j] = q5[i-1];
+                }
+            }
+        }
     }
 
     else cout << "Brak dostępu do pliku" << endl;
 }
 
-void pointNumberStringToInt(string point)
+void QNode::readProgramFromFile()
 {
-    //    cout << " do punktu: "  << punkt << endl;
-int pkt = atoi(point.c_str());
-    //    cout << "q1 = " << P[pkt][0] << " q2 = " << P[pkt][1] << " q3 = " << P[pkt][2] << " q4 = " << P[pkt][3] << " q5 = " << P[pkt][4] << endl;
-
-}
-
-void QNode::readProgram()
-{
-    //string temp_kom;
     string line[100];
     int row_number=0;
     fstream file;
@@ -1039,7 +953,6 @@ void QNode::readProgram()
     }
     string temp_point[row_number];
     string command[row_number];
-    //int point[row_number];
 
         for (int i = 0; i<row_number;  i++)
     {
@@ -1066,13 +979,6 @@ void QNode::readProgram()
         }
         else
         {
-//         for (int i=0;i<row_number;i++)
-
-//         {
-//         //pointNumberStringToInt(point[i]);
-//         ptp(P[point[i]][0],P[point[i]][1],P[point[i]][2],P[point[i]][3],P[point[i]][4]);
-//         }
-
             if((movement_iteration==row_number)&&(play_program==true))
             {
                 play_program=false;
@@ -1084,7 +990,6 @@ void QNode::readProgram()
             {
             do
             {
-
                     if(command[movement_iteration]=="PTP")
                     {
                     std_msgs::String msg;
@@ -1096,7 +1001,6 @@ void QNode::readProgram()
                     QNode::ptp(P[point[QNode::movement_iteration]][0],P[point[QNode::movement_iteration]][1],
                             P[point[QNode::movement_iteration]][2],P[point[QNode::movement_iteration]][3],
                             P[point[QNode::movement_iteration]][4]);
-                    //cout<<"Ważny test: "<<point[QNode::movement_iteration]<<endl;
                     }
 
                     if(command[movement_iteration]=="LIN")
@@ -1113,8 +1017,6 @@ void QNode::readProgram()
 //                    //cout<<"Ważny test: "<<point[QNode::movement_iteration]<<endl;
                     }
 
-
-
                     QNode::execute_movement_flag=false;
             }
 
@@ -1123,60 +1025,33 @@ void QNode::readProgram()
 
         }
 
-
    }
-
-std::string QNode::showPoint(int i)
-{
-    double *cords;
-    cords = forwardKinematic(q1[i],q2[i],q3[i],q4[i],q5[i]);
-    std::stringstream msg;
-    msg<< "P" << i+1 << ": x: " << cords[0] << "\ty: " << cords[1] << "\tz: " << cords[2]
-       <<  "\troll: " << cords[3] << "\tpitch: " << cords[4] << "\tyaw: " << cords[5];
-    cout << msg.str()<<endl;
-    addToList(msg.str());
-    return msg.str();
-}
 
 void QNode::loadPointsList()
 {
     list_model.removeRows(0,list_model.rowCount());
-    string msg="";
     for (int i=-1; i<line_nmb; i++)
     {
-        msg=showPoint(i);
+        double *cords;
+        cords = forwardKinematic(q1[i],q2[i],q3[i],q4[i],q5[i]);
+        std::stringstream msg;
+        msg<< "P" << i+1 << ": x: " << cords[0] << "\ty: " << cords[1] << "\tz: " << cords[2]
+           <<  "\troll: " << cords[3] << "\tpitch: " << cords[4] << "\tyaw: " << cords[5];
 
+        list_model.setData(list_model.index(0),"    [mm]\t[mm]\t[mm]\t[rad]\t[rad]\t[rad]");
+        list_model.insertRows(list_model.rowCount(),1);
+        QVariant new_row(QString(msg.str().c_str()));
+        list_model.setData(list_model.index(list_model.rowCount()-1),new_row);
+        Q_EMIT listUpdated(); // used to readjust the scrollbar
     }
-}
-
-void QNode::list(const std::string &msg)
-{
-    list_model.setData(list_model.index(0),"    [mm]\t[mm]\t[mm]\t[rad]\t[rad]\t[rad]");
-    list_model.insertRows(list_model.rowCount(),1);
-    std::stringstream list_model_msg;
-    list_model_msg << msg;
-    QVariant new_row(QString(list_model_msg.str().c_str()));
-    list_model.setData(list_model.index(list_model.rowCount()-1),new_row);
-    Q_EMIT listUpdated(); // used to readjust the scrollbar
-}
-
-void QNode::addToList(std::string bufor)
-{
-
-    std::string msg = bufor;
-    list(msg);
 }
 
 void QNode::jointPublisher(double q1, double q2,double q3,double q4,double q5)
 {
     static const int numberOfArmJoints = 5;
-    static const int numberOfGripperJoints = 2;
     brics_actuator::JointPositions command;
     vector <brics_actuator::JointValue> armJointPositions;
-    vector <brics_actuator::JointValue> gripperJointPositions;
-
     armJointPositions.resize(numberOfArmJoints); //TODO:change that
-    gripperJointPositions.resize(numberOfGripperJoints);
     std::stringstream jointName;
 
     armJointPositions[0].value = q1;
@@ -1184,8 +1059,7 @@ void QNode::jointPublisher(double q1, double q2,double q3,double q4,double q5)
     armJointPositions[2].value = q3;
     armJointPositions[3].value = q4;
     armJointPositions[4].value = q5;
-    //gripperJointPositions[0].value = gripper_1;
-    //gripperJointPositions[1].value = gripper_2;
+
     for (int i = 0; i < numberOfArmJoints; ++i)
     {
         //cout << "Please type in value for joint " << i + 1 << endl;
@@ -1200,9 +1074,29 @@ void QNode::jointPublisher(double q1, double q2,double q3,double q4,double q5)
         armJointPositions[i].unit = boost::units::to_string(boost::units::si::radians);
         //cout << "Joint " << armJointPositions[i].joint_uri << " = " << armJointPositions[i].value << " " << armJointPositions[i].unit << endl;
     };
+
     command.positions = armJointPositions;
     armPositionsPublisher.publish(command);
-    QNode::moveArm( q1,  q2, q3, q4, q5);
+    QNode::moveArm(q1, q2, q3, q4, q5);
+}
+
+void QNode::gripperPublisher(double gripper_1, double gripper_2)
+{
+    static const int numberOfGripperJoints = 2;
+    brics_actuator::JointPositions command;
+    vector <brics_actuator::JointValue> gripperJointPositions;
+    gripperJointPositions.resize(numberOfGripperJoints);
+
+    gripperJointPositions[0].joint_uri = "gripper_finger_joint_l";
+    gripperJointPositions[0].value = gripper_1;
+    gripperJointPositions[0].unit = boost::units::to_string(boost::units::si::meter);
+
+    gripperJointPositions[1].joint_uri = "gripper_finger_joint_r";
+    gripperJointPositions[1].value = gripper_2;
+    gripperJointPositions[1].unit = boost::units::to_string(boost::units::si::meter);
+
+    command.positions = gripperJointPositions;
+    gripperPositionPublisher.publish(command);
 }
 
 void QNode::ptp(double q1, double q2,double q3,double q4,double q5)
@@ -1388,8 +1282,8 @@ void QNode::executeProgram()
         line_nmb=0;
         state=0;
 
-        readPoints();
-        readProgram();
+        readPointsFromFile();
+        readProgramFromFile();
 
 }
 
@@ -1610,8 +1504,8 @@ void QNode::run()
 
             if(QNode::execute_movement_flag==false)
             {
-                if(QNode::execute_movement_flag = QNode::isAchievePosition(QNode::movement_iteration))
-                {QNode::readProgram();}
+                if(QNode::execute_movement_flag = QNode::isPositionAchived(QNode::movement_iteration))
+                {QNode::readProgramFromFile();}
             }
 
 

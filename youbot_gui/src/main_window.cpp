@@ -138,8 +138,8 @@ void MainWindow::on_previous_clicked(bool check)
 {
     if(QNode::play_program==false)
     {
-    qnode.readPoints();
-    qnode.readProgram();
+    qnode.readPointsFromFile();
+    qnode.readProgramFromFile();
 
     cout<<"Przed dek: "<<QNode::movement_iteration<<endl;
 
@@ -165,8 +165,8 @@ void MainWindow::on_next_clicked(bool check)
 {
     if(QNode::play_program==false)
     {
-    qnode.readPoints();
-    qnode.readProgram();
+    qnode.readPointsFromFile();
+    qnode.readProgramFromFile();
 
     cout<<"Przed ink: "<<QNode::movement_iteration<<endl;
 
@@ -196,7 +196,7 @@ void MainWindow::on_run_driver_clicked(bool check)
 void MainWindow::on_connect_master_clicked(bool check)
 {
         qnode.init();
-        qnode.readPoints();
+        qnode.readPointsFromFile();
 }
 
 void MainWindow::on_save_clicked(bool check) //zapisz punkt
@@ -247,7 +247,7 @@ void MainWindow::on_edit_list_clicked(bool check)
 void  MainWindow::on_load_list_clicked(bool check)
 {
     qnode.log(qnode.Info,std::string("Wczytano listę punktów"));
-    qnode.readPoints();
+    qnode.readPointsFromFile();
     qnode.loadPointsList();
 }
 
@@ -427,12 +427,13 @@ void MainWindow::on_q5_minus_clicked(bool check)
 
 void MainWindow::on_gripper_open_clicked(bool check)
 {
-
+    qnode.gripperPublisher(0.011, 0.011);
 }
 
 void MainWindow::on_gripper_close_clicked(bool check)
 {
 
+    qnode.gripperPublisher(0, 0);
 }
 
 

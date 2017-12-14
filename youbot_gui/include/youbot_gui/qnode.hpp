@@ -100,25 +100,23 @@ public:
         void run();
         void executeProgram();
         double* forwardKinematic(double q1, double q2,double q3,double q4,double q5);
-        void readPoints();
-        std::string showPoint(int i);
+        void readPointsFromFile();
         void ptp(double q1, double q2,double q3,double q4,double q5);
         void loadPointsList();
-        void readProgram();
+        void readProgramFromFile();
         void jointPublisher(double q1, double q2,double q3,double q4,double q5);
+        void gripperPublisher(double gripper_1, double gripper_2);
         void moveArm(double q1, double q2,double q3,double q4,double q5);
         void executePTP(int i);
         double* inverseKinematic(double xk, double yk, double zk, double Rz, double Ry, double Rx);
         int sgn(double v);
         void moveHome();
         void jointSimulator(int i);
-        bool isAchievePosition(int movement_iteration_temp);
-        void moveGripper(double left, double right);
+        bool isPositionAchived(int movement_iteration_temp);
         void lin(double q1, double q2,double q3,double q4,double q5);
         void executeLIN(int i);
         void specialInverseKinematics(double xk, double yk, double zk, double Rz, double Ry, double Rx);
         bool checkLinearMovementPossibility(double q1, double q2,double q3,double q4,double q5);
-        //void jointsCallback(const sensor_msgs::JointStateConstPtr& youbotArmState);
 
 	/*********************
 	** Logging
@@ -135,8 +133,6 @@ public:
 	void log( const LogLevel &level, const std::string &msg);
 
         QStringListModel* listModel() { return &list_model; }
-        void list(const std::string &msg);
-        void addToList(std::string bufor);
 
 
 Q_SIGNALS:
