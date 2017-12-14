@@ -106,6 +106,9 @@ public Q_SLOTS:
         void on_gripper_open_clicked(bool check);
         void on_gripper_close_clicked(bool check);
 
+        void on_elbow_up_clicked(bool check);
+        void on_elbow_down_clicked(bool check);
+
 
 
 

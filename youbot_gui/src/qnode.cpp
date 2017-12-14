@@ -77,6 +77,7 @@ bool QNode::play_program=false;
 bool QNode::ethercat_connection=false;
 bool QNode::ethercat_connection_temp=false;
 bool QNode::ethercat_connection_temp2=false;
+bool QNode::elbow_state=false; //false dół, true góra
 
 
 //*********Zmienne do funkcji executeProgram****************
@@ -179,8 +180,14 @@ double* QNode::inverseKinematic(double xk, double yk, double zk, double Rz, doub
 
         phi = atan2(sin_phi,cos_phi);
 
+        if(elbow_state)
+        {
         q[2] = (-1)*(M_PI - phi);
-        //q[2] = (M_PI - phi);
+        }
+        else
+        {
+        q[2] = (M_PI - phi);
+        }
 
         A = atan2(z4,sqrt(x4*x4 + y4*y4));
 
@@ -273,8 +280,14 @@ double* QNode::inverseKinematic(double xk, double yk, double zk, double Rz, doub
 
         phi = atan2(sin_phi,cos_phi);
 
+        if(elbow_state)
+        {
         q[2] = (-1)*(M_PI - phi);
-        //q[2] = (M_PI - phi);
+        }
+        else
+        {
+        q[2] = (M_PI - phi);
+        }
 
         A = atan2(z4,sqrt(x4*x4 + y4*y4));
 
@@ -719,7 +732,7 @@ bool QNode::isPositionAchived(int movement_iteration_temp)
            }
 }
 
-//żeby przywrócić wersję przed joint_state należy zakomentować ciało jointsCallaback i odkomentować chatterCallback
+//żeby przywrócić wersję przed joint_state należy zakomentować ciało jointsCallaback i odkomentować gripperCallback
 void jointsCallback(const sensor_msgs::JointStateConstPtr& youbotArmState)
 {
     double q1 = youbotArmState->position[0];
@@ -763,83 +776,8 @@ void jointsCallback(const sensor_msgs::JointStateConstPtr& youbotArmState)
     MainWindow::joint_5 = QNode::subscriber_joint5;
 }
 
-void chatterCallback(const brics_actuator::JointPositionsConstPtr& youbotArmCommand)
+void gripperCallback(const brics_actuator::JointPositionsConstPtr& youbotArmCommand)
 {
-//        // Wartosci odczytane z robota
-//        double th_1 = youbotArmCommand->positions[0].value;
-//        double th_2 = youbotArmCommand->positions[1].value;
-//        double th_3 = youbotArmCommand->positions[2].value;
-//        double th_4 = youbotArmCommand->positions[3].value;
-//        double th_5 = youbotArmCommand->positions[4].value;
-
-//        double th1 = th_1 - 2.8668;
-//        double th2 = th_2 - 2.5919;
-//        double th3 = th_3 + 2.5211;
-//        double th4 = th_4 - 3.3305;
-//        double th5 = th_5 -	2.9314;
-
-//        double a1 = 33;
-//        double d1 = 147;
-//        double a2 = 155;
-//        double a3 = 135;
-//        double d5 = 218;
-
-//        QNode::x = a1*cos(th1) - d5*(cos(th4)*(cos(th1)*cos(th2)*sin(th3) + cos(th1)*cos(th3)*sin(th2)) - sin(th4)*(cos(th1)*sin(th2)*sin(th3) - cos(th1)*cos(th2)*cos(th3))) + a2*cos(th1)*cos(th2) + a3*cos(th1)*cos(th2)*cos(th3) - a3*cos(th1)*sin(th2)*sin(th3);
-//        QNode::y = a1*sin(th1) - d5*(cos(th4)*(cos(th2)*sin(th1)*sin(th3) + cos(th3)*sin(th1)*sin(th2)) - sin(th4)*(sin(th1)*sin(th2)*sin(th3) - cos(th2)*cos(th3)*sin(th1))) + a2*cos(th2)*sin(th1) + a3*cos(th2)*cos(th3)*sin(th1) - a3*sin(th1)*sin(th2)*sin(th3);
-//        QNode::z = d1 - a2*sin(th2) - d5*(cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2))) - a3*cos(th2)*sin(th3) - a3*cos(th3)*sin(th2);
-
-//        QNode::x = round(QNode::x);
-//        QNode::y = round(QNode::y);
-//        QNode::z = round(QNode::z);
-
-//        QNode::roll = atan2(- cos(th1)*sin(th5) - cos(th5)*(cos(th4)*(sin(th1)*sin(th2)*sin(th3) - cos(th2)*cos(th3)*sin(th1)) + sin(th4)*(cos(th2)*sin(th1)*sin(th3) + cos(th3)*sin(th1)*sin(th2))), sin(th1)*sin(th5) - cos(th5)*(cos(th4)*(cos(th1)*sin(th2)*sin(th3) - cos(th1)*cos(th2)*cos(th3)) + sin(th4)*(cos(th1)*cos(th2)*sin(th3) + cos(th1)*cos(th3)*sin(th2))));
-//        QNode::pitch = atan2(cos(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))), sqrt(sin(th5)*sin(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)))*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))) + (cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)))*(cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)))));
-//        QNode::yaw = atan2(sin(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))), sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) - cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)));
-
-//        QNode::roll = round(QNode::roll*100)/100;
-//        QNode::pitch = round(QNode::pitch*100)/100;
-//        QNode::yaw = round(QNode::yaw*100)/100;
-
-//        static const int numberOfArmJoints = 5;
-//        static const int numberOfGripperJoints = 2;
-
-//        //brics_actuator::JointPositions command;
-//        vector <brics_actuator::JointValue> armJointPositions;
-//        vector <brics_actuator::JointValue> gripperJointPositions;
-
-//        armJointPositions.resize(numberOfArmJoints); //TODO:change that
-//        gripperJointPositions.resize(numberOfGripperJoints);
-//        std::stringstream jointName;
-
-//        QNode::subscriber_joint1 = th_1;
-//        QNode::subscriber_joint2 = th_2;
-//        QNode::subscriber_joint3 = th_3;
-//        QNode::subscriber_joint4 = th_4;
-//        QNode::subscriber_joint5 = th_5;
-
-//        MainWindow::joint_1 = QNode::subscriber_joint1;
-//        MainWindow::joint_2 = QNode::subscriber_joint2;
-//        MainWindow::joint_3 = QNode::subscriber_joint3;
-//        MainWindow::joint_4 = QNode::subscriber_joint4;
-//        MainWindow::joint_5 = QNode::subscriber_joint5;
-//        //gripperJointPositions[0].value = gripper_1;
-//        //gripperJointPositions[1].value = gripper_2;
-//        for (int i = 0; i < numberOfArmJoints; ++i)
-//        {
-//            jointName.str("");
-//            jointName << "arm_joint_" << (i + 1);
-
-//            armJointPositions[i].joint_uri = jointName.str();
-//            armJointPositions[i].unit = boost::units::to_string(boost::units::si::radians);
-//        };
-
-
-    //Automat
-    //if(QNode::execute_movement_flag==false)
-//{
-//QNode::execute_movement_flag=true;
-////QNode::readProgramFromFile();
-//}
 
 }
 
@@ -998,7 +936,7 @@ void QNode::readProgramFromFile()
                     msg.data = ss.str();
                     log(Info,std::string("[Tryb automatyczny] Wykonano ruch PTP P")+msg.data);
 
-                    QNode::ptp(P[point[QNode::movement_iteration]][0],P[point[QNode::movement_iteration]][1],
+                    QNode::jointPublisher(P[point[QNode::movement_iteration]][0],P[point[QNode::movement_iteration]][1],
                             P[point[QNode::movement_iteration]][2],P[point[QNode::movement_iteration]][3],
                             P[point[QNode::movement_iteration]][4]);
                     }
@@ -1022,8 +960,16 @@ void QNode::readProgramFromFile()
 
         while (QNode::execute_movement_flag);
             }
-
         }
+
+
+
+
+
+
+
+
+
 
    }
 
@@ -1099,20 +1045,6 @@ void QNode::gripperPublisher(double gripper_1, double gripper_2)
     gripperPositionPublisher.publish(command);
 }
 
-void QNode::ptp(double q1, double q2,double q3,double q4,double q5)
-{
-    double q1_temp=q1;
-    double q2_temp=q2;
-    double q3_temp=q3;
-    double q4_temp=q4;
-    double q5_temp=q5;
-
-    QNode::jointPublisher(q1_temp, q2_temp, q3_temp, q4_temp, q5_temp);
-
-    //ros::Duration(5).sleep();
-   // usleep(5000000);
-}
-
 void QNode::moveHome()
 {
     QNode::jointPublisher(QNode::home[0],QNode::home[1],QNode::home[2],QNode::home[3],QNode::home[4]);
@@ -1121,7 +1053,7 @@ void QNode::moveHome()
 
 void QNode::executePTP(int i)
 {
-         ptp(P[point[i]][0],P[point[i]][1],P[point[i]][2],P[point[i]][3],P[point[i]][4]);
+         jointPublisher(P[point[i]][0],P[point[i]][1],P[point[i]][2],P[point[i]][3],P[point[i]][4]);
          cout<<"Numer pkt: "<<i<<endl;
 
          std_msgs::String msg;
@@ -1292,18 +1224,15 @@ void QNode::jointSimulator(int i)
     currentTime = ros::Time::now();
     sensor_msgs::JointState armJointStateMessages;
 
-
     armJointStateMessages.header.stamp = currentTime;
     armJointStateMessages.name.resize(5);
     armJointStateMessages.position.resize(5);
     armJointStateMessages.velocity.resize(5);
     armJointStateMessages.effort.resize(5);
 
-
     for(int i=0;i<5;i++)
     {
         armJointStateMessages.name[i] = "nazwa";
-
         armJointStateMessages.velocity[i] = 0;
         armJointStateMessages.effort[i] = 0;
     }
@@ -1312,16 +1241,6 @@ void QNode::jointSimulator(int i)
     double th_3;
     double th_4;
     double th_5;
-//    cout<<"Wyswietl th_1: ";
-//    cin>>th_1;
-//    cout<<"Wyswietl th_2: ";
-//    cin>>th_2;
-//    cout<<"Wyswietl th_3: ";
-//    cin>>th_3;
-//    cout<<"Wyswietl th_4: ";
-//    cin>>th_4;
-//    cout<<"Wyswietl th_5: ";
-//    cin>>th_5;
 
     if(i==0)
     {
@@ -1366,7 +1285,8 @@ QNode::QNode(int argc, char** argv ) :
 	init_argv(argv)
 	{}
 
-QNode::~QNode() {
+QNode::~QNode()
+{
     if(ros::isStarted()) {
       ros::shutdown(); // explicitly needed since we use ros::start();
       ros::waitForShutdown();
@@ -1377,72 +1297,20 @@ QNode::~QNode() {
 bool QNode::init()
 {
 	ros::init(init_argc,init_argv,"youbot_gui");
-	if ( ! ros::master::check() ) {
+        if ( ! ros::master::check() )
+        {
                 return false;
 	}
         ros::start();
 	ros::NodeHandle n;
         armPositionsPublisher = n.advertise<brics_actuator::JointPositions > ("arm_1/arm_controller/position_command", 1);
         gripperPositionPublisher = n.advertise<brics_actuator::JointPositions > ("arm_1/gripper_controller/position_command", 1);
-        armPositionsSubscriber = n.subscribe<brics_actuator::JointPositions >("arm_1/arm_controller/position_command", 1, chatterCallback);
+        gripperPositionsSubscriber = n.subscribe<brics_actuator::JointPositions >("arm_1/gripper_controller/position_command", 1, gripperCallback);
         armPublisher = n.advertise<trajectory_msgs::JointTrajectory>("arm_1/arm_controller/command", 1);
         jointsSubscriber = n.subscribe<sensor_msgs::JointState >("/joint_states", 10, jointsCallback);
         diagnosticsSubscriber = n.subscribe<diagnostic_msgs::DiagnosticArray >("/diagnostics", 10, diagnosticsCallback);
         jointsPublisher = n.advertise<sensor_msgs::JointState>("/joint_states", 1);
 
-
-//**********************Publisher joint_state***************
-//        currentTime = ros::Time::now();
-//        vector<sensor_msgs::JointState> armJointStateMessages;
-//        armJointStateMessages.resize(1);
-
-//        armJointStateMessages[0].header.stamp = currentTime;
-//        armJointStateMessages[0].name.resize(5);
-//        armJointStateMessages[0].position.resize(5);
-//        armJointStateMessages[0].velocity.resize(5);
-//        armJointStateMessages[0].effort.resize(5);
-
-
-//        for(int i=0;i<5;i++)
-//        {
-//            armJointStateMessages[0].name[i] = "nazwa";
-//            armJointStateMessages[0].position[i] = 0.6;
-//            armJointStateMessages[0].velocity[i] = 0;
-//            armJointStateMessages[0].effort[i] = 0;
-//        }
-//3.28443
-
-//        jointsPublisher.publish(armJointStateMessages[0]);
-
-//to na dole lepsze
-//        currentTime = ros::Time::now();
-//        sensor_msgs::JointState armJointStateMessages;
-
-
-//        armJointStateMessages.header.stamp = currentTime;
-//        armJointStateMessages.name.resize(5);
-//        armJointStateMessages.position.resize(5);
-//        armJointStateMessages.velocity.resize(5);
-//        armJointStateMessages.effort.resize(5);
-
-
-//        for(int i=0;i<5;i++)
-//        {
-//            armJointStateMessages.name[i] = "nazwa";
-
-//            armJointStateMessages.velocity[i] = 0;
-//            armJointStateMessages.effort[i] = 0;
-//        }
-//        armJointStateMessages.position[0] = 0.0583007;
-//        armJointStateMessages.position[1] = 0.0260792;
-//        armJointStateMessages.position[2] = -0.0501084;
-//        armJointStateMessages.position[3] = 0.0340708;
-//        armJointStateMessages.position[4] = 0.0553097;
-
-
-//        jointsPublisher.publish(armJointStateMessages);
-
-//*****************************************************
         P[0][0]=MainWindow::min_1;
         P[0][1]=MainWindow::min_2;
         P[0][2]=MainWindow::max_3;
@@ -1458,23 +1326,6 @@ bool QNode::init()
         QNode::log(Info,std::string("Połączono ze sterownikiem robota"));
 
         start();
-	return true;
-}
-
-bool QNode::init(const std::string &master_url, const std::string &host_url)
-{
-	std::map<std::string,std::string> remappings;
-	remappings["__master"] = master_url;
-	remappings["__hostname"] = host_url;
-	ros::init(remappings,"youbot_gui");
-	if ( ! ros::master::check() ) {
-		return false;
-	}
-	ros::start(); // explicitly needed since our nodehandle is going out of scope.
-	ros::NodeHandle n;
-	// Add your ros communications here.
-        //chatter_publisher = n.advertise<std_msgs::String>("chatter", 1000);
-	start();
 	return true;
 }
 
@@ -1563,4 +1414,4 @@ void QNode::log( const LogLevel &level, const std::string &msg) {
 	Q_EMIT loggingUpdated(); // used to readjust the scrollbar
 }
 
-}  // namespace youbot_gui
+}

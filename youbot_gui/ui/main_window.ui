@@ -745,6 +745,9 @@
             <property name="text">
              <string>Łokieć - góra</string>
             </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
           <item>

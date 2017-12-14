@@ -88,6 +88,7 @@ public:
         static bool ethercat_connection;
         static bool ethercat_connection_temp;
         static bool ethercat_connection_temp2;
+        static bool elbow_state;
 
 
         Ui::MainWindowDesign ui;
@@ -96,12 +97,10 @@ public:
 	QNode(int argc, char** argv );
 	virtual ~QNode();
 	bool init();
-	bool init(const std::string &master_url, const std::string &host_url);
         void run();
         void executeProgram();
         double* forwardKinematic(double q1, double q2,double q3,double q4,double q5);
         void readPointsFromFile();
-        void ptp(double q1, double q2,double q3,double q4,double q5);
         void loadPointsList();
         void readProgramFromFile();
         void jointPublisher(double q1, double q2,double q3,double q4,double q5);
@@ -150,7 +149,7 @@ private:
         ros::Publisher armPublisher;
         ros::Publisher jointsPublisher;
 
-        ros::Subscriber armPositionsSubscriber;
+        ros::Subscriber gripperPositionsSubscriber;
         ros::Subscriber jointsSubscriber;
         ros::Subscriber diagnosticsSubscriber;
 

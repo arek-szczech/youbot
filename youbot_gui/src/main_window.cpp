@@ -436,6 +436,15 @@ void MainWindow::on_gripper_close_clicked(bool check)
     qnode.gripperPublisher(0, 0);
 }
 
+void MainWindow::on_elbow_up_clicked(bool check)
+{
+    QNode::elbow_state=false;
+}
+
+void MainWindow::on_elbow_down_clicked(bool check)
+{
+    QNode::elbow_state=true;
+}
 
 void MainWindow::updateLoggingView() {
         ui.view_logging->scrollToBottom();
