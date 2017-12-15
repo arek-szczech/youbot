@@ -457,18 +457,6 @@ void MainWindow::updateListView() {
 
 }
 
-//komentarz
-/*****************************************************************************
-** Implementation [Close]
-*****************************************************************************/
-
-//void MainWindow::closeEvent(QCloseEvent *event)
-//{
-//	QMainWindow::closeEvent(event);
-//}
-
-
-
 void MainWindow::closeEvent (QCloseEvent *event)
 {
     if(qnode.isHomePositionAchived())
@@ -477,18 +465,42 @@ void MainWindow::closeEvent (QCloseEvent *event)
     }
     else
     {
-        const QMessageBox::StandardButton resBtn = QMessageBox::question( this, tr("youBot Arm GUI"),
-                                                                    tr("Are you sure?\n"),
-                                                                    QMessageBox::Cancel | QMessageBox::No | QMessageBox::Yes,
-                                                                    QMessageBox::No);
-        if (resBtn != QMessageBox::Yes)
+//        QMessageBox msgBox;
+//        msgBox.setText(tr("Confirm?"));
+//        QAbstractButton* pButtonYes = msgBox.addButton(tr("Yeah!"), QMessageBox::YesRole);
+
+
+//        const QMessageBox::StandardButton resBtn = QMessageBox::question( this, tr("youBot Arm GUI"),
+//                                                                    tr("Robot nie jest w pozycji domowej!\n"),
+//                                                                    QMessageBox::Cancel | QMessageBox::No | QMessageBox::Yes| QMessageBox::YesRole,
+//                                                                    QMessageBox::Yes);
+//        if (resBtn != QMessageBox::Yes)
+//        {
+//            event->ignore();
+//        }
+//        else
+//        {
+//            event->accept();
+//        }
+
+        QMessageBox msgBox;
+        msgBox.setText(tr("Robot nie jest w pozycji domowej!"));
+        QAbstractButton* cancelButton = msgBox.addButton(tr("Anuluj"), QMessageBox::YesRole);
+        QAbstractButton* homeButton = msgBox.addButton(tr("Pozycja domowa"), QMessageBox::NoRole);
+
+        msgBox.exec();
+
+
+        if (msgBox.clickedButton()==homeButton)
+        {
+            qnode.moveHome();
+        }
+
+        if (msgBox.clickedButton()==cancelButton)
         {
             event->ignore();
         }
-        else
-        {
-            event->accept();
-        }
+
     }
 
 }
