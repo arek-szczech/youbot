@@ -82,6 +82,7 @@ public:
         static int program_state;
         static int program_line_number;
         static int point[100];
+        static std::string command[100];
         static bool back_to_home;
         static bool execute_movement_flag;
         static int movement_iteration;
@@ -95,6 +96,7 @@ public:
 
         static bool opening_gripper;
         static bool closing_gripper;
+
 
 
         Ui::MainWindowDesign ui;

@@ -155,7 +155,29 @@ void MainWindow::on_previous_clicked(bool check)
         {
         QNode::movement_iteration--;
         }
+
+        if(QNode::command[QNode::movement_iteration]=="PTP")
+        {
         qnode.manualPTP(QNode::movement_iteration);
+        }
+
+        if(QNode::command[QNode::movement_iteration]=="LIN")
+        {
+        //qnode.manualPTP(QNode::movement_iteration);
+            qnode.log(QNode::Info,std::string("[Tryb ręczny] Wykonano ruch liniowy"));
+        }
+
+        if(QNode::command[QNode::movement_iteration]=="GRO")
+        {
+            qnode.gripperPublisher(0.011, 0.011);
+            qnode.log(QNode::Info,std::string("[Tryb ręczny] Otwarto chwytak"));
+        }
+
+        if(QNode::command[QNode::movement_iteration]=="GRC")
+        {
+            qnode.gripperPublisher(0, 0);
+            qnode.log(QNode::Info,std::string("[Tryb ręczny] Zamknięto chwytak"));
+        }
 
     }
     cout<<"Po dek: "<<QNode::movement_iteration<<endl;
@@ -174,7 +196,29 @@ void MainWindow::on_next_clicked(bool check)
     if(QNode::movement_iteration<QNode::program_line_number)
     {
         cout<<"Next_prog_line_numb: "<<QNode::program_line_number<<endl;
+
+        if(QNode::command[QNode::movement_iteration]=="PTP")
+        {
         qnode.manualPTP(QNode::movement_iteration);
+        }
+
+        if(QNode::command[QNode::movement_iteration]=="LIN")
+        {
+        //qnode.manualPTP(QNode::movement_iteration);
+            qnode.log(QNode::Info,std::string("[Tryb ręczny] Wykonano ruch liniowy"));
+        }
+
+        if(QNode::command[QNode::movement_iteration]=="GRO")
+        {
+            qnode.gripperPublisher(0.011, 0.011);
+            qnode.log(QNode::Info,std::string("[Tryb ręczny] Otwarto chwytak"));
+        }
+
+        if(QNode::command[QNode::movement_iteration]=="GRC")
+        {
+            qnode.gripperPublisher(0, 0);
+            qnode.log(QNode::Info,std::string("[Tryb ręczny] Zamknięto chwytak"));
+        }
 
             QNode::movement_iteration++;
 

@@ -72,6 +72,7 @@ double QNode::lin_yaw_actual;
 int QNode::program_state;
 int QNode::program_line_number;
 int QNode::point[100];
+std::string QNode::command[100];
 bool QNode::back_to_home;
 
 bool QNode::execute_movement_flag=true;
@@ -893,7 +894,7 @@ void QNode::readProgramFromFile()
         cout << "Brak dostępu do pliku" << endl; // przerwać funkcje
     }
     string temp_point[row_number];
-    string command[row_number];
+    //string command[row_number];
 
         for (int i = 0; i<row_number;  i++)
     {
