@@ -56,6 +56,9 @@ public:
         static double subscriber_joint4;
         static double subscriber_joint5;
 
+        static double subscriber_gripper_1;
+        static double subscriber_gripper_2;
+
         static double ik_th1;
         static double ik_th2;
         static double ik_th3;
@@ -90,6 +93,9 @@ public:
         static bool ethercat_connection_temp2;
         static bool elbow_state;
 
+        static bool opening_gripper;
+        static bool closing_gripper;
+
 
         Ui::MainWindowDesign ui;
 
@@ -116,6 +122,8 @@ public:
         void executeLIN(int i);
         void specialInverseKinematics(double xk, double yk, double zk, double Rz, double Ry, double Rx);
         bool checkLinearMovementPossibility(double q1, double q2,double q3,double q4,double q5);
+        bool isHomePositionAchived();
+        bool isGripperPositionAchived(double state);
 
 	/*********************
 	** Logging
@@ -146,10 +154,9 @@ private:
         ros::Publisher armPositionsPublisher;
         ros::Publisher gripperPositionPublisher;
 
-        ros::Publisher armPublisher;
+        ros::Publisher simulatorArmPositionsPublisher;
         ros::Publisher jointsPublisher;
 
-        ros::Subscriber gripperPositionsSubscriber;
         ros::Subscriber jointsSubscriber;
         ros::Subscriber diagnosticsSubscriber;
 

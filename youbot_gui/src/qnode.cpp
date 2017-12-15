@@ -36,6 +36,9 @@ double QNode::subscriber_joint3;
 double QNode::subscriber_joint4;
 double QNode::subscriber_joint5;
 
+double QNode::subscriber_gripper_1;
+double QNode::subscriber_gripper_2;
+
 //specialIK
 double QNode::ik_th1;
 double QNode::ik_th2;
@@ -78,6 +81,9 @@ bool QNode::ethercat_connection=false;
 bool QNode::ethercat_connection_temp=false;
 bool QNode::ethercat_connection_temp2=false;
 bool QNode::elbow_state=false; //false dół, true góra
+
+bool QNode::opening_gripper=false;
+bool QNode::closing_gripper=false;
 
 
 //*********Zmienne do funkcji executeProgram****************
@@ -696,7 +702,7 @@ void QNode::moveArm(double q1, double q2,double q3,double q4,double q5)
         jointvalues[4] = q5;
 
         msg = createArmPositionCommand(jointvalues);
-        armPublisher.publish(msg);
+        simulatorArmPositionsPublisher.publish(msg);
 }
 
 bool QNode::isPositionAchived(int movement_iteration_temp)
@@ -709,9 +715,9 @@ bool QNode::isPositionAchived(int movement_iteration_temp)
              (abs(P[point[movement_iteration_temp]][4]-subscriber_joint5)<0.05)
             )
                 {
-//                    cout<<"Nr punktu gdzie dojechano: "<<point[movement_iteration_temp]<<endl;
-//                    cout<<"Wartość joint 1: "<<P[point[movement_iteration_temp]][0]<<endl;
-//                    cout<<"T_Abs: "<<abs(P[point[movement_iteration_temp]][0]-subscriber_joint1)<<endl;
+                    cout<<"Nr punktu gdzie dojechano: "<<point[movement_iteration_temp]<<endl;
+                    cout<<"Wartość joint 1: "<<P[point[movement_iteration_temp]][0]<<endl;
+                    cout<<"T_Abs: "<<abs(P[point[movement_iteration_temp]][0]-subscriber_joint1)<<endl;
                     QNode::movement_iteration++;
                     return true;
                 }
@@ -721,12 +727,12 @@ bool QNode::isPositionAchived(int movement_iteration_temp)
                //cout<<"subscriber_joint1: "<<subscriber_joint1<<endl;
                //cout<<"roznica: "<<P[point[movement_iteration_temp]][0]-subscriber_joint1<<endl;
                //cout<<"F_Abs: "<<abs(P[point[movement_iteration_temp]][0]-subscriber_joint1)<<endl;
-//               std_msgs::String msg;
-//               std::stringstream ss;
-//               ss << "F_Abs: "<<abs(P[point[movement_iteration_temp]][0]-subscriber_joint1);
-//               msg.data = ss.str();
+               std_msgs::String msg;
+               std::stringstream ss;
+               ss << "F_Abs: "<<abs(P[point[movement_iteration_temp]][0]-subscriber_joint1);
+               msg.data = ss.str();
 
-//               log(Info,std::string("")+msg.data);
+               log(Info,std::string("")+msg.data);
 
                return false;
            }
@@ -768,17 +774,14 @@ void jointsCallback(const sensor_msgs::JointStateConstPtr& youbotArmState)
     QNode::subscriber_joint3 = youbotArmState->position[2];
     QNode::subscriber_joint4 = youbotArmState->position[3];
     QNode::subscriber_joint5 = youbotArmState->position[4];
+    QNode::subscriber_gripper_1 = youbotArmState->position[5];
+    QNode::subscriber_gripper_2 = youbotArmState->position[6];
 
     MainWindow::joint_1 = QNode::subscriber_joint1;
     MainWindow::joint_2 = QNode::subscriber_joint2;
     MainWindow::joint_3 = QNode::subscriber_joint3;
     MainWindow::joint_4 = QNode::subscriber_joint4;
     MainWindow::joint_5 = QNode::subscriber_joint5;
-}
-
-void gripperCallback(const brics_actuator::JointPositionsConstPtr& youbotArmCommand)
-{
-
 }
 
 void diagnosticsCallback(const diagnostic_msgs::DiagnosticArrayConstPtr& youbotArmDiagnostic)
@@ -894,7 +897,43 @@ void QNode::readProgramFromFile()
 
         for (int i = 0; i<row_number;  i++)
     {
-        command[i] = line[i].substr (0,3);
+        command[i] = line[i].substr(0,3);
+        if (command[i] == "GRI")
+        {
+            state++;
+            string gripper_command;
+            command[i] = line[i].substr(0,7);
+            if (command[i] == "GRIPPER")
+            {
+                state++;
+                gripper_command = line[i].substr(8,4);
+                if (gripper_command=="OPEN")
+                {
+                    state++;
+                    command[i]="GRO";
+                    cout << "Otwieram gripper" << endl;
+                }
+
+            else if (gripper_command=="CLOS")
+            {
+                state++;
+                command[i]="GRC";
+                cout << "Zamykam gripper" << endl;
+            }
+            else
+            {
+                cout << "Brak komendy OPEN/CLOSE";
+            }
+        }
+        else
+        {
+            cout << "Nieznana komenda";
+
+        }
+        }
+        else
+        {
+
         temp_point[i] = line[i].substr (4,1);
         point[i] = atoi((line[i].substr (5,2)).c_str());
         if ((command[i]=="PTP")||(command[i]=="LIN"))
@@ -910,6 +949,7 @@ void QNode::readProgramFromFile()
         else
             cout << "Punkt P" << point[i] << " nie został zdefiniowany" << endl;
     }
+        }
         if (state/3!=row_number)
         {
          cout << state << endl;
@@ -955,22 +995,28 @@ void QNode::readProgramFromFile()
 //                    //cout<<"Ważny test: "<<point[QNode::movement_iteration]<<endl;
                     }
 
+                    if(command[movement_iteration]=="GRO")
+                    {
+                    log(Info,std::string("[Tryb automatyczny] Otwarto chwytak"));
+                    gripperPublisher(0.011, 0.011);
+                    opening_gripper=true;
+                    }
+
+                    if(command[movement_iteration]=="GRC")
+                    {
+                    log(Info,std::string("[Tryb automatyczny] Zamknięto chwytak"));
+                    gripperPublisher(0, 0);
+                    closing_gripper=true;
+                    }
+
+
+
                     QNode::execute_movement_flag=false;
             }
 
         while (QNode::execute_movement_flag);
             }
         }
-
-
-
-
-
-
-
-
-
-
    }
 
 void QNode::loadPointsList()
@@ -996,15 +1042,15 @@ void QNode::jointPublisher(double q1, double q2,double q3,double q4,double q5)
 {
     static const int numberOfArmJoints = 5;
     brics_actuator::JointPositions command;
-    vector <brics_actuator::JointValue> armJointPositions;
-    armJointPositions.resize(numberOfArmJoints); //TODO:change that
+    vector <brics_actuator::JointValue> jointPosition;
+    jointPosition.resize(numberOfArmJoints); //TODO:change that
     std::stringstream jointName;
 
-    armJointPositions[0].value = q1;
-    armJointPositions[1].value = q2;
-    armJointPositions[2].value = q3;
-    armJointPositions[3].value = q4;
-    armJointPositions[4].value = q5;
+    jointPosition[0].value = q1;
+    jointPosition[1].value = q2;
+    jointPosition[2].value = q3;
+    jointPosition[3].value = q4;
+    jointPosition[4].value = q5;
 
     for (int i = 0; i < numberOfArmJoints; ++i)
     {
@@ -1014,14 +1060,14 @@ void QNode::jointPublisher(double q1, double q2,double q3,double q4,double q5)
         jointName.str("");
         jointName << "arm_joint_" << (i + 1);
 
-        armJointPositions[i].joint_uri = jointName.str();
-        //armJointPositions[i].value = readValue;
+        jointPosition[i].joint_uri = jointName.str();
+        //jointPosition[i].value = readValue;
 
-        armJointPositions[i].unit = boost::units::to_string(boost::units::si::radians);
-        //cout << "Joint " << armJointPositions[i].joint_uri << " = " << armJointPositions[i].value << " " << armJointPositions[i].unit << endl;
+        jointPosition[i].unit = boost::units::to_string(boost::units::si::radians);
+        //cout << "Joint " << jointPosition[i].joint_uri << " = " << jointPosition[i].value << " " << jointPosition[i].unit << endl;
     };
 
-    command.positions = armJointPositions;
+    command.positions = jointPosition;
     armPositionsPublisher.publish(command);
     QNode::moveArm(q1, q2, q3, q4, q5);
 }
@@ -1045,10 +1091,44 @@ void QNode::gripperPublisher(double gripper_1, double gripper_2)
     gripperPositionPublisher.publish(command);
 }
 
+bool QNode::isGripperPositionAchived(double value)
+{
+    if(
+      (abs(value-subscriber_gripper_1)<0.0005) &&
+      (abs(value-subscriber_gripper_2)<0.0005)
+     )
+         {
+             movement_iteration++;
+             return true;
+         }
+    else
+    {
+        return false;
+    }
+}
+
 void QNode::moveHome()
 {
     QNode::jointPublisher(QNode::home[0],QNode::home[1],QNode::home[2],QNode::home[3],QNode::home[4]);
     log(Info,std::string("Wykonano ruch do pozycji domowej"));
+}
+
+bool QNode::isHomePositionAchived()
+{
+    if(
+      (abs(QNode::home[0]-subscriber_joint1)<0.0005) &&
+      (abs(QNode::home[1]-subscriber_joint2)<0.0005) &&
+      (abs(QNode::home[2]-subscriber_joint3)<0.0005) &&
+      (abs(QNode::home[3]-subscriber_joint4)<0.0005) &&
+      (abs(QNode::home[4]-subscriber_joint5)<0.0005)
+     )
+         {
+             return true;
+         }
+    else
+    {
+        return false;
+    }
 }
 
 void QNode::manualPTP(int i)
@@ -1225,12 +1305,12 @@ void QNode::jointSimulator(int i)
     sensor_msgs::JointState armJointStateMessages;
 
     armJointStateMessages.header.stamp = currentTime;
-    armJointStateMessages.name.resize(5);
-    armJointStateMessages.position.resize(5);
-    armJointStateMessages.velocity.resize(5);
-    armJointStateMessages.effort.resize(5);
+    armJointStateMessages.name.resize(7);
+    armJointStateMessages.position.resize(7);
+    armJointStateMessages.velocity.resize(7);
+    armJointStateMessages.effort.resize(7);
 
-    for(int i=0;i<5;i++)
+    for(int i=0;i<7;i++)
     {
         armJointStateMessages.name[i] = "nazwa";
         armJointStateMessages.velocity[i] = 0;
@@ -1241,23 +1321,52 @@ void QNode::jointSimulator(int i)
     double th_3;
     double th_4;
     double th_5;
+    double th_6;
+    double th_7;
 
     if(i==0)
     {
-th_1=1.1;th_2=0.886693;th_3=-2.15466;th_4=1.60133;th_5=2.93141;
-cout<<"Jestem w stanie 0"<<endl;
+th_1=1.1;th_2=0.886693;th_3=-2.15466;th_4=1.60133;th_5=2.93141; th_6=0; th_7=0;
+cout<<"Jestem w stanie 0, P1, close"<<endl;
 
     }
+
     else if(i==1)
     {
-        th_1=2.1;th_2=1.83454;th_3=-3.36926;th_4=3.28443;th_5=2.93141;
-        cout<<"Jestem w stanie 1"<<endl;
+th_1=1.1;th_2=0.886693;th_3=-2.15466;th_4=1.60133;th_5=2.93141; th_6=0.007; th_7=0.007;
+cout<<"Jestem w stanie 1, P1, opening"<<endl;
 
     }
+
     else if(i==2)
     {
-    th_1=3.1;th_2=1.83465;th_3=-3.30264;th_4=3.2177;th_5=2.93141;
-    cout<<"Jestem w stanie 2"<<endl;
+th_1=1.1;th_2=0.886693;th_3=-2.15466;th_4=1.60133;th_5=2.93141; th_6=0.011; th_7=0.011;
+cout<<"Jestem w stanie 2, P1, open"<<endl;
+
+    }
+
+    else if(i==3)
+    {
+        th_1=2.1;th_2=1.83454;th_3=-3.36926;th_4=3.28443;th_5=2.93141;th_6=0.011; th_7=0.011;
+        cout<<"Jestem w stanie 3, P2 ,open"<<endl;
+    }
+
+    else if(i==4)
+    {
+        th_1=2.1;th_2=1.83454;th_3=-3.36926;th_4=3.28443;th_5=2.93141;th_6=0.007; th_7=0.007;
+        cout<<"Jestem w stanie 4, P2, closing"<<endl;
+    }
+
+    else if(i==5)
+    {
+    th_1=2.1;th_2=1.83465;th_3=-3.30264;th_4=3.2177;th_5=2.93141;th_6=0; th_7=0;
+    cout<<"Jestem w stanie 5, P2 close"<<endl;
+    }
+
+    else if(i==6)
+    {
+    th_1=3.1;th_2=1.83465;th_3=-3.30264;th_4=3.2177;th_5=2.93141;th_6=0; th_7=0;
+    cout<<"Jestem w stanie 6, P3 close"<<endl;
     }
     else
     {
@@ -1275,6 +1384,8 @@ cout<<"Jestem w stanie 0"<<endl;
     armJointStateMessages.position[2] = th_3;
     armJointStateMessages.position[3] = th_4;
     armJointStateMessages.position[4] = th_5;
+    armJointStateMessages.position[5] = th_6;
+    armJointStateMessages.position[6] = th_7;
 
 
     jointsPublisher.publish(armJointStateMessages);
@@ -1305,11 +1416,10 @@ bool QNode::init()
 	ros::NodeHandle n;
         armPositionsPublisher = n.advertise<brics_actuator::JointPositions > ("arm_1/arm_controller/position_command", 1);
         gripperPositionPublisher = n.advertise<brics_actuator::JointPositions > ("arm_1/gripper_controller/position_command", 1);
-        gripperPositionsSubscriber = n.subscribe<brics_actuator::JointPositions >("arm_1/gripper_controller/position_command", 1, gripperCallback);
-        armPublisher = n.advertise<trajectory_msgs::JointTrajectory>("arm_1/arm_controller/command", 1);
+        jointsPublisher = n.advertise<sensor_msgs::JointState>("/joint_states", 1);
         jointsSubscriber = n.subscribe<sensor_msgs::JointState >("/joint_states", 10, jointsCallback);
         diagnosticsSubscriber = n.subscribe<diagnostic_msgs::DiagnosticArray >("/diagnostics", 10, diagnosticsCallback);
-        jointsPublisher = n.advertise<sensor_msgs::JointState>("/joint_states", 1);
+        simulatorArmPositionsPublisher = n.advertise<trajectory_msgs::JointTrajectory>("arm_1/arm_controller/command", 1);
 
         P[0][0]=MainWindow::min_1;
         P[0][1]=MainWindow::min_2;
@@ -1353,10 +1463,28 @@ void QNode::run()
                 this->ui.lcd_pitch->display(QNode::pitch);
                 this->ui.lcd_yaw->display(QNode::yaw);
 
-            if(QNode::execute_movement_flag==false)
+            if((QNode::execute_movement_flag==false)&&(closing_gripper==false)&&(opening_gripper==false))
             {
                 if(QNode::execute_movement_flag = QNode::isPositionAchived(QNode::movement_iteration))
                 {QNode::readProgramFromFile();}
+            }
+
+            else if(closing_gripper==true)
+            {
+                if(QNode::execute_movement_flag = QNode::isGripperPositionAchived(0))
+                {
+                    closing_gripper=false;
+                    QNode::readProgramFromFile();
+                }
+            }
+
+            else if(opening_gripper==true)
+            {
+                if(QNode::execute_movement_flag = QNode::isGripperPositionAchived(0.011))
+                {
+                    opening_gripper=false;
+                    QNode::readProgramFromFile();
+                }
             }
 
 
@@ -1368,7 +1496,7 @@ void QNode::run()
             }
             else if (QNode::ethercat_connection_temp2==true)
             {
-               log(Info,std::string("Utracono łączność EtherCAT"));
+               log(Error,std::string("Utracono łączność EtherCAT"));
                 QNode::ethercat_connection_temp2=false;
             }
 		ros::spinOnce();
@@ -1400,7 +1528,7 @@ void QNode::log( const LogLevel &level, const std::string &msg) {
 		}
 		case(Error) : {
 				ROS_ERROR_STREAM(msg);
-				logging_model_msg << "[ERROR] [" << ros::Time::now() << "]: " << msg;
+                                logging_model_msg << "[ERROR]: " << msg;
 				break;
 		}
 		case(Fatal) : {

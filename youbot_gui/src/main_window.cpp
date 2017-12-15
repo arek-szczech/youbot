@@ -20,6 +20,7 @@
 #include <string>
 #include <QProcess>
 #include <QLCDNumber>
+#include <QCloseEvent>
 #include <std_msgs/String.h>
 /*****************************************************************************
 ** Namespaces
@@ -335,20 +336,20 @@ void MainWindow::on_pitch_minus_clicked(bool check)
 }
 void MainWindow::on_yaw_plus_clicked(bool check)
 {
-//    zmienna++;
-//    cout<<"zmienna: "<<zmienna<<endl;
-//     qnode.jointSimulator(MainWindow::zmienna);
+    zmienna++;
+    cout<<"zmienna: "<<zmienna<<endl;
+     qnode.jointSimulator(MainWindow::zmienna);
 
 //    double yaw_temp=QNode::yaw;
 //    yaw_temp=yaw_temp+0.1;
 //    qnode.inverseKinematics(QNode::x, QNode::y, QNode::z, QNode::roll, QNode::pitch, yaw_temp);
-    qnode.executeLIN(1);
+    //qnode.executeLIN(1);
 }
 void MainWindow::on_yaw_minus_clicked(bool check)
 {
-//    zmienna--;
-//    cout<<"zmienna: "<<zmienna<<endl;
-//    qnode.jointSimulator(MainWindow::zmienna);
+    zmienna--;
+    cout<<"zmienna: "<<zmienna<<endl;
+    qnode.jointSimulator(MainWindow::zmienna);
 
 //    double yaw_temp=QNode::yaw;
 //    yaw_temp=yaw_temp-0.1;
@@ -461,9 +462,35 @@ void MainWindow::updateListView() {
 ** Implementation [Close]
 *****************************************************************************/
 
-void MainWindow::closeEvent(QCloseEvent *event)
+//void MainWindow::closeEvent(QCloseEvent *event)
+//{
+//	QMainWindow::closeEvent(event);
+//}
+
+
+
+void MainWindow::closeEvent (QCloseEvent *event)
 {
-	QMainWindow::closeEvent(event);
+    if(qnode.isHomePositionAchived())
+    {
+        event->accept();
+    }
+    else
+    {
+        const QMessageBox::StandardButton resBtn = QMessageBox::question( this, tr("youBot Arm GUI"),
+                                                                    tr("Are you sure?\n"),
+                                                                    QMessageBox::Cancel | QMessageBox::No | QMessageBox::Yes,
+                                                                    QMessageBox::No);
+        if (resBtn != QMessageBox::Yes)
+        {
+            event->ignore();
+        }
+        else
+        {
+            event->accept();
+        }
+    }
+
 }
 
 }  // namespace youbot_gui
