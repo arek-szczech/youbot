@@ -1051,7 +1051,7 @@ void QNode::moveHome()
     log(Info,std::string("Wykonano ruch do pozycji domowej"));
 }
 
-void QNode::executePTP(int i)
+void QNode::manualPTP(int i)
 {
          jointPublisher(P[point[i]][0],P[point[i]][1],P[point[i]][2],P[point[i]][3],P[point[i]][4]);
          cout<<"Numer pkt: "<<i<<endl;

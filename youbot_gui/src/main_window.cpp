@@ -154,7 +154,7 @@ void MainWindow::on_previous_clicked(bool check)
         {
         QNode::movement_iteration--;
         }
-        qnode.executePTP(QNode::movement_iteration);
+        qnode.manualPTP(QNode::movement_iteration);
 
     }
     cout<<"Po dek: "<<QNode::movement_iteration<<endl;
@@ -173,7 +173,7 @@ void MainWindow::on_next_clicked(bool check)
     if(QNode::movement_iteration<QNode::program_line_number)
     {
         cout<<"Next_prog_line_numb: "<<QNode::program_line_number<<endl;
-        qnode.executePTP(QNode::movement_iteration);
+        qnode.manualPTP(QNode::movement_iteration);
 
             QNode::movement_iteration++;
 

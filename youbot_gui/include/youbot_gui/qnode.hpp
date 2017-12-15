@@ -106,7 +106,7 @@ public:
         void jointPublisher(double q1, double q2,double q3,double q4,double q5);
         void gripperPublisher(double gripper_1, double gripper_2);
         void moveArm(double q1, double q2,double q3,double q4,double q5);
-        void executePTP(int i);
+        void manualPTP(int i);
         double* inverseKinematic(double xk, double yk, double zk, double Rz, double Ry, double Rx);
         int sgn(double v);
         void moveHome();
