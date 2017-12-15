@@ -65,20 +65,6 @@ public:
         static double ik_th4;
         static double ik_th5;
 
-        static double lin_x;
-        static double lin_y;
-        static double lin_z;
-        static double lin_roll;
-        static double lin_pitch;
-        static double lin_yaw;
-
-        static double lin_x_actual;
-        static double lin_y_actual;
-        static double lin_z_actual;
-        static double lin_roll_actual;
-        static double lin_pitch_actual;
-        static double lin_yaw_actual;
-
         static int program_state;
         static int program_line_number;
         static int point[100];
@@ -96,6 +82,9 @@ public:
 
         static bool opening_gripper;
         static bool closing_gripper;
+
+        static bool linear_solution_exist;
+
 
 
 
@@ -123,7 +112,7 @@ public:
         void lin(double q1, double q2,double q3,double q4,double q5);
         void executeLIN(int i);
         void specialInverseKinematics(double xk, double yk, double zk, double Rz, double Ry, double Rx);
-        bool checkLinearMovementPossibility(double q1, double q2,double q3,double q4,double q5);
+        bool checkLinearMovementPossibility(int destination_point);
         bool isHomePositionAchived();
         bool isGripperPositionAchived(double state);
 
