@@ -85,6 +85,27 @@ public:
 
         static bool linear_solution_exist;
 
+        static int number_of_lin_mov;
+        static int number_of_actual_lin_mov;
+        static int lin_mov_little_steps_count;
+        double q1_prev;
+        double q2_prev;
+        double q3_prev;
+        double q4_prev;
+        double q5_prev;
+        static int greatest_value;
+        static int lin_mov_array[100];
+        static bool executed_little_step;
+        static double actual_little_step_position[5];
+        static double prev_x;
+        static double prev_y;
+        static double prev_z;
+        static double prev_roll;
+        static double prev_pitch;
+        static double prev_yaw;
+        static double distance_x;
+        static double distance_y;
+        static double distance_z;
 
 
 
@@ -110,11 +131,12 @@ public:
         void jointSimulator(int i);
         bool isPositionAchived(int movement_iteration_temp);
         void lin(double q1, double q2,double q3,double q4,double q5);
-        void executeLIN(int i);
-        void specialInverseKinematics(double xk, double yk, double zk, double Rz, double Ry, double Rx);
-        bool checkLinearMovementPossibility(int destination_point);
+        void executeLIN(int point_number);
+        bool checkLinearMovementPossibility(int destination_point, bool mode);
         bool isHomePositionAchived();
         bool isGripperPositionAchived(double state);
+        bool isLittleStepExecuted();
+        //void convActNumbOfLinMov2Joint(int number);
 
 	/*********************
 	** Logging

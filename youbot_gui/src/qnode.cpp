@@ -73,6 +73,22 @@ bool QNode::linear_solution_exist=true;
 bool QNode::opening_gripper=false;
 bool QNode::closing_gripper=false;
 
+int QNode::number_of_lin_mov=0;
+int QNode::number_of_actual_lin_mov=0;
+int QNode::lin_mov_little_steps_count=1;
+int QNode::greatest_value=0;
+int QNode::lin_mov_array[100];
+bool QNode::executed_little_step=false;
+double QNode::actual_little_step_position[5];
+double QNode::prev_x;
+double QNode::prev_y;
+double QNode::prev_z;
+double QNode::prev_roll;
+double QNode::prev_pitch;
+double QNode::prev_yaw;
+double QNode::distance_x;
+double QNode::distance_y;
+double QNode::distance_z;
 
 //*********Zmienne do funkcji executeProgram****************
 string line[100];
@@ -113,13 +129,18 @@ int QNode::sgn(double v)
 
 double* QNode::inverseKinematic(double xk, double yk, double zk, double Rz, double Ry, double Rx, bool logi)
 {
+    //logi==false: do not show logs, logi==true: show logs;
+
     linear_solution_exist=true;
     static double q[5]; //final array with calculations of IK
     double *cords; //calculation of FK
 
+    double RPY_1_3; //r13 from RPY matrix
+    double RPY_2_3; //r23 from RPY matrix
+    double RPY_3_3; //r33 from RPY matrix
     double RPY_3_1; //r31 from RPY matrix
     double RPY_3_2; //r32 from RPY matrix
-    double RPY_3_3; //r33 from RPY matrix
+
 
     double xp4; //x coordinate for point 4
     double yp4; //y coordinate for point 4
@@ -144,9 +165,11 @@ double* QNode::inverseKinematic(double xk, double yk, double zk, double Rz, doub
     double B;
 
     //Calculating elements from RPY matrix
-    RPY_3_1 = cos(Rz)*sin(Ry)*cos(Rx) + sin(Rz)*sin(Rx);
-    RPY_3_2 = sin(Rz)*sin(Ry)*cos(Rx) - cos(Rz)*sin(Rx);
+    RPY_1_3 = cos(Rz)*sin(Ry)*cos(Rx) + sin(Rz)*sin(Rx);
+    RPY_2_3 = sin(Rz)*sin(Ry)*cos(Rx) - cos(Rz)*sin(Rx);
     RPY_3_3 = cos(Ry)*cos(Rx);
+    RPY_3_1 = -sin(Ry);
+    RPY_3_2 = cos(Ry)*sin(Rx);
 
     xk = round(xk*100)/100;
     yk = round(yk*100)/100;
@@ -154,7 +177,7 @@ double* QNode::inverseKinematic(double xk, double yk, double zk, double Rz, doub
 
     q[0] = atan2(yk,xk);
 
-    beta = atan2(RPY_3_3,sqrt(RPY_3_1*RPY_3_1 + RPY_3_2*RPY_3_2));
+    beta = atan2(RPY_3_3,sqrt(RPY_1_3*RPY_1_3 + RPY_2_3*RPY_2_3));
 
     xp4 = round((xk - d5*cos(q[0])*cos(beta))*100)/100;
     yp4 = round((yk - d5*sin(q[0])*cos(beta))*100)/100;
@@ -206,7 +229,7 @@ double* QNode::inverseKinematic(double xk, double yk, double zk, double Rz, doub
 
         q[3] = (-1)*(beta + q[1] + q[2]) - M_PI;
 
-        q[4] = 0;
+        q[4] = atan2(RPY_3_2/(sin(q[1]+q[2])*cos(q[3])+cos(q[1]+q[2])*sin(q[3])),-RPY_3_1/(sin(q[1]+q[2])*cos(q[3])+cos(q[1]+q[2])*sin(q[3])));
 
         q[0] = q[0] + offset1;
         q[1] = q[1] + offset2;
@@ -314,7 +337,7 @@ double* QNode::inverseKinematic(double xk, double yk, double zk, double Rz, doub
 
         q[3] = (-1)*(beta + q[1] + q[2]);
 
-        q[4] = 0;
+        q[4] = atan2(RPY_3_2/(sin(q[1]+q[2])*cos(q[3])+cos(q[1]+q[2])*sin(q[3])),-RPY_3_1/(sin(q[1]+q[2])*cos(q[3])+cos(q[1]+q[2])*sin(q[3])));
 
         q[0] = q[0] + offset1;
         q[1] = q[1] + offset2;
@@ -404,268 +427,6 @@ double* QNode::forwardKinematic(double q1, double q2,double q3,double q4,double 
     cords[5] = round(cords[5]*100)/100;
 
     return cords;
-}
-
-void QNode::specialInverseKinematics(double xk, double yk, double zk, double Rz, double Ry, double Rx)
-{
-//    //Calculating elements from RPY matrix
-//    RPY_3_1 = cos(Rz)*sin(Ry)*cos(Rx) + sin(Rz)*sin(Rx);
-//    RPY_3_2 = sin(Rz)*sin(Ry)*cos(Rx) - cos(Rz)*sin(Rx);
-//    RPY_3_3 = cos(Ry)*cos(Rx);
-
-//    xk = round(xk*100)/100;
-//    yk = round(yk*100)/100;
-//    zk = round(zk*100)/100;
-
-//    theta_1 = atan2(yk,xk);
-
-//    beta = atan2(RPY_3_3,sqrt(RPY_3_1*RPY_3_1 + RPY_3_2*RPY_3_2));
-
-//    xp4 = round((xk - d5*cos(theta_1)*cos(beta))*100)/100;
-//    yp4 = round((yk - d5*sin(theta_1)*cos(beta))*100)/100;
-//    zp4 = zk - d5*sin(beta);
-
-//    if (sgn(xp4)!=sgn(xk) || sgn(yp4)!=sgn(yk))
-//    {
-//        theta_1 = atan2(yp4,xp4);
-
-//        x4 = xp4 - a1*cos(theta_1);
-//        y4 = yp4 - a1*sin(theta_1);
-//        z4 = zp4 - d1;
-
-//        l = sqrt(x4*x4 + y4*y4 + z4*z4);
-
-//        cos_phi = (a2*a2 + a3*a3 - l*l)/(2*a2*a3);
-//        sin_phi = sqrt(1 - cos_phi*cos_phi);
-
-//        phi = atan2(sin_phi,cos_phi);
-
-//        theta_3 = (-1)*(M_PI - phi);
-//        //theta_3 = (M_PI - phi);
-
-//        A = atan2(z4,sqrt(x4*x4 + y4*y4));
-
-//        cos_B = (a2*a2 + l*l - a3*a3)/(2*l*a2);
-//        sin_B = sqrt(1 - cos_B*cos_B);
-
-//        B = atan2(sin_B,cos_B);
-
-//        if (theta_3 < 0)
-//        {
-//            theta_2 = (-1)*(A - B);
-//        }
-//        else if (theta_3 > 0)
-//        {
-//            theta_2 = (-1)*(A+B);
-//        }
-//        else if (theta_3 == 0 || theta_3 == M_PI)
-//        {
-//            theta_2 = (-1)*atan2(z4*z4,sqrt(x4*x4 + y4*y4));
-//        }
-
-//        theta_4 = (-1)*(beta + theta_2 + theta_3) - M_PI;
-
-//        theta_5 = 0;
-
-//        double th1 = theta_1;
-//        double th2 = theta_2;
-//        double th3 = theta_3;
-//        double th4 = theta_4 - M_PI/2;
-//        double th5 = theta_5;
-
-//        double x = a1*cos(th1) - d5*(cos(th4)*(cos(th1)*cos(th2)*sin(th3) + cos(th1)*cos(th3)*sin(th2)) - sin(th4)*(cos(th1)*sin(th2)*sin(th3) - cos(th1)*cos(th2)*cos(th3))) + a2*cos(th1)*cos(th2) + a3*cos(th1)*cos(th2)*cos(th3) - a3*cos(th1)*sin(th2)*sin(th3);
-//        double y = a1*sin(th1) - d5*(cos(th4)*(cos(th2)*sin(th1)*sin(th3) + cos(th3)*sin(th1)*sin(th2)) - sin(th4)*(sin(th1)*sin(th2)*sin(th3) - cos(th2)*cos(th3)*sin(th1))) + a2*cos(th2)*sin(th1) + a3*cos(th2)*cos(th3)*sin(th1) - a3*sin(th1)*sin(th2)*sin(th3);
-//        double z = d1 - a2*sin(th2) - d5*(cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2))) - a3*cos(th2)*sin(th3) - a3*cos(th3)*sin(th2);
-
-//        //double roll = atan2(- cos(th1)*sin(th5) - cos(th5)*(cos(th4)*(sin(th1)*sin(th2)*sin(th3) - cos(th2)*cos(th3)*sin(th1)) + sin(th4)*(cos(th2)*sin(th1)*sin(th3) + cos(th3)*sin(th1)*sin(th2))), sin(th1)*sin(th5) - cos(th5)*(cos(th4)*(cos(th1)*sin(th2)*sin(th3) - cos(th1)*cos(th2)*cos(th3)) + sin(th4)*(cos(th1)*cos(th2)*sin(th3) + cos(th1)*cos(th3)*sin(th2))));
-//        //double pitch = atan2(cos(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))), sqrt(sin(th5)*sin(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)))*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))) + (cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)))*(cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)))));
-//        //double yaw = atan2(sin(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))), sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) - cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)));
-
-//        x = round(x*1)/1;
-//        y = round(y*1)/1;
-//        z = round(z*1)/1;
-
-//        QNode::ik_th1 = theta_1 + offset1;
-//        QNode::ik_th2 = theta_2 + offset2;
-//        QNode::ik_th3 = theta_3 + offset3;
-//        QNode::ik_th4 = theta_4 + offset4;
-//        QNode::ik_th5 = theta_5 + offset5;
-
-//        if      (
-//                 (QNode::ik_th1 < MainWindow::min_1) || (QNode::ik_th1 > MainWindow::max_1)||
-//                 (QNode::ik_th2 < MainWindow::min_2) || (QNode::ik_th2 > MainWindow::max_2)||
-//                 (QNode::ik_th3 < MainWindow::min_3) || (QNode::ik_th3 > MainWindow::max_3)||
-//                 (QNode::ik_th4 < MainWindow::min_4) || (QNode::ik_th4 > MainWindow::max_4)||
-//                 (QNode::ik_th5 < MainWindow::min_5) || (QNode::ik_th5 > MainWindow::max_5)
-//                 )
-//        {
-//            log(Warn,std::string("Nie można osiągnąć zadanej pozycji"));
-//        }
-
-//        else
-//        {
-////            cout << "Wpisana wspolrzedna X: " << xk << endl;
-////            cout << "Obliczona wspolrzedna X: " << x << endl;
-////            cout << "Wpisana wspolrzedna Y: " << yk << endl;
-////            cout << "Obliczona wspolrzedna Y: " << y << endl;
-////            cout << "Wpisana wspolrzedna Z: " << zk << endl;
-////            cout << "Obliczona wspolrzedna Z: " << z << endl;
-
-//            if (xk == x && yk == y && zk == z)
-//            {
-//                QNode::jointPublisher(ik_th1, ik_th2, ik_th3, ik_th4, ik_th5);
-////                cout << "Wyliczona z IK theta_1: " << theta_1 << endl;
-////                cout << "Wyliczona z IK theta_2: " << theta_2 << endl;
-////                cout << "Wyliczona z IK theta_3: " << theta_3 << endl;
-////                cout << "Wyliczona z IK theta_4: " << theta_4 << endl;
-////                cout << "Wyliczona z IK theta_5: " << theta_5 << endl;
-////                cout << "" << endl;
-
-////                cout << "Wysylana do robota theta_1: " << theta_1 + offset1 << endl;
-////                cout << "Wysylana do robota theta_2: " << theta_2 + offset2 << endl;
-////                cout << "Wysylana do robota theta_3: " << theta_3 + offset3 << endl;
-////                cout << "Wysylana do robota theta_4: " << theta_4 + offset4 << endl;
-////                cout << "Wysylana do robota theta_5: " << theta_5 + offset5 << endl;
-////                cout << "" << endl;
-//            }
-//            else
-//            {
-//                QNode::ik_th1 = QNode::subscriber_joint1;
-//                QNode::ik_th2 = QNode::subscriber_joint2;
-//                QNode::ik_th3 = QNode::subscriber_joint3;
-//                QNode::ik_th4 = QNode::subscriber_joint4;
-//                QNode::ik_th5 = QNode::subscriber_joint5;
-//                log(Warn,std::string("Nie można osiągnąć zadanej pozycji"));
-////              cout << "BRAK ROZWIAZANIA!" << endl;
-//                cout << "" << endl;
-//            }
-//        }
-
-
-//    }
-//    else if (sgn(xp4)==sgn(xk) || sgn(yp4)==sgn(yk))
-//    {
-//        theta_1 = atan2(yk,xk);
-
-//        x4 = xp4 - a1*cos(theta_1);
-//        y4 = yp4 - a1*sin(theta_1);
-//        z4 = zp4 - d1;
-
-//        l = sqrt(x4*x4 + y4*y4 + z4*z4);
-
-//        cos_phi = (a2*a2 + a3*a3 - l*l)/(2*a2*a3);
-//        sin_phi = sqrt(1 - cos_phi*cos_phi);
-
-//        phi = atan2(sin_phi,cos_phi);
-
-//        theta_3 = (-1)*(M_PI - phi);
-//        //theta_3 = (M_PI - phi);
-
-//        A = atan2(z4,sqrt(x4*x4 + y4*y4));
-
-//        cos_B = (a2*a2 + l*l - a3*a3)/(2*l*a2);
-//        sin_B = sqrt(1 - cos_B*cos_B);
-
-//        B = atan2(sin_B,cos_B);
-
-//        if (theta_3 < 0)
-//        {
-//            theta_2 = (-1)*(A - B);
-//        }
-//        else if (theta_3 > 0)
-//        {
-//            theta_2 = (-1)*(A+B);
-//        }
-//        else if (theta_3 == 0 || theta_3 == M_PI)
-//        {
-//            theta_2 = (-1)*atan2(z4*z4,sqrt(x4*x4 + y4*y4));
-//        }
-
-//        theta_4 = (-1)*(beta + theta_2 + theta_3);
-
-//        theta_5 = 0;
-
-//        double th1 = theta_1;
-//        double th2 = theta_2;
-//        double th3 = theta_3;
-//        double th4 = theta_4-M_PI/2;
-//        double th5 = theta_5;
-
-//        double x = a1*cos(th1) - d5*(cos(th4)*(cos(th1)*cos(th2)*sin(th3) + cos(th1)*cos(th3)*sin(th2)) - sin(th4)*(cos(th1)*sin(th2)*sin(th3) - cos(th1)*cos(th2)*cos(th3))) + a2*cos(th1)*cos(th2) + a3*cos(th1)*cos(th2)*cos(th3) - a3*cos(th1)*sin(th2)*sin(th3);
-//        double y = a1*sin(th1) - d5*(cos(th4)*(cos(th2)*sin(th1)*sin(th3) + cos(th3)*sin(th1)*sin(th2)) - sin(th4)*(sin(th1)*sin(th2)*sin(th3) - cos(th2)*cos(th3)*sin(th1))) + a2*cos(th2)*sin(th1) + a3*cos(th2)*cos(th3)*sin(th1) - a3*sin(th1)*sin(th2)*sin(th3);
-//        double z = d1 - a2*sin(th2) - d5*(cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2))) - a3*cos(th2)*sin(th3) - a3*cos(th3)*sin(th2);
-
-//        //double roll = atan2(- cos(th1)*sin(th5) - cos(th5)*(cos(th4)*(sin(th1)*sin(th2)*sin(th3) - cos(th2)*cos(th3)*sin(th1)) + sin(th4)*(cos(th2)*sin(th1)*sin(th3) + cos(th3)*sin(th1)*sin(th2))), sin(th1)*sin(th5) - cos(th5)*(cos(th4)*(cos(th1)*sin(th2)*sin(th3) - cos(th1)*cos(th2)*cos(th3)) + sin(th4)*(cos(th1)*cos(th2)*sin(th3) + cos(th1)*cos(th3)*sin(th2))));
-//        //double pitch = atan2(cos(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))), sqrt(sin(th5)*sin(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)))*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))) + (cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)))*(cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)))));
-//        //double yaw = atan2(sin(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))), sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) - cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)));
-
-//        x = round(x*1)/1;
-//        y = round(y*1)/1;
-//        z = round(z*1)/1;
-
-//        QNode::ik_th1 = theta_1 + offset1;
-//        QNode::ik_th2 = theta_2 + offset2;
-//        QNode::ik_th3 = theta_3 + offset3;
-//        QNode::ik_th4 = theta_4 + offset4;
-//        QNode::ik_th5 = theta_5 + offset5;
-
-
-
-//        if      (
-//                 (QNode::ik_th1 < MainWindow::min_1) || (QNode::ik_th1 > MainWindow::max_1)||
-//                 (QNode::ik_th2 < MainWindow::min_2) || (QNode::ik_th2 > MainWindow::max_2)||
-//                 (QNode::ik_th3 < MainWindow::min_3) || (QNode::ik_th3 > MainWindow::max_3)||
-//                 (QNode::ik_th4 < MainWindow::min_4) || (QNode::ik_th4 > MainWindow::max_4)||
-//                 (QNode::ik_th5 < MainWindow::min_5) || (QNode::ik_th5 > MainWindow::max_5)
-//                 )
-//        {
-//            log(Warn,std::string("Nie można osiągnąć zadanej pozycji"));
-//        }
-
-//        else
-//        {
-////            cout << "Wpisana wspolrzedna X: " << xk << endl;
-////            cout << "Obliczona wspolrzedna X: " << x << endl;
-////            cout << "Wpisana wspolrzedna Y: " << yk << endl;
-////            cout << "Obliczona wspolrzedna Y: " << y << endl;
-////            cout << "Wpisana wspolrzedna Z: " << zk << endl;
-////            cout << "Obliczona wspolrzedna Z: " << z << endl;
-
-//            if (xk == x && yk == y && zk == z)
-//            {
-//                QNode::jointPublisher(ik_th1, ik_th2, ik_th3, ik_th4, ik_th5);
-////                cout << "" << endl;
-////                cout << "Wyliczona z IK theta_1: " << theta_1 << endl;
-////                cout << "Wyliczona z IK theta_2: " << theta_2 << endl;
-////                cout << "Wyliczona z IK theta_3: " << theta_3 << endl;
-////                cout << "Wyliczona z IK theta_4: " << theta_4 << endl;
-////                cout << "Wyliczona z IK theta_5: " << theta_5 << endl;
-////                cout << "" << endl;
-
-////                cout << "Wysylana do robota theta_1: " << theta_1 + offset1 << endl;
-////                cout << "Wysylana do robota theta_2: " << theta_2 + offset2 << endl;
-////                cout << "Wysylana do robota theta_3: " << theta_3 + offset3 << endl;
-////                cout << "Wysylana do robota theta_4: " << theta_4 + offset4 << endl;
-////                cout << "Wysylana do robota theta_5: " << theta_5 + offset5 << endl;
-////                cout << "" << endl;
-//            }
-//            else
-//            {
-//                QNode::ik_th1 = QNode::subscriber_joint1;
-//                QNode::ik_th2 = QNode::subscriber_joint2;
-//                QNode::ik_th3 = QNode::subscriber_joint3;
-//                QNode::ik_th4 = QNode::subscriber_joint4;
-//                QNode::ik_th5 = QNode::subscriber_joint5;
-
-
-//                log(Warn,std::string("Nie można osiągnąć zadanej pozycji"));
-
-////                cout << "BRAK ROZWIAZANIA!" << endl;
-//            }
-//        }
-
-
-//    }
 }
 
 //Symulator
@@ -874,6 +635,8 @@ void QNode::readPointsFromFile()
 
 void QNode::readProgramFromFile()
 {
+    number_of_lin_mov=0;
+
     string line[100];
     int row_number=0;
     fstream file;
@@ -959,9 +722,15 @@ void QNode::readProgramFromFile()
             state+=2;
         else if ((command[i]=="LIN"))
         {
-            state++;
 
-            if(checkLinearMovementPossibility(i))
+ //**************************************************************
+            state++;
+            lin_mov_array[number_of_lin_mov]=point[i];
+            number_of_lin_mov++;
+            if(checkLinearMovementPossibility(i, false))
+//**************************************************************
+
+
 
                {
                 state++;
@@ -1024,10 +793,7 @@ void QNode::readProgramFromFile()
                     msg.data = ss.str();
                     log(Info,std::string("[Tryb automatyczny] Wykonano ruch LIN P")+msg.data);
 
-//                    QNode::ptp(P[point[QNode::movement_iteration]][0],P[point[QNode::movement_iteration]][1],
-//                            P[point[QNode::movement_iteration]][2],P[point[QNode::movement_iteration]][3],
-//                            P[point[QNode::movement_iteration]][4]);
-//                    //cout<<"Ważny test: "<<point[QNode::movement_iteration]<<endl;
+                    QNode::executeLIN(point[QNode::movement_iteration]);
                     }
 
                     if(command[movement_iteration]=="GRO")
@@ -1166,6 +932,24 @@ bool QNode::isHomePositionAchived()
     }
 }
 
+bool QNode::isLittleStepExecuted()
+{
+    if(
+      (abs(QNode::actual_little_step_position[0]-subscriber_joint1)<0.0005) &&
+      (abs(QNode::actual_little_step_position[1]-subscriber_joint2)<0.0005) &&
+      (abs(QNode::actual_little_step_position[2]-subscriber_joint3)<0.0005) &&
+      (abs(QNode::actual_little_step_position[3]-subscriber_joint4)<0.0005) &&
+      (abs(QNode::actual_little_step_position[4]-subscriber_joint5)<0.0005)
+     )
+         {
+             return true;
+         }
+    else
+    {
+        return false;
+    }
+}
+
 void QNode::manualPTP(int i)
 {
          jointPublisher(P[point[i]][0],P[point[i]][1],P[point[i]][2],P[point[i]][3],P[point[i]][4]);
@@ -1179,12 +963,39 @@ void QNode::manualPTP(int i)
          log(Info,std::string("[Tryb ręczny] Wykonano ruch PTP P")+msg.data);
 }
 
+//void QNode::convActNumbOfLinMov2Joint(int number)
+//{
+
+//}
+
 void QNode::lin(double q1, double q2,double q3,double q4,double q5)
 {
 
+//    double x=prev_x+lin_mov_little_steps_count*distance_x/greatest_value;
+//    double y=prev_y+lin_mov_little_steps_count*distance_y/greatest_value;
+//    double z=prev_z+lin_mov_little_steps_count*distance_z/greatest_value;
+
+    prev_x+=distance_x/greatest_value;
+    prev_y+=distance_y/greatest_value;
+    prev_z+=distance_z/greatest_value;
+
+    double* joints;
+    joints=QNode::inverseKinematic(prev_x, prev_y, prev_z, prev_roll, prev_pitch, prev_yaw, false);
+
+    actual_little_step_position[0]=joints[0];
+    actual_little_step_position[1]=joints[1];
+    actual_little_step_position[2]=joints[2];
+    actual_little_step_position[3]=joints[3];
+    actual_little_step_position[4]=joints[4];
+
+    jointPublisher(actual_little_step_position[0], actual_little_step_position[1], actual_little_step_position[2], actual_little_step_position[3], actual_little_step_position[4]);
+
+    executed_little_step=false;
+    lin_mov_little_steps_count++;
+
 }
 
-bool QNode::checkLinearMovementPossibility(int destination_point)
+bool QNode::checkLinearMovementPossibility(int destination_point, bool mode)
 {   
         linear_solution_exist=true;
 
@@ -1200,11 +1011,30 @@ bool QNode::checkLinearMovementPossibility(int destination_point)
         cout<<"q4_destination: "<<q4_destination<<endl;
         cout<<"q5_destination: "<<q5_destination<<endl;
 
-        double q1_prev=P[point[destination_point-1]][0];
-        double q2_prev=P[point[destination_point-1]][1];
-        double q3_prev=P[point[destination_point-1]][2];
-        double q4_prev=P[point[destination_point-1]][3];
-        double q5_prev=P[point[destination_point-1]][4];
+        double q1_prev;
+        double q2_prev;
+        double q3_prev;
+        double q4_prev;
+        double q5_prev;
+
+        //mode=false: read previous point from program, mode=true: read actual positions
+
+        if(mode==true)
+        {
+        q1_prev=QNode::subscriber_joint1;
+        q2_prev=QNode::subscriber_joint2;
+        q3_prev=QNode::subscriber_joint3;
+        q4_prev=QNode::subscriber_joint4;
+        q5_prev=QNode::subscriber_joint5;
+        }
+        else
+        {
+        q1_prev=P[point[destination_point-1]][0];
+        q2_prev=P[point[destination_point-1]][1];
+        q3_prev=P[point[destination_point-1]][2];
+        q4_prev=P[point[destination_point-1]][3];
+        q5_prev=P[point[destination_point-1]][4];
+        }
 
         cout<<"q1_prev: "<<q1_prev<<endl;
         cout<<"q2_prev: "<<q2_prev<<endl;
@@ -1229,20 +1059,20 @@ bool QNode::checkLinearMovementPossibility(int destination_point)
         double *prev_cords;
         prev_cords = forwardKinematic(q1_prev, q2_prev, q3_prev, q4_prev, q5_prev);
 
-        double prev_x = prev_cords[0];
-        double prev_y = prev_cords[1];
-        double prev_z = prev_cords[2];
-        double prev_roll = prev_cords[3];
-        double prev_pitch = prev_cords[4];
-        double prev_yaw = prev_cords[5];
+         prev_x = prev_cords[0];
+         prev_y = prev_cords[1];
+         prev_z = prev_cords[2];
+         prev_roll = prev_cords[3];
+         prev_pitch = prev_cords[4];
+         prev_yaw = prev_cords[5];
 
         cout<<"prev_x: "<<prev_x<<endl;
         cout<<"prev_y: "<<prev_y<<endl;
         cout<<"prev_z: "<<prev_z<<endl;
 
-        double distance_x = destination_x-prev_x;
-        double distance_y = destination_y-prev_y;
-        double distance_z = destination_z-prev_z;
+         distance_x = destination_x-prev_x;
+         distance_y = destination_y-prev_y;
+         distance_z = destination_z-prev_z;
 
         cout<<"distance_x: "<<distance_x<<endl;
     //    cin>>distance_x;
@@ -1251,42 +1081,40 @@ bool QNode::checkLinearMovementPossibility(int destination_point)
         cout<<"distance_z: "<<distance_z<<endl;
     //    cin>>distance_z;
 
-    double greatestValue;
-
     if (abs(distance_x) >= abs(distance_y))
     {
         if(abs(distance_x) >= abs(distance_z))
         {
-            greatestValue = abs(distance_x);
+            greatest_value = abs(distance_x);
         }
         else
         {
-            greatestValue = abs(distance_z);
+            greatest_value = abs(distance_z);
         }
     }
     else
     {
         if(abs(distance_y) >= abs(distance_z))
         {
-            greatestValue = abs(distance_y);
+            greatest_value = abs(distance_y);
         }
         else
         {
-            greatestValue = abs(distance_z);
+            greatest_value = abs(distance_z);
         }
     }
-cout<<"greatestValue: "<<greatestValue<<endl;
+cout<<"greatest_value: "<<greatest_value<<endl;
 
     double execute_x=prev_x;
     double execute_y=prev_y;
     double execute_z=prev_z;
     int counter=0;
 
-    for (int i=1; i <= greatestValue; i++)
+    for (int i=1; i <= greatest_value; i++)
     {
-        execute_x += distance_x/greatestValue;
-        execute_y += distance_y/greatestValue;
-        execute_z += distance_z/greatestValue;
+        execute_x += distance_x/greatest_value;
+        execute_y += distance_y/greatest_value;
+        execute_z += distance_z/greatest_value;
         cout<<"execute_x: "<<execute_x<<endl;
         cout<<"execute_y: "<<execute_y<<endl;
         cout<<"execute_z: "<<execute_z<<endl;
@@ -1308,17 +1136,34 @@ cout<<"greatestValue: "<<greatestValue<<endl;
     }
 }
 
-void QNode::executeLIN(int i)
+void QNode::executeLIN(int point_number)
 {
-         lin(P[point[i]][0],P[point[i]][1],P[point[i]][2],P[point[i]][3],P[point[i]][4]);
-         cout<<"Numer pkt: "<<i<<endl;
+         if(QNode::checkLinearMovementPossibility(point_number, true))
+         {
+         lin(P[point_number][0],P[point_number][1],P[point_number][2],P[point_number][3],P[point_number][4]);
 
-         std_msgs::String msg;
-         std::stringstream ss;
-         ss << point[i];
-         msg.data = ss.str();
+         }
+         //cout<<"Numer pkt: "<<i<<endl;
 
-         log(Info,std::string("Wykonano ruch LIN P")+msg.data);
+//         std_msgs::String msg;
+//         std::stringstream ss;
+//         ss << point[i];
+//         msg.data = ss.str();
+
+
+
+
+
+         if(QNode::lin_mov_little_steps_count==QNode::greatest_value)
+         {
+            QNode::number_of_actual_lin_mov++;
+            greatest_value=0;
+            movement_iteration++; //czy aby na pewno?????????
+           // QNode::readProgramFromFile();
+         }
+
+
+         //log(Info,std::string("Wykonano ruch LIN P")+msg.data);
 }
 
 void QNode::executeProgram()
@@ -1494,6 +1339,19 @@ void QNode::run()
                 this->ui.lcd_roll->display(QNode::roll);
                 this->ui.lcd_pitch->display(QNode::pitch);
                 this->ui.lcd_yaw->display(QNode::yaw);
+
+            if(executed_little_step==true)
+            {
+                executeLIN(lin_mov_array[number_of_actual_lin_mov]);
+            }
+
+            if(executed_little_step==false)
+            {
+                if(QNode::isLittleStepExecuted())
+                {
+                    executed_little_step=true;
+                }
+            }
 
             if((QNode::execute_movement_flag==false)&&(closing_gripper==false)&&(opening_gripper==false))
             {
