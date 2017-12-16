@@ -111,8 +111,9 @@ int QNode::sgn(double v)
         if (v >= 0) return 1;
 }
 
-double* QNode::inverseKinematic(double xk, double yk, double zk, double Rz, double Ry, double Rx)
+double* QNode::inverseKinematic(double xk, double yk, double zk, double Rz, double Ry, double Rx, bool logi)
 {
+    linear_solution_exist=true;
     static double q[5]; //final array with calculations of IK
     double *cords; //calculation of FK
 
@@ -229,7 +230,10 @@ double* QNode::inverseKinematic(double xk, double yk, double zk, double Rz, doub
             q[3] = QNode::subscriber_joint4;
             q[4] = QNode::subscriber_joint5;
 
+            if(logi==true)
+            {
             log(Warn,std::string("Nie można osiągnąć zadanej pozycji."));
+            }
             linear_solution_exist=false;
 
             return q;
@@ -252,7 +256,10 @@ double* QNode::inverseKinematic(double xk, double yk, double zk, double Rz, doub
                 q[3] = QNode::subscriber_joint4;
                 q[4] = QNode::subscriber_joint5;
 
+                if(logi==true)
+                {
                 log(Warn,std::string("Nie można osiągnąć zadanej pozycji."));
+                }
                 linear_solution_exist=false;
 
                 return q;
@@ -331,7 +338,10 @@ double* QNode::inverseKinematic(double xk, double yk, double zk, double Rz, doub
             q[3] = QNode::subscriber_joint4;
             q[4] = QNode::subscriber_joint5;
 
+            if(logi==true)
+            {
             log(Warn,std::string("Nie można osiągnąć zadanej pozycji."));
+            }
             linear_solution_exist=false;
 
             return q;
@@ -353,7 +363,10 @@ double* QNode::inverseKinematic(double xk, double yk, double zk, double Rz, doub
                 q[3] = QNode::subscriber_joint4;
                 q[4] = QNode::subscriber_joint5;
 
+                if(logi==true)
+                {
                 log(Warn,std::string("Nie można osiągnąć zadanej pozycji."));
+                }
                 linear_solution_exist=false;
 
                 return q;
@@ -947,10 +960,9 @@ void QNode::readProgramFromFile()
         else if ((command[i]=="LIN"))
         {
             state++;
-  //******************************************************************
-            //if(checkLinearMovementPossibility(i))
-  //******************************************************************
-             if(true)
+
+            if(checkLinearMovementPossibility(i))
+
                {
                 state++;
              }
@@ -1174,52 +1186,70 @@ void QNode::lin(double q1, double q2,double q3,double q4,double q5)
 
 bool QNode::checkLinearMovementPossibility(int destination_point)
 {   
-    linear_solution_exist=true;
+        linear_solution_exist=true;
 
-    double q1_destination=P[destination_point][0]; //odczyt punktu do ktorego liniowo jedziemy
-    double q2_destination=P[destination_point][1];
-    double q3_destination=P[destination_point][2];
-    double q4_destination=P[destination_point][3];
-    double q5_destination=P[destination_point][4];
+        double q1_destination=P[point[destination_point]][0];
+        double q2_destination=P[point[destination_point]][1];
+        double q3_destination=P[point[destination_point]][2];
+        double q4_destination=P[point[destination_point]][3];
+        double q5_destination=P[point[destination_point]][4];
 
-    double q1_prev=P[destination_point-1][0]; //odczyt punktu z ktorego liniowo jedziemy
-    double q2_prev=P[destination_point-1][1];
-    double q3_prev=P[destination_point-1][2];
-    double q4_prev=P[destination_point-1][3];
-    double q5_prev=P[destination_point-1][4];
+        cout<<"q1_destination: "<<q1_destination<<endl;
+        cout<<"q2_destination: "<<q2_destination<<endl;
+        cout<<"q3_destination: "<<q3_destination<<endl;
+        cout<<"q4_destination: "<<q4_destination<<endl;
+        cout<<"q5_destination: "<<q5_destination<<endl;
 
+        double q1_prev=P[point[destination_point-1]][0];
+        double q2_prev=P[point[destination_point-1]][1];
+        double q3_prev=P[point[destination_point-1]][2];
+        double q4_prev=P[point[destination_point-1]][3];
+        double q5_prev=P[point[destination_point-1]][4];
 
-    double q1 = q1_destination - 2.8668;
-    double q2 = q2_destination - 2.5919;
-    double q3 = q3_destination + 2.5211;
-    double q4 = q4_destination - 3.3305;
-    double q5 = q5_destination - 2.9314;
+        cout<<"q1_prev: "<<q1_prev<<endl;
+        cout<<"q2_prev: "<<q2_prev<<endl;
+        cout<<"q3_prev: "<<q3_prev<<endl;
+        cout<<"q4_prev: "<<q4_prev<<endl;
+        cout<<"q5_prev: "<<q5_prev<<endl;
 
-    double *destination_cords;
-    destination_cords = forwardKinematic(q1, q2, q3, q4, q5);
+        double *destination_cords;
+        destination_cords = forwardKinematic(q1_destination, q2_destination, q3_destination, q4_destination, q5_destination);
 
+        double destination_x = destination_cords[0];
+        double destination_y = destination_cords[1];
+        double destination_z = destination_cords[2];
+        double destination_roll = destination_cords[3];
+        double destination_pitch = destination_cords[4];
+        double destination_yaw = destination_cords[5];
 
-    q1 = q1_prev - 2.8668;
-    q2 = q2_prev - 2.5919;
-    q3 = q3_prev + 2.5211;
-    q4 = q4_prev - 3.3305;
-    q5 = q5_prev - 2.9314;
+        cout<<"destination_x: "<<destination_x<<endl;
+        cout<<"destination_y: "<<destination_y<<endl;
+        cout<<"destination_z: "<<destination_z<<endl;
 
-    double *prev_cords;
-    prev_cords = forwardKinematic(q1, q2, q3, q4, q5);
+        double *prev_cords;
+        prev_cords = forwardKinematic(q1_prev, q2_prev, q3_prev, q4_prev, q5_prev);
 
+        double prev_x = prev_cords[0];
+        double prev_y = prev_cords[1];
+        double prev_z = prev_cords[2];
+        double prev_roll = prev_cords[3];
+        double prev_pitch = prev_cords[4];
+        double prev_yaw = prev_cords[5];
 
-    double distance_x = destination_cords[0]-prev_cords[0];
-    double distance_y = destination_cords[1]-prev_cords[1];
-    double distance_z = destination_cords[2]-prev_cords[2];
+        cout<<"prev_x: "<<prev_x<<endl;
+        cout<<"prev_y: "<<prev_y<<endl;
+        cout<<"prev_z: "<<prev_z<<endl;
 
-    cout<<"distance_x"<<distance_x<<endl;
-    cin>>distance_x;
-    cout<<"distance_y"<<distance_y<<endl;
-    cin>>distance_y;
-    cout<<"distance_z"<<distance_z<<endl;
-    cin>>distance_z;
+        double distance_x = destination_x-prev_x;
+        double distance_y = destination_y-prev_y;
+        double distance_z = destination_z-prev_z;
 
+        cout<<"distance_x: "<<distance_x<<endl;
+    //    cin>>distance_x;
+        cout<<"distance_y: "<<distance_y<<endl;
+    //    cin>>distance_y;
+        cout<<"distance_z: "<<distance_z<<endl;
+    //    cin>>distance_z;
 
     double greatestValue;
 
@@ -1245,11 +1275,11 @@ bool QNode::checkLinearMovementPossibility(int destination_point)
             greatestValue = abs(distance_z);
         }
     }
-cout<<"greatestValue"<<greatestValue<<endl;
+cout<<"greatestValue: "<<greatestValue<<endl;
 
-    double execute_x=prev_cords[0];
-    double execute_y=prev_cords[1];
-    double execute_z=prev_cords[2];
+    double execute_x=prev_x;
+    double execute_y=prev_y;
+    double execute_z=prev_z;
     int counter=0;
 
     for (int i=1; i <= greatestValue; i++)
@@ -1261,13 +1291,13 @@ cout<<"greatestValue"<<greatestValue<<endl;
         cout<<"execute_y: "<<execute_y<<endl;
         cout<<"execute_z: "<<execute_z<<endl;
 
-        QNode::inverseKinematic(execute_x, execute_y, execute_x, prev_cords[3], prev_cords[4],prev_cords[5]);
+        QNode::inverseKinematic(execute_x, execute_y, execute_x, prev_cords[3], prev_cords[4],prev_cords[5], false);
         if(linear_solution_exist==false)
         {
             counter++;
         }
     }
-
+    cout<<"counter: "<<counter<<endl;
     if (counter==0)
     {
         return true;
