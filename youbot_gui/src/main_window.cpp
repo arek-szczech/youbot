@@ -26,10 +26,6 @@
 ** Namespaces
 *****************************************************************************/
 
-
-
-
-
 namespace youbot_gui {
 
 using namespace Qt;
@@ -163,12 +159,6 @@ void MainWindow::on_previous_clicked(bool check)
         qnode.manualPTP(QNode::movement_iteration);
         }
 
-        if(QNode::command[QNode::movement_iteration]=="LIN")
-        {
-        //qnode.manualPTP(QNode::movement_iteration);
-            qnode.log(QNode::Info,std::string("[Tryb ręczny] Wykonano ruch liniowy"));
-        }
-
         if(QNode::command[QNode::movement_iteration]=="GRO")
         {
             qnode.gripperPublisher(0.011, 0.011);
@@ -179,6 +169,12 @@ void MainWindow::on_previous_clicked(bool check)
         {
             qnode.gripperPublisher(0, 0);
             qnode.log(QNode::Info,std::string("[Tryb ręczny] Zamknięto chwytak"));
+        }
+
+        if(QNode::command[QNode::movement_iteration]=="LIN")
+        {
+            qnode.executeLIN(QNode::movement_iteration);
+            QNode::execute_movement_flag==false;
         }
 
     }
@@ -204,16 +200,12 @@ void MainWindow::on_next_clicked(bool check)
         qnode.manualPTP(QNode::movement_iteration);
         }
 
-        if(QNode::command[QNode::movement_iteration]=="LIN")
-        {
-        //qnode.manualPTP(QNode::movement_iteration);
-            qnode.log(QNode::Info,std::string("[Tryb ręczny] Wykonano ruch liniowy"));
-        }
 
         if(QNode::command[QNode::movement_iteration]=="GRO")
         {
             qnode.gripperPublisher(0.011, 0.011);
             qnode.log(QNode::Info,std::string("[Tryb ręczny] Otwarto chwytak"));
+
         }
 
         if(QNode::command[QNode::movement_iteration]=="GRC")
@@ -222,7 +214,15 @@ void MainWindow::on_next_clicked(bool check)
             qnode.log(QNode::Info,std::string("[Tryb ręczny] Zamknięto chwytak"));
         }
 
-            QNode::movement_iteration++;
+
+        if(QNode::command[QNode::movement_iteration]=="LIN")
+        {
+            QNode::execute_movement_flag==false;
+            qnode.executeLIN(QNode::movement_iteration);
+            QNode::movement_iteration--;
+        }
+
+QNode::movement_iteration++;
 
     }
     cout<<"Po ink: "<<QNode::movement_iteration<<endl;

@@ -1145,13 +1145,23 @@ void QNode::executeLIN(int point_number)
          }
          //cout<<"Numer pkt: "<<i<<endl;
 
-//         std_msgs::String msg;
-//         std::stringstream ss;
-//         ss << point[i];
-//         msg.data = ss.str();
+         if (play_program==true)
+         {
+         std_msgs::String msg;
+         std::stringstream ss;
+         ss << point_number;
+         msg.data = ss.str();
+         log(Info,std::string("[Tryb automatyczny] Wykonano ruch LIN P")+msg.data);
+         }
 
-
-         //log(Info,std::string("Wykonano ruch LIN P")+msg.data);
+         else
+         {
+         std_msgs::String msg;
+         std::stringstream ss;
+         ss << point_number;
+         msg.data = ss.str();
+         log(Info,std::string("[Tryb ręczny] Wykonano ruch LIN P")+msg.data);
+         }
 }
 
 void QNode::executeProgram()
