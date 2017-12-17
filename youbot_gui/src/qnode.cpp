@@ -73,11 +73,11 @@ bool QNode::linear_solution_exist=true;
 bool QNode::opening_gripper=false;
 bool QNode::closing_gripper=false;
 
-int QNode::number_of_lin_mov=0;
-int QNode::number_of_actual_lin_mov=0;
-int QNode::lin_mov_little_steps_count=1;
+//int QNode::number_of_lin_mov=0;
+//int QNode::number_of_actual_lin_mov=0;
+//int QNode::lin_mov_little_steps_count=1;
 int QNode::greatest_value=0;
-int QNode::lin_mov_array[100];
+//int QNode::lin_mov_array[100];
 bool QNode::executed_little_step=false;
 double QNode::actual_little_step_position[5];
 double QNode::prev_x;
@@ -89,6 +89,8 @@ double QNode::prev_yaw;
 double QNode::distance_x;
 double QNode::distance_y;
 double QNode::distance_z;
+bool QNode::start_lin_mov=false;
+
 
 //*********Zmienne do funkcji executeProgram****************
 string line[100];
@@ -485,6 +487,7 @@ bool QNode::isPositionAchived(int movement_iteration_temp)
                     cout<<"Wartość joint 1: "<<P[point[movement_iteration_temp]][0]<<endl;
                     cout<<"T_Abs: "<<abs(P[point[movement_iteration_temp]][0]-subscriber_joint1)<<endl;
                     QNode::movement_iteration++;
+                    start_lin_mov=false;
                     return true;
                 }
            else
@@ -635,7 +638,7 @@ void QNode::readPointsFromFile()
 
 void QNode::readProgramFromFile()
 {
-    number_of_lin_mov=0;
+    //number_of_lin_mov=0;
 
     string line[100];
     int row_number=0;
@@ -725,13 +728,9 @@ void QNode::readProgramFromFile()
 
  //**************************************************************
             state++;
-            lin_mov_array[number_of_lin_mov]=point[i];
-            number_of_lin_mov++;
+         //   lin_mov_array[number_of_lin_mov]=point[i];
+         //   number_of_lin_mov++;
             if(checkLinearMovementPossibility(i, false))
-//**************************************************************
-
-
-
                {
                 state++;
              }
@@ -991,7 +990,7 @@ void QNode::lin(double q1, double q2,double q3,double q4,double q5)
     jointPublisher(actual_little_step_position[0], actual_little_step_position[1], actual_little_step_position[2], actual_little_step_position[3], actual_little_step_position[4]);
 
     executed_little_step=false;
-    lin_mov_little_steps_count++;
+    //lin_mov_little_steps_count++;
 
 }
 
@@ -1140,6 +1139,7 @@ void QNode::executeLIN(int point_number)
 {
          if(QNode::checkLinearMovementPossibility(point_number, true))
          {
+         start_lin_mov=true;
          lin(P[point_number][0],P[point_number][1],P[point_number][2],P[point_number][3],P[point_number][4]);
 
          }
@@ -1149,18 +1149,6 @@ void QNode::executeLIN(int point_number)
 //         std::stringstream ss;
 //         ss << point[i];
 //         msg.data = ss.str();
-
-
-
-
-
-         if(QNode::lin_mov_little_steps_count==QNode::greatest_value)
-         {
-            QNode::number_of_actual_lin_mov++;
-            greatest_value=0;
-            movement_iteration++; //czy aby na pewno?????????
-           // QNode::readProgramFromFile();
-         }
 
 
          //log(Info,std::string("Wykonano ruch LIN P")+msg.data);
@@ -1340,24 +1328,32 @@ void QNode::run()
                 this->ui.lcd_pitch->display(QNode::pitch);
                 this->ui.lcd_yaw->display(QNode::yaw);
 
-            if(executed_little_step==true)
-            {
-                executeLIN(lin_mov_array[number_of_actual_lin_mov]);
-            }
-
-            if(executed_little_step==false)
-            {
-                if(QNode::isLittleStepExecuted())
-                {
-                    executed_little_step=true;
-                }
-            }
 
             if((QNode::execute_movement_flag==false)&&(closing_gripper==false)&&(opening_gripper==false))
             {
                 if(QNode::execute_movement_flag = QNode::isPositionAchived(QNode::movement_iteration))
                 {QNode::readProgramFromFile();}
             }
+
+            if((QNode::execute_movement_flag==false)&&(closing_gripper==false)&&(opening_gripper==false)&&(start_lin_mov==true))
+            {
+
+                if(executed_little_step==false)
+                {
+                    if(QNode::isLittleStepExecuted())
+                    {
+                        executed_little_step=true;
+                    }
+                }
+
+                if(executed_little_step==true)
+                {
+                    executeLIN(point[movement_iteration]);
+                }
+
+            }
+
+
 
             else if(closing_gripper==true)
             {

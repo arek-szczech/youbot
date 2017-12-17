@@ -85,16 +85,16 @@ public:
 
         static bool linear_solution_exist;
 
-        static int number_of_lin_mov;
-        static int number_of_actual_lin_mov;
-        static int lin_mov_little_steps_count;
+        //static int number_of_lin_mov;
+        //static int number_of_actual_lin_mov;
+       // static int lin_mov_little_steps_count;
         double q1_prev;
         double q2_prev;
         double q3_prev;
         double q4_prev;
         double q5_prev;
         static int greatest_value;
-        static int lin_mov_array[100];
+     //   static int lin_mov_array[100];
         static bool executed_little_step;
         static double actual_little_step_position[5];
         static double prev_x;
@@ -106,7 +106,7 @@ public:
         static double distance_x;
         static double distance_y;
         static double distance_z;
-
+        static bool start_lin_mov;
 
 
         Ui::MainWindowDesign ui;

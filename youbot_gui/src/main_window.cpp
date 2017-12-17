@@ -133,6 +133,8 @@ void MainWindow::on_stop_clicked(bool check)
     QNode::play_program=false;
     QNode::movement_iteration=0;
     QNode::execute_movement_flag=true;
+    QNode::executed_little_step=false;
+    QNode::start_lin_mov=false;
 }
 
 void MainWindow::on_previous_clicked(bool check)
