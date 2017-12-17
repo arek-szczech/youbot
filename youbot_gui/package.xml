@@ -4,12 +4,16 @@
   <version>0.1.0</version>
   <description>
 
-     youbot_gui
+     YouBot Graphical User Interface created by Mateusz Talma, Arkadiusz Szczech, Jakub Wawrzenczak based on QT ROS GUI.
 
   </description>
-  <maintainer email="jakub.wawrzenczak@gmail.com">jakub</maintainer>
-  <author>jakub</author>
-  <license>BSD</license>
+  <author>Mateusz Talma</author>
+  <author>Arkadiusz Szczech</author>
+  <author>Jakub Wawrzenczak</author>
+  <maintainer email="mateusz.talma@student.put.poznan.pl">Mateusz Talma</maintainer>
+  <maintainer email="arkadiusz.szczech@student.put.poznan.pl">Arkadiusz Szczech</maintainer>
+  <maintainer email="jakub.wawrzenczak@student.put.poznan.pl">Jakub Wawrzenczak</maintainer>
+  <license>LGPL, BSD</license>
 
   <buildtool_depend>catkin</buildtool_depend>
 

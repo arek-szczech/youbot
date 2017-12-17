@@ -1,44 +1,58 @@
-/**
- * @file /include/youbot_gui/main_window.hpp
- *
- * @brief Qt based gui for youbot_gui.
- *
- * @date December 2017
- **/
+/******************************************************************************
+* 2017
+*
+* Author:
+* Arkadiusz Szczech
+* Mateusz Talma
+* Jakub Wawrzeńczak
+*
+*
+* This software is published under a dual-license: GNU Lesser General Public
+* License LGPL 2.1 and BSD license. The dual-license implies that users of this
+* code may choose which terms they prefer.
+*
+* Redistribution and use in source and binary forms, with or without
+* modification, are permitted provided that the following conditions are met:
+*
+* * Redistributions of source code must retain the above copyright
+* notice, this list of conditions and the following disclaimer.
+* * Redistributions in binary form must reproduce the above copyright
+* notice, this list of conditions and the following disclaimer in the
+* documentation and/or other materials provided with the distribution.
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU Lesser General Public License LGPL as
+* published by the Free Software Foundation, either version 2.1 of the
+* License, or (at your option) any later version or the BSD license.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU Lesser General Public License LGPL and the BSD license for more details.
+*
+* You should have received a copy of the GNU Lesser General Public
+* License LGPL and BSD license along with this program.
+*
+******************************************************************************/
 
 #ifndef youbot_gui_MAIN_WINDOW_H
 #define youbot_gui_MAIN_WINDOW_H
-
-/*****************************************************************************
-** Includes
-*****************************************************************************/
 
 #include <QtWidgets/QMainWindow>
 #include <QLCDNumber>
 #include "ui_main_window.h"
 #include "qnode.hpp"
 
-
-/*****************************************************************************
-** Namespace
-*****************************************************************************/
-
 namespace youbot_gui {
-
-/*****************************************************************************
-** Interface [MainWindow]
-*****************************************************************************/
 
 class MainWindow : public QMainWindow {
 Q_OBJECT
 
 public:
 	MainWindow(int argc, char** argv, QWidget *parent = 0);
-        //MainWindow();
 	~MainWindow();
 
 	void closeEvent(QCloseEvent *event);
-
 
         static double joint_1;
         static double joint_2;
@@ -76,8 +90,6 @@ public Q_SLOTS:
         void on_edit_list_clicked(bool check);
         void on_load_list_clicked(bool check);
 
-
-
         void on_x_plus_clicked(bool check);
         void on_x_minus_clicked(bool check);
         void on_y_plus_clicked(bool check);
@@ -109,10 +121,7 @@ public Q_SLOTS:
         void on_elbow_up_clicked(bool check);
         void on_elbow_down_clicked(bool check);
 
-
-
-
-        void updateLoggingView(); // no idea why this can't connect automatically
+        void updateLoggingView();
         void updateListView();
 
 

@@ -1,9 +1,10 @@
 /******************************************************************************
-* Copyright (c) 2011
-* Locomotec
+* 2017
 *
 * Author:
-* Sebastian Blumenthal
+* Arkadiusz Szczech
+* Mateusz Talma
+* Jakub Wawrzeńczak
 *
 *
 * This software is published under a dual-license: GNU Lesser General Public
@@ -18,9 +19,6 @@
 * * Redistributions in binary form must reproduce the above copyright
 * notice, this list of conditions and the following disclaimer in the
 * documentation and/or other materials provided with the distribution.
-* * Neither the name of Locomotec nor the names of its
-* contributors may be used to endorse or promote products derived from
-* this software without specific prior written permission.
 *
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU Lesser General Public License LGPL as
@@ -34,6 +32,8 @@
 *
 * You should have received a copy of the GNU Lesser General Public
 * License LGPL and BSD license along with this program.
+*
+* This program is based on Sebastian Blumenthal's examples in this package.
 *
 ******************************************************************************/
 
@@ -95,12 +95,8 @@ int main(int argc, char **argv) {
 	static int zmienna = 0;
 	(void) initscr(); /* initialize the curses library */
     keypad(stdscr, TRUE); /* enable keyboard mapping */
- //   (void) nonl(); /* tell curses not to do NL->CR/NL on output */
-    (void) cbreak(); /* take input chars one at a time, no wait for \n */
-    // (void) echo(); /* echo input - in color */
-//	def_prog_mode();
 
- //  refresh();
+    (void) cbreak(); /* take input chars one at a time, no wait for \n */
 
 	double min_1 = 0.0100692;
 	double max_1 = 5.84014;
@@ -217,48 +213,29 @@ int main(int argc, char **argv) {
 			armJointPositions[2].value = joint_3;
 			armJointPositions[3].value = joint_4;
 			armJointPositions[4].value = joint_5;
-			//gripperJointPositions[0].value = gripper_1;
-			//gripperJointPositions[1].value = gripper_2;
+
 			for (int i = 0; i < numberOfArmJoints; ++i) {
-			//cout << "Please type in value for joint " << i + 1 << endl;
-			//cin >> readValue;
 
 			jointName.str("");
 			jointName << "arm_joint_" << (i + 1);
 
 			armJointPositions[i].joint_uri = jointName.str();
-			//armJointPositions[i].value = readValue;
 
 			armJointPositions[i].unit = boost::units::to_string(boost::units::si::radians);
 			cout << "Joint " << armJointPositions[i].joint_uri << " = " << armJointPositions[i].value << " " << armJointPositions[i].unit << endl;
 
 		};
 
-	/*	gripperJointPositions[0].joint_uri = "gripper_finger_joint_l";
-		//gripperJointPositions[0].value = readValue;
-		gripperJointPositions[0].unit = boost::units::to_string(boost::units::si::meter);
-
-		//cout << "Please type in value for a right jaw of the gripper " << endl;
-		//cin >> readValue;
-		gripperJointPositions[1].joint_uri = "gripper_finger_joint_r";
-		//gripperJointPositions[1].value = readValue;
-		gripperJointPositions[1].unit = boost::units::to_string(boost::units::si::meter);*/
-
 	cout<< "Joint 1: " << joint_1 << endl;
 	cout<< "Joint 2: " << joint_2 << endl;
 	cout<< "Joint 3: " << joint_3 << endl;
 	cout<< "Joint 4: " << joint_4 << endl;
 	cout<< "Joint 5: " << joint_5 << endl;
-	//cout<< "Gripper_1: " << gripper_1 << endl;
-	//cout<< "Gripper_2: " << gripper_2 << endl;
 	cout << "sending command ..." << endl;
 
 
 		command.positions = armJointPositions;
 		armPositionsPublisher.publish(command);
-
-		//command.positions = gripperJointPositions;
-		//gripperPositionPublisher.publish(command);
 
 	cout << "--------------------" << endl;
 		

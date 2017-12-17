@@ -1,8 +1,14 @@
 <package>
   <name>youbot_driver_ros_interface</name>
-  <description>ROS wrapper for the youBot driver</description>
+  <description>ROS wrapper for the youBot driver. New example programs were added. These programs were created by Mateusz Talma, Arkadiusz Szczech, Jakub Wawrzenczak and basen on Sebastian Blumenthal's examples.</description>
   <author>Sebastian Blumenthal</author>
+  <author>Mateusz Talma</author>
+  <author>Arkadiusz Szczech</author>
+  <author>Jakub Wawrzenczak</author>
   <maintainer email="nowak@locomotec.com">Walter Nowak</maintainer>
+  <maintainer email="mateusz.talma@student.put.poznan.pl">Mateusz Talma</maintainer>
+  <maintainer email="arkadiusz.szczech@student.put.poznan.pl">Arkadiusz Szczech</maintainer>
+  <maintainer email="jakub.wawrzenczak@student.put.poznan.pl">Jakub Wawrzenczak</maintainer>
   <license>LGPL, BSD</license>
   <version>1.1.0</version>
   <url>http://www.youbot-store.com</url>

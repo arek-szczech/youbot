@@ -33,6 +33,8 @@
 * You should have received a copy of the GNU Lesser General Public
 * License LGPL and BSD license along with this program.
 *
+* This program is based on Sebastian Blumenthal's examples in this package.
+*
 ******************************************************************************/
 
 #include <iostream>
