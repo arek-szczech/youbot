@@ -189,6 +189,11 @@ void MainWindow::on_previous_clicked(bool check)
         if(QNode::command[QNode::movement_iteration]=="LIN")
         {
             qnode.executeLIN(QNode::movement_iteration);
+            std_msgs::String msg;
+            std::stringstream ss;
+            ss << QNode::point[QNode::movement_iteration];
+            msg.data = ss.str();
+            qnode.log(QNode::Info,std::string("[Tryb ręczny] Wykonano ruch LIN P")+msg.data);
             QNode::execute_movement_flag==false;
         }
 
@@ -232,8 +237,14 @@ void MainWindow::on_next_clicked(bool check)
 
         if(QNode::command[QNode::movement_iteration]=="LIN")
         {
-            QNode::execute_movement_flag==false;
+
             qnode.executeLIN(QNode::movement_iteration);
+            std_msgs::String msg;
+            std::stringstream ss;
+            ss << QNode::point[QNode::movement_iteration];
+            msg.data = ss.str();
+            qnode.log(QNode::Info,std::string("[Tryb ręczny] Wykonano ruch LIN P")+msg.data);
+            QNode::execute_movement_flag=false;
             QNode::movement_iteration--;
         }
 

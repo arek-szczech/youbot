@@ -168,6 +168,13 @@ int QNode::sgn(double v)
 
 double* QNode::inverseKinematic(double xk, double yk, double zk, double Rz, double Ry, double Rx, bool logi)
 {
+    cout<<"x zad: "<<xk<<endl;
+    cout<<"y zad: "<<yk<<endl;
+    cout<<"z zad: "<<zk<<endl;
+    cout<<"roll zad: "<<Rz<<endl;
+    cout<<"pitch zad: "<<Ry<<endl;
+    cout<<"yaw zad: "<<Rx<<endl;
+
     //logi==false: do not show logs, logi==true: show logs;
 
     linear_solution_exist=true;
@@ -276,6 +283,14 @@ double* QNode::inverseKinematic(double xk, double yk, double zk, double Rz, doub
         q[3] = q[3] + offset4;
         q[4] = q[4] + offset5;
 
+
+        cout<<"odwr q1: "<<q[0]<<endl;
+        cout<<"odwr q2: "<<q[1]<<endl;
+        cout<<"odwr q3: "<<q[2]<<endl;
+        cout<<"odwr q4: "<<q[3]<<endl;
+        cout<<"odwr q5: "<<q[4]<<endl;
+
+
         cords = forwardKinematic(q[0],q[1],q[2],q[3],q[4]);
 
         if      (
@@ -292,6 +307,8 @@ double* QNode::inverseKinematic(double xk, double yk, double zk, double Rz, doub
             q[3] = QNode::subscriber_joint4;
             q[4] = QNode::subscriber_joint5;
 
+
+
             if(logi==true)
             {
             log(Warn,std::string("Nie można osiągnąć zadanej pozycji."));
@@ -304,9 +321,16 @@ double* QNode::inverseKinematic(double xk, double yk, double zk, double Rz, doub
         else
         {
 
+            cout<<"x zad: "<<xk<<endl;
+            cout<<"y zad: "<<yk<<endl;
+            cout<<"z zad: "<<zk<<endl;
 
+            cout<<"x obl: "<<cords[0]<<endl;
+            cout<<"y obl: "<<cords[1]<<endl;
+            cout<<"z obl: "<<cords[2]<<endl;
 
-            if (xk == cords[0] && yk == cords[1] && zk == cords[2])
+//            if (xk == cords[0] && yk == cords[1] && zk == cords[2])
+            if (abs(xk-cords[0])<1.0 && abs(yk-cords[1])<1.0 && abs(zk-cords[2])<1.0)
             {
                 return q;
             }
@@ -411,9 +435,15 @@ double* QNode::inverseKinematic(double xk, double yk, double zk, double Rz, doub
 
         else
         {
+            cout<<"x zad: "<<xk<<endl;
+            cout<<"y zad: "<<yk<<endl;
+            cout<<"z zad: "<<zk<<endl;
 
+            cout<<"x obl: "<<cords[0]<<endl;
+            cout<<"y obl: "<<cords[1]<<endl;
+            cout<<"z obl: "<<cords[2]<<endl;
 
-            if (xk == cords[0] && yk == cords[1] && zk == cords[2])
+            if (abs(xk-cords[0])<1.0 && abs(yk-cords[1])<1.0 && abs(zk-cords[2])<1.0)
             {
                 return q;
             }
@@ -762,7 +792,7 @@ void QNode::readProgramFromFile()
             state+=2;
         else if ((command[i]=="LIN"))
         {
-
+        cout<<"readProgram: znalazlem LIN"<<endl;
  //**************************************************************
             state++;
          //   lin_mov_array[number_of_lin_mov]=point[i];
@@ -823,13 +853,18 @@ void QNode::readProgramFromFile()
 
                     if(command[movement_iteration]=="LIN")
                     {
+
+                    cout<<"wszedlem do do while - lin"<<endl;
+
+
                     std_msgs::String msg;
                     std::stringstream ss;
-                    ss << point[QNode::movement_iteration];
+                    ss << point[movement_iteration];
                     msg.data = ss.str();
                     log(Info,std::string("[Tryb automatyczny] Wykonano ruch LIN P")+msg.data);
 
-                    QNode::executeLIN(point[QNode::movement_iteration]);
+
+                    QNode::executeLIN(movement_iteration);
                     }
 
                     if(command[movement_iteration]=="GRO")
@@ -971,11 +1006,11 @@ bool QNode::isHomePositionAchived()
 bool QNode::isLittleStepExecuted()
 {
     if(
-      (abs(QNode::actual_little_step_position[0]-subscriber_joint1)<0.0005) &&
-      (abs(QNode::actual_little_step_position[1]-subscriber_joint2)<0.0005) &&
-      (abs(QNode::actual_little_step_position[2]-subscriber_joint3)<0.0005) &&
-      (abs(QNode::actual_little_step_position[3]-subscriber_joint4)<0.0005) &&
-      (abs(QNode::actual_little_step_position[4]-subscriber_joint5)<0.0005)
+      (abs(QNode::actual_little_step_position[0]-subscriber_joint1)<0.05) &&
+      (abs(QNode::actual_little_step_position[1]-subscriber_joint2)<0.05) &&
+      (abs(QNode::actual_little_step_position[2]-subscriber_joint3)<0.05) &&
+      (abs(QNode::actual_little_step_position[3]-subscriber_joint4)<0.05) &&
+      (abs(QNode::actual_little_step_position[4]-subscriber_joint5)<0.05)
      )
          {
              return true;
@@ -1006,14 +1041,12 @@ void QNode::manualPTP(int i)
 
 void QNode::lin(double q1, double q2,double q3,double q4,double q5)
 {
-
-//    double x=prev_x+lin_mov_little_steps_count*distance_x/greatest_value;
-//    double y=prev_y+lin_mov_little_steps_count*distance_y/greatest_value;
-//    double z=prev_z+lin_mov_little_steps_count*distance_z/greatest_value;
-
+//    if((distance_x!=0)&&(distance_y!=0)&&(distance_z!=0))
+//    {
     prev_x+=distance_x/greatest_value;
     prev_y+=distance_y/greatest_value;
     prev_z+=distance_z/greatest_value;
+//    }
 
     double* joints;
     joints=QNode::inverseKinematic(prev_x, prev_y, prev_z, prev_roll, prev_pitch, prev_yaw, false);
@@ -1025,7 +1058,7 @@ void QNode::lin(double q1, double q2,double q3,double q4,double q5)
     actual_little_step_position[4]=joints[4];
 
     jointPublisher(actual_little_step_position[0], actual_little_step_position[1], actual_little_step_position[2], actual_little_step_position[3], actual_little_step_position[4]);
-
+cout<<"to maly krok dla czlowieka, ale wielki dla Youbota"<<endl;
     executed_little_step=false;
     //lin_mov_little_steps_count++;
 
@@ -1040,6 +1073,13 @@ bool QNode::checkLinearMovementPossibility(int destination_point, bool mode)
         double q3_destination=P[point[destination_point]][2];
         double q4_destination=P[point[destination_point]][3];
         double q5_destination=P[point[destination_point]][4];
+
+//        double q1_destination=P[destination_point][0];
+//        double q2_destination=P[destination_point][1];
+//        double q3_destination=P[destination_point][2];
+//        double q4_destination=P[destination_point][3];
+//        double q5_destination=P[destination_point][4];
+
 
         cout<<"q1_destination: "<<q1_destination<<endl;
         cout<<"q2_destination: "<<q2_destination<<endl;
@@ -1155,7 +1195,8 @@ cout<<"greatest_value: "<<greatest_value<<endl;
         cout<<"execute_y: "<<execute_y<<endl;
         cout<<"execute_z: "<<execute_z<<endl;
 
-        QNode::inverseKinematic(execute_x, execute_y, execute_x, prev_cords[3], prev_cords[4],prev_cords[5], false);
+
+        QNode::inverseKinematic(execute_x, execute_y, execute_z, prev_roll, prev_pitch ,prev_yaw, false);
         if(linear_solution_exist==false)
         {
             counter++;
@@ -1164,10 +1205,12 @@ cout<<"greatest_value: "<<greatest_value<<endl;
     cout<<"counter: "<<counter<<endl;
     if (counter==0)
     {
+        cout<<"można wykonać ruch"<<endl;
         return true;
     }
     else
     {
+        cout<<" nie można wykonać ruchu"<<endl;
         return false;
     }
 }
@@ -1182,23 +1225,6 @@ void QNode::executeLIN(int point_number)
          }
          //cout<<"Numer pkt: "<<i<<endl;
 
-         if (play_program==true)
-         {
-         std_msgs::String msg;
-         std::stringstream ss;
-         ss << point_number;
-         msg.data = ss.str();
-         log(Info,std::string("[Tryb automatyczny] Wykonano ruch LIN P")+msg.data);
-         }
-
-         else
-         {
-         std_msgs::String msg;
-         std::stringstream ss;
-         ss << point_number;
-         msg.data = ss.str();
-         log(Info,std::string("[Tryb ręczny] Wykonano ruch LIN P")+msg.data);
-         }
 }
 
 void QNode::executeProgram()
@@ -1390,12 +1416,14 @@ void QNode::run()
                     if(QNode::isLittleStepExecuted())
                     {
                         executed_little_step=true;
+                        cout<<"els: false"<<endl;
                     }
                 }
 
                 if(executed_little_step==true)
                 {
-                    executeLIN(point[movement_iteration]);
+                    cout<<"els: true"<<endl;
+                    executeLIN(movement_iteration);
                 }
 
             }
