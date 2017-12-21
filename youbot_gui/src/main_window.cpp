@@ -90,9 +90,9 @@ static double gripper_2 = 0;
 
 int MainWindow::zmienna=0;
 
-MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
+MainWindow::MainWindow(int argc, char** argv, QWidget *parent )
 	: QMainWindow(parent)
-	, qnode(argc,argv)
+        , qnode(argc,argv)
 {
 	ui.setupUi(this);
         qnode.ui = ui;
@@ -419,13 +419,15 @@ void MainWindow::on_yaw_plus_clicked(bool check)
 }
 void MainWindow::on_yaw_minus_clicked(bool check)
 {
-    zmienna--;
-    cout<<"zmienna: "<<zmienna<<endl;
-    qnode.jointSimulator(MainWindow::zmienna);
+//    zmienna--;
+//    cout<<"zmienna: "<<zmienna<<endl;
+//    qnode.jointSimulator(MainWindow::zmienna);
 
 //    double yaw_temp=QNode::yaw;
 //    yaw_temp=yaw_temp-0.1;
 //    qnode.inverseKinematics(QNode::x, QNode::y, QNode::z, QNode::roll, QNode::pitch, yaw_temp, true);
+
+    qnode.convActNumbOfLinMov2Joint();
 
 }
 void MainWindow::on_q1_plus_clicked(bool check)

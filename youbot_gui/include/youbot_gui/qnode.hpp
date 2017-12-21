@@ -44,12 +44,17 @@
 #include <QThread>
 #include <QStringListModel>
 
+//#include "/home/arek/youbot/src/youbot/youbot_driver-hydro-devel/include/youbot_driver/youbot/YouBotBase.hpp"
+//#include "/home/arek/youbot/src/youbot/youbot_driver-hydro-devel/include/youbot_driver/youbot/YouBotManipulator.hpp"
+
 
 #include <QtWidgets/QMainWindow>
 #include <QLCDNumber>
 #include "ui_main_window.h"
 
+
 namespace youbot_gui {
+//class YouBotOODLWrapper;
 
 class QNode : public QThread {
     Q_OBJECT
@@ -120,11 +125,12 @@ public:
         static double distance_z;
         static bool start_lin_mov;
 
+        static int velocity[100];
 
         Ui::MainWindowDesign ui;
 
 
-	QNode(int argc, char** argv );
+        QNode(int argc, char** argv);//, YouBotOODLWrapper* youBot );
 	virtual ~QNode();
 	bool init();
         void run();
@@ -148,7 +154,7 @@ public:
         bool isHomePositionAchived();
         bool isGripperPositionAchived(double state);
         bool isLittleStepExecuted();
-        //void convActNumbOfLinMov2Joint(int number);
+        void convActNumbOfLinMov2Joint();
 
 	enum LogLevel {
 	         Debug,
@@ -187,6 +193,7 @@ private:
         QStringListModel list_model;
 
         ros::Time currentTime;
+        //YouBotOODLWrapper* youBot;
 
         //MainWindow obiekt;
 };

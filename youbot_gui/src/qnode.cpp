@@ -61,9 +61,26 @@
 #include <cstdlib>
 #include <vector>
 #include <unistd.h>
+
+
 #include "../include/youbot_gui/qnode.hpp"
 
+
+
+#include "/home/arek/youbot/src/youbot/youbot_driver-hydro-devel/include/youbot_driver/youbot/YouBotBase.hpp"
+#include "/home/arek/youbot/src/youbot/youbot_driver-hydro-devel/include/youbot_driver/youbot/YouBotManipulator.hpp"
+
+
+
+//#include "/home/arek/youbot/src/youbot/youbot_driver_ros_interface-hydro-devel/include/youbot_driver_ros_interface/joint_state_observer_oodl.h"
+#include "/home/arek/youbot/src/youbot/youbot_driver_ros_interface-hydro-devel/include/youbot_driver_ros_interface/YouBotOODLWrapper.h"
+
+
+//#include "youbot_driver_ros_interface/joint_state_observer_oodl.h"
+//#include "youbot_driver_ros_interface/YouBotOODLWrapper.h"
+
 using namespace std;
+using namespace youbot;
 namespace youbot_gui {
 
 //jointsCallback
@@ -127,6 +144,8 @@ double QNode::distance_x;
 double QNode::distance_y;
 double QNode::distance_z;
 bool QNode::start_lin_mov=false;
+
+int QNode::velocity[100];
 
 
 //*********Zmienne do funkcji executeProgram****************
@@ -731,6 +750,8 @@ void QNode::readProgramFromFile()
         cout << "Brak dostępu do pliku" << endl; // przerwać funkcje
     }
     string temp_point[row_number];
+    string temp_velocity_command[row_number];
+    string temp_velocity_value[row_number];
     //string command[row_number];
 
         for (int i = 0; i<row_number;  i++)
@@ -776,6 +797,7 @@ void QNode::readProgramFromFile()
             {
                 cout << "Brak komendy OPEN/CLOSE";
             }
+                state+=2;
         }
         else
         {
@@ -785,9 +807,17 @@ void QNode::readProgramFromFile()
         }
         else
         {
-
+//        cout << line[i].length() << endl;
+        if (line[i].length()>=6)
+        {
         temp_point[i] = line[i].substr (4,1);
         point[i] = atoi((line[i].substr (5,2)).c_str());
+        }
+        if (line[i].length()>=12)
+        {
+        temp_velocity_command[i] = line[i].substr (7,3);
+        temp_velocity_value[i] = line[i].substr (11,3);
+        }
         if ((command[i]=="PTP"))
             state+=2;
         else if ((command[i]=="LIN"))
@@ -815,15 +845,32 @@ void QNode::readProgramFromFile()
         else
             cout << "Błędnie wprowadzony punkt" << endl;
         if (point[i]<=line_nmb)
+        {
             state++;
+            if (temp_velocity_command[i]=="VEL")
+            {
+            state++;
+            if ((atoi(temp_velocity_value[i].c_str())>0) && (atoi(temp_velocity_value[i].c_str())<=100))
+            {
+            velocity[i] = atoi(temp_velocity_value[i].c_str());
+            state++;
+            }
+            else
+                cout << "Wprowadzono błędną wartość prędkości" << endl;
+            }
+            else
+            cout << "Brak komendy VEL dla ruchu " << command[i] << " P" << point[i] << "*** " << temp_velocity_command[i]  << endl;
+
+        }
         else
             cout << "Punkt P" << point[i] << " nie został zdefiniowany" << endl;
     }
         }
-        if (state/4!=row_number)
+        if (state/6!=row_number)
         {
          cout << state << endl;
-         cout << "Błąd składni kodu" << endl; // wyprowadzić log i przerwać funkcje
+         //cout << "Błąd składni kodu" << endl; // wyprowadzić log i przerwać funkcje
+         log(Error,std::string("Błąd składni kodu"));
         }
         else
         {
@@ -838,6 +885,8 @@ void QNode::readProgramFromFile()
             {
             do
             {
+                    cout << "Prędkość 1: " << velocity[5] << endl;
+
                     if(command[movement_iteration]=="PTP")
                     {
                     std_msgs::String msg;
@@ -890,6 +939,7 @@ void QNode::readProgramFromFile()
             }
         }
 }
+
 
 void QNode::loadPointsList()
 {
@@ -1034,10 +1084,17 @@ void QNode::manualPTP(int i)
          log(Info,std::string("[Tryb ręczny] Wykonano ruch PTP P")+msg.data);
 }
 
-//void QNode::convActNumbOfLinMov2Joint(int number)
-//{
-
-//}
+void QNode::convActNumbOfLinMov2Joint()
+{
+//    myYouBotManipulator = new YouBotManipulator("youbot-manipulator", "/home/arek/youbot/src/youbot/youbot_driver-hydro-devel/config/");
+//    YouBotManipulator* myYouBotManipulator = 0;
+//    YouBotManipulator myYouBotManipulator("youbot-manipulator", "/home/arek/youbot/src/youbot/youbot_driver-hydro-devel/config/");
+//    MaximumPositioningVelocity maxPositioningVelocity;
+//    myYouBotManipulator->getArmJoint(1).getConfigurationParameter(maxPositioningVelocity);
+//    quantity<angular_velocity> velocity;
+//    maxPositioningVelocity.getParameter(velocity);
+//    std::cout << "Maximum positioning speed of joint 1: " << velocity << std::endl;
+}
 
 void QNode::lin(double q1, double q2,double q3,double q4,double q5)
 {
@@ -1329,10 +1386,16 @@ cout<<"Jestem w stanie 2, P1, open"<<endl;
     jointsPublisher.publish(armJointStateMessages);
 }
 
-QNode::QNode(int argc, char** argv ) :
+QNode::QNode(int argc, char** argv)://, YouBotOODLWrapper* youBot) :
 	init_argc(argc),
 	init_argv(argv)
-	{}
+        {
+    //  this->youBot = youBot;
+    //  YouBotManipulator youBotArmName1;
+    //  public:
+    //  YouBotManipulator myYouBotManipulator("youbot-manipulator", "/home/arek/youbot/src/youbot/youbot_driver-hydro-devel/config/");
+    //, YouBotOODLWrapper* youBot
+        }
 
 QNode::~QNode()
 {
