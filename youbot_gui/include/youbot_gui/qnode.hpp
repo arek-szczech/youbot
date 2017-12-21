@@ -188,6 +188,8 @@ private:
         ros::Subscriber jointsSubscriber;
         ros::Subscriber diagnosticsSubscriber;
 
+        ros::Publisher velocityPublisher;
+
 
     	QStringListModel logging_model;
         QStringListModel list_model;

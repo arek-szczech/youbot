@@ -189,6 +189,10 @@ void YouBotOODLWrapper::initializeArm(std::string armName, bool enableStandardGr
     youBotConfiguration.youBotArmConfigurations[armIndex].armVelocityCommandSubscriber = node.subscribe<brics_actuator::JointVelocities > (topicName.str(), 1000, boost::bind(&YouBotOODLWrapper::armVelocitiesCommandCallback, this, _1, armIndex));
 
     topicName.str("");
+    topicName << youBotConfiguration.youBotArmConfigurations[armIndex].commandTopicName << "arm_controller/velocity";
+    youBotConfiguration.youBotArmConfigurations[armIndex].velocitySubscriber = node.subscribe<brics_actuator::ProgramExecuteVelocity > (topicName.str(), 1000, boost::bind(&YouBotOODLWrapper::velocityCallback, this, _1, armIndex));
+
+    topicName.str("");
     topicName << youBotConfiguration.youBotArmConfigurations[armIndex].commandTopicName << "arm_controller/follow_joint_trajectory";
     // topicName.str("/arm_1/arm_controller/follow_joint_trajectory");
     youBotConfiguration.youBotArmConfigurations[armIndex].armJointTrajectoryAction = new actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction > (
@@ -306,6 +310,7 @@ void YouBotOODLWrapper::stop()
         youBotConfiguration.youBotArmConfigurations[armIndex].armJointStatePublisher.shutdown();
         youBotConfiguration.youBotArmConfigurations[armIndex].armPositionCommandSubscriber.shutdown();
         youBotConfiguration.youBotArmConfigurations[armIndex].armVelocityCommandSubscriber.shutdown();
+        youBotConfiguration.youBotArmConfigurations[armIndex].velocitySubscriber.shutdown();
         youBotConfiguration.youBotArmConfigurations[armIndex].calibrateService.shutdown();
         youBotConfiguration.youBotArmConfigurations[armIndex].gripperPositionCommandSubscriber.shutdown();
         youBotConfiguration.youBotArmConfigurations[armIndex].switchONMotorsService.shutdown();
@@ -499,6 +504,68 @@ void YouBotOODLWrapper::armVelocitiesCommandCallback(const brics_actuator::Joint
     {
         ROS_ERROR("Arm%i is not correctly initialized!", armIndex + 1);
     }
+}
+
+void YouBotOODLWrapper::velocityCallback(const brics_actuator::ProgramExecuteVelocityConstPtr& youbotArmCommand, int armIndex)
+{
+   // std::cout<<"Odebrana wartość: "<<youbotArmCommand->velocity<<endl;
+    ROS_ERROR("Odebralem wiadomosc");
+
+//    ROS_DEBUG("Command for arm%i received", armIndex + 1);
+//    ROS_ASSERT(0 <= armIndex && armIndex < static_cast<int> (youBotConfiguration.youBotArmConfigurations.size()));
+
+//    if (youBotConfiguration.youBotArmConfigurations[armIndex].youBotArm != 0)
+//    { // in case stop has been invoked
+
+
+//        if ((youbotArmCommand->velocity < 1)||(youbotArmCommand->velocity > 100))
+//        {
+//            ROS_WARN("youBot driver received an invalid joint velocities command.");
+//            return;
+//        }
+////****************do tego miejsca prześledzilem********************
+//        youbot::JointVelocitySetpoint desiredAngularVelocity;
+//        string unit = boost::units::to_string(boost::units::si::radian_per_second);
+
+//        /* populate mapping between joint names and values  */
+//        std::map<string, double> jointNameToValueMapping;
+//        for (int i = 0; i < static_cast<int> (5); ++i)
+//        {
+//                jointNameToValueMapping.insert(make_pair(youbotArmCommand->velocities[i].joint_uri, youbotArmCommand->velocities[i].value));
+//        }
+
+//        /* loop over all youBot arm joints and check if something is in the received message that requires action */
+//        ROS_ASSERT(youBotConfiguration.youBotArmConfigurations[armIndex].jointNames.size() == static_cast<unsigned int> (youBotArmDoF));
+//        youbot::EthercatMaster::getInstance().AutomaticSendOn(false); // ensure that all joint values will be send at the same time
+//        for (int i = 0; i < youBotArmDoF; ++i)
+//        {
+
+//            /* check what is in map */
+//            map<string, double>::const_iterator jointIterator = jointNameToValueMapping.find(youBotConfiguration.youBotArmConfigurations[armIndex].jointNames[i]);
+//            if (jointIterator != jointNameToValueMapping.end())
+//            {
+
+//                /* set the desired joint value */
+//                ROS_DEBUG("Trying to set joint %s to new velocity value %f", (youBotConfiguration.youBotArmConfigurations[armIndex].jointNames[i]).c_str(), jointIterator->second);
+//                desiredAngularVelocity.angularVelocity = jointIterator->second * radian_per_second;
+//                try
+//                {
+//                    youBotConfiguration.youBotArmConfigurations[armIndex].youBotArm->getArmJoint(i + 1).setData(desiredAngularVelocity); //youBot joints start with 1 not with 0 -> i + 1
+
+//                }
+//                catch (std::exception& e)
+//                {
+//                    std::string errorMessage = e.what();
+//                    ROS_WARN("Cannot set arm joint %i: %s", i + 1, errorMessage.c_str());
+//                }
+//            }
+//        }
+//        youbot::EthercatMaster::getInstance().AutomaticSendOn(true); // ensure that all joint values will be send at the same time
+//    }
+//    else
+//    {
+//        ROS_ERROR("Arm%i is not correctly initialized!", armIndex + 1);
+//    }
 }
 
 

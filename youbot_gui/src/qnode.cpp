@@ -61,6 +61,7 @@
 #include <cstdlib>
 #include <vector>
 #include <unistd.h>
+#include "brics_actuator/ProgramExecuteVelocity.h"
 
 
 #include "../include/youbot_gui/qnode.hpp"
@@ -1421,6 +1422,8 @@ bool QNode::init()
         jointsSubscriber = n.subscribe<sensor_msgs::JointState >("/joint_states", 10, jointsCallback);
         diagnosticsSubscriber = n.subscribe<diagnostic_msgs::DiagnosticArray >("/diagnostics", 10, diagnosticsCallback);
         simulatorArmPositionsPublisher = n.advertise<trajectory_msgs::JointTrajectory>("arm_1/arm_controller/command", 1);
+        velocityPublisher = n.advertise<brics_actuator::ProgramExecuteVelocity>("arm_1/arm_controller/velocity", 1);
+
 
         P[0][0]=MainWindow::min_1;
         P[0][1]=MainWindow::min_2;
@@ -1450,7 +1453,16 @@ void QNode::run()
         MainWindow::joint_4 = QNode::subscriber_joint4;
         MainWindow::joint_5 = QNode::subscriber_joint5;
 
+
+
+
 	while ( ros::ok() ) {
+
+            brics_actuator::ProgramExecuteVelocity msg;
+
+            msg.velocity=50;
+
+            velocityPublisher.publish(msg);
 
                 this->ui.lcd_q1->display(QNode::subscriber_joint1);
                 this->ui.lcd_q2->display(QNode::subscriber_joint2);

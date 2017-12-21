@@ -62,6 +62,7 @@
 
 #include "brics_actuator/JointPositions.h"
 #include "brics_actuator/JointVelocities.h"
+#include "brics_actuator/ProgramExecuteVelocity.h"
 
 /* OODL includes */
 #include "YouBotConfiguration.h"
@@ -154,6 +155,14 @@ public:
      * @param youbotArmGoal Actionlib goal that contains the trajectory.
      * @param armIndex Index that identifies the arm
      */
+    void velocityCallback(const brics_actuator::ProgramExecuteVelocityConstPtr& youbotArmCommand, int armIndex);
+
+    /**
+     * @brief Callback that is executed when an action goal to perform a joint trajectory with the arm comes in.
+     * @param youbotArmGoal Actionlib goal that contains the trajectory.
+     * @param armIndex Index that identifies the arm
+     */
+
     void armJointTrajectoryGoalCallback(actionlib::ActionServer<control_msgs::FollowJointTrajectoryAction>::GoalHandle youbotArmGoal, unsigned int armIndex);
 
     /**
@@ -171,7 +180,7 @@ public:
     void gripperPositionsCommandCallback(const brics_actuator::JointPositionsConstPtr& youbotGripperCommand, int armIndex);
 
     /**
-     * @brief Publishes all sensor measurements. Both for base and arm.
+     * @brief Publishes all sensor mearements. Both for base and arm.
      *
      * Depending on what has been initialized before, either odometry and/or joint state valiues are published.
      * computeOODLSensorReadings needs to be executed before.

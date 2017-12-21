@@ -16,6 +16,7 @@ add_message_files(FILES
 	JointValue.msg
 	JointVelocities.msg
 	Poison.msg
+	ProgramExecuteVelocity.msg
 )
 
 generate_messages(DEPENDENCIES geometry_msgs)
