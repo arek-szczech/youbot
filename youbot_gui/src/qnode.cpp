@@ -990,6 +990,11 @@ void QNode::jointPublisher(double q1, double q2,double q3,double q4,double q5)
         //cout << "Joint " << jointPosition[i].joint_uri << " = " << jointPosition[i].value << " " << jointPosition[i].unit << endl;
     };
 
+
+    brics_actuator::ProgramExecuteVelocity msg;
+    msg.velocity=QNode::velocity[movement_iteration];
+    velocityPublisher.publish(msg);
+
     command.positions = jointPosition;
     armPositionsPublisher.publish(command);
     QNode::moveArm(q1, q2, q3, q4, q5);
@@ -1458,11 +1463,11 @@ void QNode::run()
 
 	while ( ros::ok() ) {
 
-            brics_actuator::ProgramExecuteVelocity msg;
+//            brics_actuator::ProgramExecuteVelocity msg;
 
-            msg.velocity=50;
+//            msg.velocity=50;
 
-            velocityPublisher.publish(msg);
+//            velocityPublisher.publish(msg);
 
                 this->ui.lcd_q1->display(QNode::subscriber_joint1);
                 this->ui.lcd_q2->display(QNode::subscriber_joint2);

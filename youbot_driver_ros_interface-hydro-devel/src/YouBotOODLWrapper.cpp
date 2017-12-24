@@ -508,64 +508,114 @@ void YouBotOODLWrapper::armVelocitiesCommandCallback(const brics_actuator::Joint
 
 void YouBotOODLWrapper::velocityCallback(const brics_actuator::ProgramExecuteVelocityConstPtr& youbotArmCommand, int armIndex)
 {
+    static const int numberOfArmJoints = 5;
+    brics_actuator::JointVelocities command;
+    vector <brics_actuator::JointValue> jointVelocity;
+    jointVelocity.resize(numberOfArmJoints);
+    std::stringstream jointName;
+
+   double max_vel[5];
+   max_vel[0]=2.684;
+   max_vel[1]=2.684;
+   max_vel[2]=4.18;
+   max_vel[3]=5.898;
+   max_vel[4]=5.898;
+
+   for (int i = 0; i < numberOfArmJoints; ++i)
+   {
+       jointName.str("");
+       jointName << "arm_joint_" << (i + 1);
+       jointVelocity[i].joint_uri = jointName.str();
+       jointVelocity[i].value = (youbotArmCommand->velocity)*(max_vel[i])/100;
+       jointVelocity[i].unit = boost::units::to_string(boost::units::si::radian_per_second);
+       //cout << "Joint " << jointPosition[i].joint_uri << " = " << jointPosition[i].value << " " << jointPosition[i].unit << endl;
+   };
+
+
+   command.velocities = jointVelocity;
+//   armPositionsPublisher.publish(command);
+
    // std::cout<<"Odebrana wartość: "<<youbotArmCommand->velocity<<endl;
     ROS_ERROR("Odebralem wiadomosc");
 
-//    ROS_DEBUG("Command for arm%i received", armIndex + 1);
-//    ROS_ASSERT(0 <= armIndex && armIndex < static_cast<int> (youBotConfiguration.youBotArmConfigurations.size()));
+    ROS_DEBUG("Command for arm%i received", armIndex + 1);
+    ROS_ASSERT(0 <= armIndex && armIndex < static_cast<int> (youBotConfiguration.youBotArmConfigurations.size()));
 
-//    if (youBotConfiguration.youBotArmConfigurations[armIndex].youBotArm != 0)
-//    { // in case stop has been invoked
+    if (youBotConfiguration.youBotArmConfigurations[armIndex].youBotArm != 0)
+    { // in case stop has been invoked
 
 
-//        if ((youbotArmCommand->velocity < 1)||(youbotArmCommand->velocity > 100))
-//        {
-//            ROS_WARN("youBot driver received an invalid joint velocities command.");
-//            return;
-//        }
-////****************do tego miejsca prześledzilem********************
-//        youbot::JointVelocitySetpoint desiredAngularVelocity;
-//        string unit = boost::units::to_string(boost::units::si::radian_per_second);
+        if ((youbotArmCommand->velocity < 1)||(youbotArmCommand->velocity > 100))
+        {
+            ROS_WARN("youBot driver received an invalid joint velocities command.");
+            return;
+        }
+   //****************************
+        ROS_DEBUG("Command for arm%i received", armIndex + 1);
+        ROS_ASSERT(0 <= armIndex && armIndex < static_cast<int> (youBotConfiguration.youBotArmConfigurations.size()));
 
-//        /* populate mapping between joint names and values  */
-//        std::map<string, double> jointNameToValueMapping;
-//        for (int i = 0; i < static_cast<int> (5); ++i)
-//        {
-//                jointNameToValueMapping.insert(make_pair(youbotArmCommand->velocities[i].joint_uri, youbotArmCommand->velocities[i].value));
-//        }
+        if (youBotConfiguration.youBotArmConfigurations[armIndex].youBotArm != 0)
+        { // in case stop has been invoked
 
-//        /* loop over all youBot arm joints and check if something is in the received message that requires action */
-//        ROS_ASSERT(youBotConfiguration.youBotArmConfigurations[armIndex].jointNames.size() == static_cast<unsigned int> (youBotArmDoF));
-//        youbot::EthercatMaster::getInstance().AutomaticSendOn(false); // ensure that all joint values will be send at the same time
-//        for (int i = 0; i < youBotArmDoF; ++i)
-//        {
 
-//            /* check what is in map */
-//            map<string, double>::const_iterator jointIterator = jointNameToValueMapping.find(youBotConfiguration.youBotArmConfigurations[armIndex].jointNames[i]);
-//            if (jointIterator != jointNameToValueMapping.end())
-//            {
+            if (command.velocities.size() < 1)
+            {
+                ROS_WARN("youBot driver received an invalid joint velocities command.");
+                return;
+            }
 
-//                /* set the desired joint value */
-//                ROS_DEBUG("Trying to set joint %s to new velocity value %f", (youBotConfiguration.youBotArmConfigurations[armIndex].jointNames[i]).c_str(), jointIterator->second);
-//                desiredAngularVelocity.angularVelocity = jointIterator->second * radian_per_second;
-//                try
-//                {
-//                    youBotConfiguration.youBotArmConfigurations[armIndex].youBotArm->getArmJoint(i + 1).setData(desiredAngularVelocity); //youBot joints start with 1 not with 0 -> i + 1
+            youbot::JointVelocitySetpoint desiredAngularVelocity;
+            string unit = boost::units::to_string(boost::units::si::radian_per_second);
 
-//                }
-//                catch (std::exception& e)
-//                {
-//                    std::string errorMessage = e.what();
-//                    ROS_WARN("Cannot set arm joint %i: %s", i + 1, errorMessage.c_str());
-//                }
-//            }
-//        }
-//        youbot::EthercatMaster::getInstance().AutomaticSendOn(true); // ensure that all joint values will be send at the same time
-//    }
-//    else
-//    {
-//        ROS_ERROR("Arm%i is not correctly initialized!", armIndex + 1);
-//    }
+            /* populate mapping between joint names and values  */
+            std::map<string, double> jointNameToValueMapping;
+            for (int i = 0; i < static_cast<int> (command.velocities.size()); ++i)
+            {
+                if (unit == command.velocities[i].unit)
+                {
+                    jointNameToValueMapping.insert(make_pair(command.velocities[i].joint_uri, command.velocities[i].value));
+                }
+                else
+                {
+                    ROS_WARN("Unit incompatibility. Are you sure you want to command %s instead of %s ?", command.velocities[i].unit.c_str(), unit.c_str());
+                }
+
+            }
+
+            /* loop over all youBot arm joints and check if something is in the received message that requires action */
+            ROS_ASSERT(youBotConfiguration.youBotArmConfigurations[armIndex].jointNames.size() == static_cast<unsigned int> (youBotArmDoF));
+            youbot::EthercatMaster::getInstance().AutomaticSendOn(false); // ensure that all joint values will be send at the same time
+            for (int i = 0; i < youBotArmDoF; ++i)
+            {
+
+                /* check what is in map */
+                map<string, double>::const_iterator jointIterator = jointNameToValueMapping.find(youBotConfiguration.youBotArmConfigurations[armIndex].jointNames[i]);
+                if (jointIterator != jointNameToValueMapping.end())
+                {
+
+                    /* set the desired joint value */
+                    ROS_DEBUG("Trying to set joint %s to new velocity value %f", (youBotConfiguration.youBotArmConfigurations[armIndex].jointNames[i]).c_str(), jointIterator->second);
+                    desiredAngularVelocity.angularVelocity = jointIterator->second * radian_per_second;
+                    try
+                    {
+                        youBotConfiguration.youBotArmConfigurations[armIndex].youBotArm->getArmJoint(i + 1).setData(desiredAngularVelocity); //youBot joints start with 1 not with 0 -> i + 1
+
+                    }
+                    catch (std::exception& e)
+                    {
+                        std::string errorMessage = e.what();
+                        ROS_WARN("Cannot set arm joint %i: %s", i + 1, errorMessage.c_str());
+                    }
+                }
+            }
+            youbot::EthercatMaster::getInstance().AutomaticSendOn(true); // ensure that all joint values will be send at the same time
+        }
+        else
+        {
+            ROS_ERROR("Arm%i is not correctly initialized!", armIndex + 1);
+        }
+
+    }
 }
 
 
