@@ -68,13 +68,13 @@
 
 
 
-#include "/home/arek/youbot/src/youbot/youbot_driver-hydro-devel/include/youbot_driver/youbot/YouBotBase.hpp"
-#include "/home/arek/youbot/src/youbot/youbot_driver-hydro-devel/include/youbot_driver/youbot/YouBotManipulator.hpp"
+#include "../youbot_driver-hydro-devel/include/youbot_driver/youbot/YouBotBase.hpp"
+#include "../youbot_driver-hydro-devel/include/youbot_driver/youbot/YouBotManipulator.hpp"
 
 
 
 //#include "/home/arek/youbot/src/youbot/youbot_driver_ros_interface-hydro-devel/include/youbot_driver_ros_interface/joint_state_observer_oodl.h"
-#include "/home/arek/youbot/src/youbot/youbot_driver_ros_interface-hydro-devel/include/youbot_driver_ros_interface/YouBotOODLWrapper.h"
+#include "../youbot_driver_ros_interface-hydro-devel/include/youbot_driver_ros_interface/YouBotOODLWrapper.h"
 
 
 //#include "youbot_driver_ros_interface/joint_state_observer_oodl.h"
