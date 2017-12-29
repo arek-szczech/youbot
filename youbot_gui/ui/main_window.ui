@@ -769,7 +769,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QLCDNumber" name="lcdNumber"/>
+           <widget class="QLCDNumber" name="lcd_xyz_step"/>
           </item>
           <item>
            <widget class="QSlider" name="krok_xyz">
@@ -796,15 +796,15 @@
            </widget>
           </item>
           <item>
-           <widget class="QLCDNumber" name="lcdNumber_2"/>
+           <widget class="QLCDNumber" name="lcd_joints_step"/>
           </item>
           <item>
-           <widget class="QSlider" name="horizontalSlider">
+           <widget class="QSlider" name="krok_zlacza">
             <property name="minimum">
              <number>10</number>
             </property>
             <property name="maximum">
-             <number>200</number>
+             <number>100</number>
             </property>
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -845,7 +845,7 @@
      <x>0</x>
      <y>0</y>
      <width>1366</width>
-     <height>25</height>
+     <height>19</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">

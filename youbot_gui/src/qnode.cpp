@@ -1499,6 +1499,12 @@ void QNode::run()
                 this->ui.lcd_roll->display(QNode::roll);
                 this->ui.lcd_pitch->display(QNode::pitch);
                 this->ui.lcd_yaw->display(QNode::yaw);
+                this->ui.lcd_xyz_step->display(MainWindow::xyz_step);
+                this->ui.lcd_joints_step->display(MainWindow::joints_step);
+
+                MainWindow::xyz_step=ui.krok_xyz->value();
+                MainWindow::joints_step=ui.krok_zlacza->value();
+
 
 
             if((QNode::execute_movement_flag==false)&&(closing_gripper==false)&&(opening_gripper==false))

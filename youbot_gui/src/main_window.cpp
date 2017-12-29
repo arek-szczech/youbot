@@ -90,6 +90,9 @@ static double gripper_2 = 0;
 
 int MainWindow::zmienna=0;
 
+int MainWindow::xyz_step = 1;
+int MainWindow::joints_step = 10;
+
 MainWindow::MainWindow(int argc, char** argv, QWidget *parent )
 	: QMainWindow(parent)
         , qnode(argc,argv)
@@ -264,6 +267,7 @@ void MainWindow::on_run_driver_clicked(bool check)
 {
     qnode.log(qnode.Info,std::string("Uruchamianie sterownika..."));
     system("gnome-terminal -x sh -c 'cd ~/youbot ; source devel/setup.bash ; roslaunch youbot_driver_ros_interface youbot_driver.launch'");
+
 }
 
 void MainWindow::on_connect_master_clicked(bool check)
@@ -329,7 +333,7 @@ void MainWindow::on_x_plus_clicked(bool check)
 {
     double *q;
     double x_temp=QNode::x;
-    x_temp=x_temp+1;
+    x_temp=x_temp+xyz_step;
     q = qnode.inverseKinematic(x_temp, QNode::y, QNode::z, QNode::roll, QNode::pitch, QNode::yaw, true);
     qnode.jointPublisher(q[0],q[1],q[2],q[3],q[4]);
 }
@@ -337,7 +341,7 @@ void MainWindow::on_x_minus_clicked(bool check)
 {
     double *q;
     double x_temp=QNode::x;
-    x_temp=x_temp-1;
+    x_temp=x_temp-xyz_step;
     q = qnode.inverseKinematic(x_temp, QNode::y, QNode::z, QNode::roll, QNode::pitch, QNode::yaw, true);
     qnode.jointPublisher(q[0],q[1],q[2],q[3],q[4]);
 }
@@ -345,7 +349,7 @@ void MainWindow::on_y_plus_clicked(bool check)
 {
     double *q;
     double y_temp=QNode::y;
-    y_temp=y_temp+1;
+    y_temp=y_temp+xyz_step;
     q = qnode.inverseKinematic(QNode::x,y_temp, QNode::z, QNode::roll, QNode::pitch, QNode::yaw, true);
     qnode.jointPublisher(q[0],q[1],q[2],q[3],q[4]);
 }
@@ -353,7 +357,7 @@ void MainWindow::on_y_minus_clicked(bool check)
 {
     double *q;
     double y_temp=QNode::y;
-    y_temp=y_temp-1;
+    y_temp=y_temp-xyz_step;
     q = qnode.inverseKinematic(QNode::x, y_temp, QNode::z, QNode::roll, QNode::pitch, QNode::yaw, true);
     qnode.jointPublisher(q[0],q[1],q[2],q[3],q[4]);
 }
@@ -361,7 +365,7 @@ void MainWindow::on_z_plus_clicked(bool check)
 {
     double *q;
     double z_temp=QNode::z;
-    z_temp=z_temp+1;
+    z_temp=z_temp+xyz_step;
     q = qnode.inverseKinematic(QNode::x, QNode::y, z_temp, QNode::roll, QNode::pitch, QNode::yaw, true);
     qnode.jointPublisher(q[0],q[1],q[2],q[3],q[4]);
 }
@@ -369,7 +373,7 @@ void MainWindow::on_z_minus_clicked(bool check)
 {
     double *q;
     double z_temp=QNode::z;
-    z_temp=z_temp-1;
+    z_temp=z_temp-xyz_step;
     q = qnode.inverseKinematic(QNode::x, QNode::y, z_temp, QNode::roll, QNode::pitch, QNode::yaw, true);
     qnode.jointPublisher(q[0],q[1],q[2],q[3],q[4]);
 }
@@ -432,71 +436,71 @@ void MainWindow::on_yaw_minus_clicked(bool check)
 }
 void MainWindow::on_q1_plus_clicked(bool check)
 {
-        if(joint_1 < max_1 - ((max_1 - min_1)/100))
-        joint_1 = joint_1 + (max_1 - min_1)/100;
+        if(joint_1 < max_1 - ((max_1 - min_1)/(101-joints_step)))
+        joint_1 = joint_1 + (max_1 - min_1)/(101-joints_step);
         qnode.jointPublisher(MainWindow::joint_1, MainWindow::joint_2,MainWindow::joint_3,MainWindow::joint_4,MainWindow::joint_5);
 }
 
 void MainWindow::on_q1_minus_clicked(bool check)
 {
-        if(joint_1 > min_1 + ((max_1 - min_1)/100))
-        joint_1 = joint_1 - (max_1 - min_1)/100;
+        if(joint_1 > min_1 + ((max_1 - min_1)/(101-joints_step)))
+        joint_1 = joint_1 - (max_1 - min_1)/(101-joints_step);
         qnode.jointPublisher(MainWindow::joint_1, MainWindow::joint_2,MainWindow::joint_3,MainWindow::joint_4,MainWindow::joint_5);
 }
 
 void MainWindow::on_q2_plus_clicked(bool check)
 {
-        if(joint_2 < max_2 - ((max_2 - min_2)/100))
-        joint_2 = joint_2 + (max_2 - min_2)/100;
+        if(joint_2 < max_2 - ((max_2 - min_2)/(101-joints_step)))
+        joint_2 = joint_2 + (max_2 - min_2)/(101-joints_step);
         qnode.jointPublisher(MainWindow::joint_1, MainWindow::joint_2,MainWindow::joint_3,MainWindow::joint_4,MainWindow::joint_5);
 }
 
 void MainWindow::on_q2_minus_clicked(bool check)
 {
-        if(joint_2 > min_2 + ((max_2 - min_2)/100))
-        joint_2 = joint_2 - (max_2 - min_2)/100;
+        if(joint_2 > min_2 + ((max_2 - min_2)/(101-joints_step)))
+        joint_2 = joint_2 - (max_2 - min_2)/(101-joints_step);
         qnode.jointPublisher(MainWindow::joint_1, MainWindow::joint_2,MainWindow::joint_3,MainWindow::joint_4,MainWindow::joint_5);
 }
 
 void MainWindow::on_q3_plus_clicked(bool check)
 {
-        if(joint_3 < max_3 - ((max_3 - min_3)/100))
-        joint_3 = joint_3 + (max_3 - min_3)/100;
+        if(joint_3 < max_3 - ((max_3 - min_3)/(101-joints_step)))
+        joint_3 = joint_3 + (max_3 - min_3)/(101-joints_step);
         qnode.jointPublisher(MainWindow::joint_1, MainWindow::joint_2,MainWindow::joint_3,MainWindow::joint_4,MainWindow::joint_5);
 }
 
 void MainWindow::on_q3_minus_clicked(bool check)
 {
-        if(joint_3 > min_3 + ((max_3 - min_3)/100))
-        joint_3 = joint_3 - (max_3 - min_3)/100;
+        if(joint_3 > min_3 + ((max_3 - min_3)/(101-joints_step)))
+        joint_3 = joint_3 - (max_3 - min_3)/(101-joints_step);
         qnode.jointPublisher(MainWindow::joint_1, MainWindow::joint_2,MainWindow::joint_3,MainWindow::joint_4,MainWindow::joint_5);
 }
 
 void MainWindow::on_q4_plus_clicked(bool check)
 {
-        if(joint_4 < max_4 - ((max_4 - min_4)/100))
-        joint_4 = joint_4 + (max_4 - min_4)/100;
+        if(joint_4 < max_4 - ((max_4 - min_4)/(101-joints_step)))
+        joint_4 = joint_4 + (max_4 - min_4)/(101-joints_step);
         qnode.jointPublisher(MainWindow::joint_1, MainWindow::joint_2,MainWindow::joint_3,MainWindow::joint_4,MainWindow::joint_5);
 }
 
 void MainWindow::on_q4_minus_clicked(bool check)
 {
-        if(joint_4 > min_4 + ((max_4 - min_4)/100))
-        joint_4 = joint_4 - (max_4 - min_4)/100;
+        if(joint_4 > min_4 + ((max_4 - min_4)/(101-joints_step)))
+        joint_4 = joint_4 - (max_4 - min_4)/(101-joints_step);
         qnode.jointPublisher(MainWindow::joint_1, MainWindow::joint_2,MainWindow::joint_3,MainWindow::joint_4,MainWindow::joint_5);
 }
 
 void MainWindow::on_q5_plus_clicked(bool check)
 {
-        if(joint_5 < max_5 - ((max_5 - min_5)/100))
-        joint_5 = joint_5 + (max_5 - min_5)/100;
+        if(joint_5 < max_5 - ((max_5 - min_5)/(101-joints_step)))
+        joint_5 = joint_5 + (max_5 - min_5)/(101-joints_step);
         qnode.jointPublisher(MainWindow::joint_1, MainWindow::joint_2,MainWindow::joint_3,MainWindow::joint_4,MainWindow::joint_5);
 }
 
 void MainWindow::on_q5_minus_clicked(bool check)
 {
-        if(joint_5 > min_5 + ((max_5 - min_5)/100))
-        joint_5 = joint_5 - (max_5 - min_5)/100;
+        if(joint_5 > min_5 + ((max_5 - min_5)/(101-joints_step)))
+        joint_5 = joint_5 - (max_5 - min_5)/(101-joints_step);
         qnode.jointPublisher(MainWindow::joint_1, MainWindow::joint_2,MainWindow::joint_3,MainWindow::joint_4,MainWindow::joint_5);
 }
 
