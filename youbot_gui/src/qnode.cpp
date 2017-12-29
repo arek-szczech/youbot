@@ -726,7 +726,11 @@ void QNode::readPointsFromFile()
 void QNode::readProgramFromFile()
 {
     //number_of_lin_mov=0;
-
+    std_msgs::String msg1;
+    std::stringstream error;
+    msg1.data = error.str();
+    //error << "Treść błędu";
+    error << endl;
     string line[100];
     int row_number=0;
     fstream file;
@@ -738,8 +742,8 @@ void QNode::readProgramFromFile()
         cout << "Uzyskano dostep do pliku!" << endl;
         while (getline(file, line[row_number]))
         {
-       // cout << line[row_number] << endl;
-        ++row_number;
+            // cout << line[row_number] << endl;
+            ++row_number;
         }
         cout << "Plik ma " << row_number << " wierszy" << endl;
         file.close();
@@ -755,15 +759,15 @@ void QNode::readProgramFromFile()
     string temp_velocity_value[row_number];
     //string command[row_number];
 
-        for (int i = 0; i<row_number;  i++)
+    for (int i = 0; i<row_number;  i++)
     {
         command[i] = line[i].substr(0,3);
         if (command[i] == "GRI")
         {
             state+=2;
             string gripper_command;
-            command[i] = line[i].substr(0,7);
-            if (command[i] == "GRIPPER")
+            command[i] = line[i].substr(0,8);
+            if (command[i] == "GRIPPER ")
             {
                 state++;
                 gripper_command = line[i].substr(8,4);
@@ -776,120 +780,135 @@ void QNode::readProgramFromFile()
                     else
                     {
                         state--;
-                        cout << "Program nie może zaczynać się komendą GRIPPER";
+                        error << " Program nie może zaczynać się komendą GRIPPER [linia " << i+1 << "]" << endl;
                     }
                     cout << "Otwieram gripper" << endl;
                 }
 
-            else if (gripper_command=="CLOS")
-            {
-                state++;
-                command[i]="GRC";
-                if(i>0)
-                    point[i]=point[i-1];
+                else if (gripper_command=="CLOS")
+                {
+                    state++;
+                    command[i]="GRC";
+                    if(i>0)
+                        point[i]=point[i-1];
+                    else
+                    {
+                        state--;
+                        error << " Program nie może zaczynać się komendą GRIPPER [linia " << i+1 << "]" << endl;
+                    }
+                    cout << "Zamykam gripper" << endl;
+                }
                 else
                 {
-                    state--;
-                    cout << "Program nie może zaczynać się komendą GRIPPER";
+                    error << " Brak komendy OPEN/CLOSE [linia " << i+1 << "]" << endl;
                 }
-                cout << "Zamykam gripper" << endl;
-            }
-            else
-            {
-                cout << "Brak komendy OPEN/CLOSE";
-            }
                 state+=2;
-        }
-        else
-        {
-            cout << "Nieznana komenda";
+            }
+            else
+            {
+                error << " Nieznana komenda [linia " << i+1 << "]" << endl;
 
-        }
+            }
         }
         else
         {
-//        cout << line[i].length() << endl;
-        if (line[i].length()>=6)
-        {
-        temp_point[i] = line[i].substr (4,1);
-        point[i] = atoi((line[i].substr (5,2)).c_str());
-        }
-        if (line[i].length()>=12)
-        {
-        temp_velocity_command[i] = line[i].substr (7,3);
-        temp_velocity_value[i] = line[i].substr (11,3);
-        }
-        if ((command[i]=="PTP"))
-            state+=2;
-        else if ((command[i]=="LIN"))
-        {
-        cout<<"readProgram: znalazlem LIN"<<endl;
- //**************************************************************
-            state++;
-         //   lin_mov_array[number_of_lin_mov]=point[i];
-         //   number_of_lin_mov++;
-            if(checkLinearMovementPossibility(i, false))
-               {
+            //        cout << line[i].length() << endl;
+            if (line[i].length()>=6)
+            {
+                temp_point[i] = line[i].substr (4,1);
+                point[i] = atoi((line[i].substr (5,2)).c_str());
+            }
+            if (line[i].length()>=12)
+            {
+                if (point[i]<=9)
+                {
+                    temp_velocity_command[i] = line[i].substr (7,4);
+                    temp_velocity_value[i] = line[i].substr (11,3);
+                }
+                else if (point[i]>9)
+                {
+                    temp_velocity_command[i] = line[i].substr (8,4);
+                    temp_velocity_value[i] = line[i].substr (12,3);
+                }
+
+            }
+            if ((command[i]=="PTP"))
+                state+=2;
+            else if ((command[i]=="LIN"))
+            {
+                cout<<"readProgram: znalazlem LIN"<<endl;
+                //**************************************************************
                 state++;
-             }
-            else
-            {
-                cout << "Nie można zrealizować ruchu liniowego";
+                //   lin_mov_array[number_of_lin_mov]=point[i];
+                //   number_of_lin_mov++;
+                if(checkLinearMovementPossibility(i, false))
+                {
+                    state++;
+                }
+                else
+                {
+                    error << " Nie można zrealizować ruchu liniowego [linia " << i+1 << "]" << endl;
+                }
             }
+            else
+                error << "Nieznana komenda [linia " << i+1 << "]" << endl;
+
+
+            if (temp_point[i]=="P")
+                state++;
+            else
+                error << " Błędnie wprowadzony punkt [linia " << i+1 << "]" << endl;
+            if (point[i]<=line_nmb)
+            {
+                state++;
+                if (temp_velocity_command[i]=="VEL ")
+                {
+                    state++;
+                    if ((atoi(temp_velocity_value[i].c_str())>0) && (atoi(temp_velocity_value[i].c_str())<=100))
+                    {
+                        velocity[i] = atoi(temp_velocity_value[i].c_str());
+                        state++;
+                    }
+                    else
+                        error << " Wprowadzono błędną wartość prędkości [linia " << i+1 << "]" << endl;
+                }
+                else
+                    error << " Brak komendy VEL dla ruchu " << command[i] << " P" << point[i] <<"[linia " << i+1 << "]" << endl;
+
+            }
+            else
+                error << " Punkt P" << point[i] << " nie został zdefiniowany [linia " << i+1 << "]" << endl;
         }
-        else
-            cout << "Nieznana komenda" << endl;
-
-
-        if (temp_point[i]=="P")
-            state++;
-        else
-            cout << "Błędnie wprowadzony punkt" << endl;
-        if (point[i]<=line_nmb)
-        {
-            state++;
-            if (temp_velocity_command[i]=="VEL")
-            {
-            state++;
-            if ((atoi(temp_velocity_value[i].c_str())>0) && (atoi(temp_velocity_value[i].c_str())<=100))
-            {
-            velocity[i] = atoi(temp_velocity_value[i].c_str());
-            state++;
-            }
-            else
-                cout << "Wprowadzono błędną wartość prędkości" << endl;
-            }
-            else
-            cout << "Brak komendy VEL dla ruchu " << command[i] << " P" << point[i] << "*** " << temp_velocity_command[i]  << endl;
-
-        }
-        else
-            cout << "Punkt P" << point[i] << " nie został zdefiniowany" << endl;
     }
-        }
-        if (state/6!=row_number)
+    if (state/6!=row_number)
+    {
+        cout << state << endl;
+        msg1.data=error.str();
+        //cout << "Błąd składni kodu" << endl; // wyprowadzić log i przerwać funkcje
+        log(Error,std::string("Błąd składni kodu:")+msg1.data);
+    }
+    else
+    {
+        if((movement_iteration==row_number)&&(play_program==true))
         {
-         cout << state << endl;
-         //cout << "Błąd składni kodu" << endl; // wyprowadzić log i przerwać funkcje
-         log(Error,std::string("Błąd składni kodu"));
+            play_program=false;
+            movement_iteration=0;
+            log(Info,std::string("[Tryb automatyczny] Wykonano program"));
         }
-        else
-        {
-            if((movement_iteration==row_number)&&(play_program==true))
-            {
-                play_program=false;
-                movement_iteration=0;
-                log(Info,std::string("[Tryb automatyczny] Wykonano program"));
-            }
 
-            if((movement_iteration!=row_number)&&(play_program==true))
-            {
+        for (int i=0;i<row_number;i++)
+        {
+            cout << command[i] << " Punkt " << point[i] << " prędkość: " << velocity[i] << endl;
+        }
+
+        if((movement_iteration!=row_number)&&(play_program==true))
+        {
             do
             {
-                    cout << "Prędkość 1: " << velocity[5] << endl;
+               // cout << "Prędkość 1: " << velocity[5] << endl;
 
-                    if(command[movement_iteration]=="PTP")
-                    {
+                if(command[movement_iteration]=="PTP")
+                {
                     std_msgs::String msg;
                     std::stringstream ss;
                     ss << point[QNode::movement_iteration];
@@ -899,10 +918,10 @@ void QNode::readProgramFromFile()
                     QNode::jointPublisher(P[point[QNode::movement_iteration]][0],P[point[QNode::movement_iteration]][1],
                             P[point[QNode::movement_iteration]][2],P[point[QNode::movement_iteration]][3],
                             P[point[QNode::movement_iteration]][4]);
-                    }
+                }
 
-                    if(command[movement_iteration]=="LIN")
-                    {
+                if(command[movement_iteration]=="LIN")
+                {
 
                     cout<<"wszedlem do do while - lin"<<endl;
 
@@ -915,30 +934,30 @@ void QNode::readProgramFromFile()
 
 
                     QNode::executeLIN(movement_iteration);
-                    }
+                }
 
-                    if(command[movement_iteration]=="GRO")
-                    {
+                if(command[movement_iteration]=="GRO")
+                {
                     log(Info,std::string("[Tryb automatyczny] Otwarto chwytak"));
                     gripperPublisher(0.011, 0.011);
                     opening_gripper=true;
-                    }
+                }
 
-                    if(command[movement_iteration]=="GRC")
-                    {
+                if(command[movement_iteration]=="GRC")
+                {
                     log(Info,std::string("[Tryb automatyczny] Zamknięto chwytak"));
                     gripperPublisher(0, 0);
                     closing_gripper=true;
-                    }
+                }
 
 
 
-                    QNode::execute_movement_flag=false;
+                QNode::execute_movement_flag=false;
             }
 
-        while (QNode::execute_movement_flag);
-            }
+            while (QNode::execute_movement_flag);
         }
+    }
 }
 
 
