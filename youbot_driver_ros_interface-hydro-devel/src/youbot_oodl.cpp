@@ -38,7 +38,9 @@
  ******************************************************************************/
 
 #include "youbot_driver_ros_interface/YouBotOODLWrapper.h"
+//#include "/home/arek/youbot/src/youbot/youbot_driver-hydro-devel/include/youbot_driver/youbot/YouBotManipulator.hpp"
 
+//using namespace youbot;
 int main(int argc, char **argv)
 {
 
@@ -48,6 +50,7 @@ int main(int argc, char **argv)
 	ros::init(argc, argv, "youbot_oodl_driver");
 	ros::NodeHandle n;
 	youBot::YouBotOODLWrapper youBot(n);
+       // youbot::MaximumPositioningVelocity maxPositioningVelocity;
 	std::vector<std::string> armNames;
 
 

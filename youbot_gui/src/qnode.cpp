@@ -71,7 +71,7 @@
 #include "../youbot_driver-hydro-devel/include/youbot_driver/youbot/YouBotBase.hpp"
 #include "../youbot_driver-hydro-devel/include/youbot_driver/youbot/YouBotManipulator.hpp"
 
-
+//
 
 //#include "/home/arek/youbot/src/youbot/youbot_driver_ros_interface-hydro-devel/include/youbot_driver_ros_interface/joint_state_observer_oodl.h"
 #include "../youbot_driver_ros_interface-hydro-devel/include/youbot_driver_ros_interface/YouBotOODLWrapper.h"
@@ -1010,9 +1010,9 @@ void QNode::jointPublisher(double q1, double q2,double q3,double q4,double q5)
     };
 
 
-    brics_actuator::ProgramExecuteVelocity msg;
-    msg.velocity=QNode::velocity[movement_iteration];
-    velocityPublisher.publish(msg);
+   brics_actuator::ProgramExecuteVelocity msg;
+   msg.velocity=QNode::velocity[0];
+   velocityPublisher.publish(msg);
 
     command.positions = jointPosition;
     armPositionsPublisher.publish(command);
@@ -1461,6 +1461,11 @@ bool QNode::init()
         home[3]=P[0][3];
         home[4]=P[0][4];
 
+        for (int i=0;i<100;i++)
+        {
+        QNode::velocity[i]=5;
+        }
+
         QNode::log(Info,std::string("Połączono ze sterownikiem robota"));
 
         start();
@@ -1470,7 +1475,7 @@ bool QNode::init()
 void QNode::run()
 {
         ros::Rate loop_rate(2); //zmienione z 1 na 20
-	int count = 0;
+        int count = 0;
         MainWindow::joint_1 = QNode::subscriber_joint1;
         MainWindow::joint_2 = QNode::subscriber_joint2;
         MainWindow::joint_3 = QNode::subscriber_joint3;
@@ -1487,6 +1492,13 @@ void QNode::run()
 //            msg.velocity=50;
 
 //            velocityPublisher.publish(msg);
+
+//            MainWindow::joint_1 = QNode::subscriber_joint1;
+//            MainWindow::joint_2 = QNode::subscriber_joint2;
+//            MainWindow::joint_3 = QNode::subscriber_joint3;
+//            MainWindow::joint_4 = QNode::subscriber_joint4;
+//            MainWindow::joint_5 = QNode::subscriber_joint5;
+
 
                 this->ui.lcd_q1->display(QNode::subscriber_joint1);
                 this->ui.lcd_q2->display(QNode::subscriber_joint2);
