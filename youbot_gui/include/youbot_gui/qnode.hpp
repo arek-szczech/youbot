@@ -126,6 +126,7 @@ public:
         static bool start_lin_mov;
 
         static int velocity[100];
+        static bool isManualPTPActiv;
 
         Ui::MainWindowDesign ui;
 

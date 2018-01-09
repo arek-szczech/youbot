@@ -801,16 +801,19 @@
           <item>
            <widget class="QSlider" name="krok_zlacza">
             <property name="minimum">
-             <number>10</number>
+             <number>1</number>
             </property>
             <property name="maximum">
-             <number>100</number>
+             <number>20</number>
+            </property>
+            <property name="value">
+             <number>1</number>
             </property>
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
             <property name="invertedControls">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -845,7 +848,7 @@
      <x>0</x>
      <y>0</y>
      <width>1366</width>
-     <height>19</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">

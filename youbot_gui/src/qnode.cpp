@@ -147,6 +147,7 @@ double QNode::distance_z;
 bool QNode::start_lin_mov=false;
 
 int QNode::velocity[100];
+bool QNode::isManualPTPActiv=false;
 
 
 //*********Zmienne do funkcji executeProgram****************
@@ -982,6 +983,18 @@ void QNode::loadPointsList()
 
 void QNode::jointPublisher(double q1, double q2,double q3,double q4,double q5)
 {
+
+    brics_actuator::ProgramExecuteVelocity msg;
+    if (play_program||isManualPTPActiv)
+    {
+        msg.velocity=QNode::velocity[movement_iteration];
+    }
+    else
+    {
+        msg.velocity=100;
+    }
+    velocityPublisher.publish(msg);
+
     static const int numberOfArmJoints = 5;
     brics_actuator::JointPositions command;
     vector <brics_actuator::JointValue> jointPosition;
@@ -1008,11 +1021,6 @@ void QNode::jointPublisher(double q1, double q2,double q3,double q4,double q5)
         jointPosition[i].unit = boost::units::to_string(boost::units::si::radians);
         //cout << "Joint " << jointPosition[i].joint_uri << " = " << jointPosition[i].value << " " << jointPosition[i].unit << endl;
     };
-
-
-   brics_actuator::ProgramExecuteVelocity msg;
-   msg.velocity=QNode::velocity[0];
-   velocityPublisher.publish(msg);
 
     command.positions = jointPosition;
     armPositionsPublisher.publish(command);
@@ -1098,6 +1106,7 @@ bool QNode::isLittleStepExecuted()
 
 void QNode::manualPTP(int i)
 {
+         QNode::isManualPTPActiv=true;
          jointPublisher(P[point[i]][0],P[point[i]][1],P[point[i]][2],P[point[i]][3],P[point[i]][4]);
          cout<<"Numer pkt: "<<i<<endl;
 
@@ -1107,6 +1116,7 @@ void QNode::manualPTP(int i)
          msg.data = ss.str();
 
          log(Info,std::string("[Tryb ręczny] Wykonano ruch PTP P")+msg.data);
+         QNode::isManualPTPActiv=false;
 }
 
 void QNode::convActNumbOfLinMov2Joint()
@@ -1465,6 +1475,7 @@ bool QNode::init()
         {
         QNode::velocity[i]=5;
         }
+
 
         QNode::log(Info,std::string("Połączono ze sterownikiem robota"));
 
