@@ -174,11 +174,24 @@ double a3 = 135;
 double d5 = 218;
 
 //Offsets for youBot driver
-double offset1 = 2.8668;
-double offset2 = 2.59191;
-double offset3 = -2.52113;
-double offset4 = 1.75973;
-double offset5 = 2.93141;
+//stare
+//double offset1 = 2.8668;
+//double offset2 = 2.59191;
+//double offset3 = -2.52113;
+//double offset4 = 1.75973;
+//double offset5 = 2.93141;
+
+//double offset1 = 2.91503;
+//double offset2 = 2.61799;
+//double offset3 = -2.50542;
+//double offset4 = 1.70353;
+//double offset5 = 2.76548;
+
+double offset1 = 2.9496;
+double offset2 = 2.70519;
+double offset3 = -2.54818;
+double offset4 = 1.78896;
+double offset5 = 2.92342;
 
 //Signum function do odwrotnej
 int QNode::sgn(double v)
@@ -983,7 +996,14 @@ void QNode::loadPointsList()
 
 void QNode::jointPublisher(double q1, double q2,double q3,double q4,double q5)
 {
-
+    double *cords;
+    cords = forwardKinematic(q1, q2, q3, q4, q5);
+    if(cords[2]<5)
+    {
+        log(Info,std::string("Nie można wykonać - robot uderzy w stół"));
+    }
+    else
+    {
     brics_actuator::ProgramExecuteVelocity msg;
     if (play_program||isManualPTPActiv)
     {
@@ -1025,6 +1045,7 @@ void QNode::jointPublisher(double q1, double q2,double q3,double q4,double q5)
     command.positions = jointPosition;
     armPositionsPublisher.publish(command);
     QNode::moveArm(q1, q2, q3, q4, q5);
+    }
 }
 
 void QNode::gripperPublisher(double gripper_1, double gripper_2)
