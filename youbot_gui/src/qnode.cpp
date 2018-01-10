@@ -377,10 +377,10 @@ double* QNode::inverseKinematic(double xk, double yk, double zk, double Rz, doub
     }
     else if (sgn(xp4)==sgn(xk) || sgn(yp4)==sgn(yk))
     {
-        q[1] = atan2(yk,xk);
+        q[0] = atan2(yk,xk);
 
-        x4 = xp4 - a1*cos(q[1]);
-        y4 = yp4 - a1*sin(q[1]);
+        x4 = xp4 - a1*cos(q[0]);
+        y4 = yp4 - a1*sin(q[0]);
         z4 = zp4 - d1;
 
         l = sqrt(x4*x4 + y4*y4 + z4*z4);
