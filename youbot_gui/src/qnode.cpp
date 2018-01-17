@@ -42,6 +42,10 @@
 #include <std_msgs/String.h>
 #include <sstream>
 #include <iostream>
+#include <Eigen/Dense>
+#include <Eigen/QR>
+#include <Eigen/SVD>
+#include <Eigen/Core>
 #include <assert.h>
 #include "ros/ros.h"
 #include "trajectory_msgs/JointTrajectory.h"
@@ -82,6 +86,7 @@
 
 using namespace std;
 using namespace youbot;
+using namespace Eigen;
 namespace youbot_gui {
 
 //jointsCallback
@@ -188,10 +193,500 @@ double d5 = 218;
 //double offset5 = 2.76548;
 
 double offset1 = 2.9496;
-double offset2 = 2.70519;
+//double offset2 = 2.70519;
+double offset2 = 2.616;
 double offset3 = -2.54818;
 double offset4 = 1.78896;
 double offset5 = 2.92342;
+
+
+double* QNode::inverseKinematicJacobi(double xk, double yk, double zk, double Rz, double Ry, double Rx, bool logi)
+{
+    static double q[5];
+
+    double jlimit = 1000; //limit value for iterations
+    double tolerancja = 0.01; //tollerance of deviation
+    double blad = 1; //error value
+    double count = 0; //iteration counter
+
+    //actual position from robot
+    double theta_1 = QNode::subscriber_joint1;
+    double theta_2 = QNode::subscriber_joint2;
+    double theta_3 = QNode::subscriber_joint3;
+    double theta_4 = QNode::subscriber_joint4;
+    double theta_5 = QNode::subscriber_joint5;
+
+    cout<<"theta_1: "<<theta_1<<endl;
+    cout<<"theta_2: "<<theta_2<<endl;
+    cout<<"theta_3: "<<theta_3<<endl;
+    cout<<"theta_4: "<<theta_4<<endl;
+    cout<<"theta_5: "<<theta_5<<endl;
+
+
+    //actual position from robot after offsets and -pi/2 on 4th deegre of freedom
+    theta_1 = theta_1 - offset1;
+    theta_2 = theta_2 - offset2;
+    theta_3 = theta_3 - offset3;
+    theta_4 = theta_4 - offset4 - M_PI/2;
+    theta_5 = theta_5 - offset5;
+
+
+    cout<<"offtheta_1: "<<theta_1<<endl;
+    cout<<"offtheta_2: "<<theta_2<<endl;
+    cout<<"offtheta_3: "<<theta_3<<endl;
+    cout<<"offtheta_4: "<<theta_4<<endl;
+    cout<<"offtheta_5: "<<theta_5<<endl;
+
+
+
+//    double theta_1 = 0; 2.9496
+//    double theta_2 = -1.57;1.046
+//    double theta_3 = -0.78;-3.32818
+//    double theta_4 = -2.61;0.74896
+//    double theta_5 = 0;2.9342
+
+    MatrixXd t_input(4,4); //matrix of destination created from input values
+
+    //input matrix
+    t_input(0,0) = round((cos(Rz)*cos(Ry))*100)/100;
+    t_input(0,1) = round((cos(Rz)*sin(Ry)*sin(Rx) - sin(Rz)*cos(Rx))*100)/100;
+    t_input(0,2) = round((cos(Rz)*sin(Ry)*cos(Rx) + sin(Rz)*sin(Rx))*100)/100;
+    t_input(0,3) = round(xk);
+    t_input(1,0) = round((sin(Rz)*cos(Ry))*100)/100;
+    t_input(1,1) = round((sin(Rz)*sin(Ry)*sin(Rx) + cos(Rz)*cos(Rx))*100)/100;
+    t_input(1,2) = round((sin(Rz)*sin(Ry)*cos(Rx) - cos(Rz)*sin(Rx))*100)/100;
+    t_input(1,2) = round(yk);
+    t_input(2,0) = round((-sin(Ry))*100)/100;
+    t_input(2,1) = round((cos(Ry)*sin(Rx))*100)/100;
+    t_input(2,2) = round((cos(Ry)*cos(Rx))*100)/100;
+    t_input(2,3) = round(zk);
+    t_input(3,0) = 0;
+    t_input(3,1) = 0;
+    t_input(3,2) = 0;
+    t_input(3,3) = 1;
+
+    MatrixXd t_start_1(4,4);
+    MatrixXd t_start_2(4,4);
+    MatrixXd t_start_3(4,4);
+    MatrixXd t_start_4(4,4);
+    MatrixXd t_start_5(4,4);
+
+    MatrixXd t_start(4,4);
+
+    //vector of actual values from robot
+    VectorXd inputs(5);
+
+    inputs << theta_1,theta_2,theta_3,theta_4,theta_5;
+
+    while (blad > tolerancja)
+    {
+        //matrix from 1 to 0
+        t_start_1(0,0) = cos(inputs(0));
+        t_start_1(0,1) = 0;
+        t_start_1(0,2) = -sin(inputs(0));
+        t_start_1(0,3) = a1*cos(inputs(0));
+        t_start_1(1,0) = sin(inputs(0));
+        t_start_1(1,1) = 0;
+        t_start_1(1,2) = cos(inputs(0));
+        t_start_1(1,3) = a1*sin(inputs(0));
+        t_start_1(2,0) = 0;
+        t_start_1(2,1) = -1;
+        t_start_1(2,2) = 0;
+        t_start_1(2,3) = d1;
+        t_start_1(3,0) = 0;
+        t_start_1(3,1) = 0;
+        t_start_1(3,2) = 0;
+        t_start_1(3,3) = 1;
+
+        //matrix from 2 to 1
+        t_start_2(0,0) = cos(inputs(1));
+        t_start_2(0,1) = -sin(inputs(1));
+        t_start_2(0,2) = 0;
+        t_start_2(0,3) = a2*cos(inputs(1));
+        t_start_2(1,0) = sin(inputs(1));
+        t_start_2(1,1) = cos(inputs(1));
+        t_start_2(1,2) = 0;
+        t_start_2(1,3) = a2*sin(inputs(1));
+        t_start_2(2,0) = 0;
+        t_start_2(2,1) = 0;
+        t_start_2(2,2) = 1;
+        t_start_2(2,3) = 0;
+        t_start_2(3,0) = 0;
+        t_start_2(3,1) = 0;
+        t_start_2(3,2) = 0;
+        t_start_2(3,3) = 1;
+
+        //matrix from 3 to 2
+        t_start_3(0,0) = cos(inputs(2));
+        t_start_3(0,1) = -sin(inputs(2));
+        t_start_3(0,2) = 0;
+        t_start_3(0,3) = a3*cos(inputs(2));
+        t_start_3(1,0) = sin(inputs(2));
+        t_start_3(1,1) = cos(inputs(2));
+        t_start_3(1,2) = 0;
+        t_start_3(1,3) = a3*sin(inputs(2));
+        t_start_3(2,0) = 0;
+        t_start_3(2,1) = 0;
+        t_start_3(2,2) = 1;
+        t_start_3(2,3) = 0;
+        t_start_3(3,0) = 0;
+        t_start_3(3,1) = 0;
+        t_start_3(3,2) = 0;
+        t_start_3(3,3) = 1;
+
+        //matrix from 4 to 3
+        t_start_4(0,0) = cos(inputs(3));
+        t_start_4(0,1) = 0;
+        t_start_4(0,2) = -sin(inputs(3));
+        t_start_4(0,3) = 0;
+        t_start_4(1,0) = sin(inputs(3));
+        t_start_4(1,1) = 0;
+        t_start_4(1,2) = cos(inputs(3));
+        t_start_4(1,3) = 0;
+        t_start_4(2,0) = 0;
+        t_start_4(2,1) = -1;
+        t_start_4(2,2) = 0;
+        t_start_4(2,3) = 0;
+        t_start_4(3,0) = 0;
+        t_start_4(3,1) = 0;
+        t_start_4(3,2) = 0;
+        t_start_4(3,3) = 1;
+
+         //matrix from 5 to 4
+        t_start_5(0,0) = cos(inputs(4));
+        t_start_5(0,1) = -sin(inputs(4));
+        t_start_5(0,2) = 0;
+        t_start_5(0,3) = 0;
+        t_start_5(1,0) = sin(inputs(4));
+        t_start_5(1,1) = cos(inputs(4));
+        t_start_5(1,2) = 0;
+        t_start_5(1,3) = 0;
+        t_start_5(2,0) = 0;
+        t_start_5(2,1) = 0;
+        t_start_5(2,2) = 1;
+        t_start_5(2,3) = d5;
+        t_start_5(3,0) = 0;
+        t_start_5(3,1) = 0;
+        t_start_5(3,2) = 0;
+        t_start_5(3,3) = 1;
+
+        //matrix t50
+        t_start = t_start_1 * t_start_2 * t_start_3 * t_start_4 * t_start_5;
+
+        Vector3d t_input_column_1(t_input(0,0),t_input(1,0),t_input(2,0)); //in MATLAB t_input(1:3,1)
+        Vector3d t_input_column_2(t_input(0,1),t_input(1,1),t_input(2,1)); //in MATLAB t_input(1:3,2)
+        Vector3d t_input_column_3(t_input(0,2),t_input(1,2),t_input(2,2)); //in MATLAB t_input(1:3,3)
+        Vector3d t_input_column_4(t_input(0,3),t_input(1,3),t_input(2,3)); //in MATLAB t_input(1:3,4)
+
+        Vector3d t_start_column_1(t_start(0,0),t_start(1,0),t_start(2,0)); //in MATLAB t_start(1:3,1)
+        Vector3d t_start_column_2(t_start(0,1),t_start(1,1),t_start(2,1)); //in MATLAB t_start(1:3,2)
+        Vector3d t_start_column_3(t_start(0,2),t_start(1,2),t_start(2,2)); //in MATLAB t_start(1:3,3)
+        Vector3d t_start_column_4(t_start(0,3),t_start(1,3),t_start(2,3)); //in MATLAB t_start(1:3,4)
+
+        VectorXd e_1(3);
+        e_1 = t_input_column_4 - t_start_column_4;
+
+        VectorXd e_2(3);
+        e_2 = 0.5 * (t_start_column_1.cross(t_input_column_1) + t_start_column_2.cross(t_input_column_2) + t_start_column_3.cross(t_input_column_3));
+
+        VectorXd e(6); //vector of deviation
+        e << e_1, e_2;
+
+//        cout << e << endl;
+//        cout << endl;
+
+        MatrixXd U(4,4); //eye matrix
+
+        U(0,0) = 1;
+        U(0,1) = 0;
+        U(0,2) = 0;
+        U(0,3) = 0;
+        U(1,0) = 0;
+        U(1,1) = 1;
+        U(1,2) = 0;
+        U(1,3) = 0;
+        U(2,0) = 0;
+        U(2,1) = 0;
+        U(2,2) = 1;
+        U(2,3) = 0;
+        U(3,0) = 0;
+        U(3,1) = 0;
+        U(3,2) = 0;
+        U(3,3) = 1;
+
+        Vector3d d;
+        Vector3d delta;
+
+        VectorXd J5 (6);
+        VectorXd J4 (6);
+        VectorXd J3 (6);
+        VectorXd J2 (6);
+        VectorXd J1 (6);
+        MatrixXd J(6,5);
+
+        for (int i=5; i>0; i--)
+        {
+                MatrixXd T(4,4);
+                switch (i)
+                {
+                        case 1:
+                                T(0,0) = cos(inputs(0));
+                                T(0,1) = 0;
+                                T(0,2) = -sin(inputs(0));
+                                T(0,3) = a1*cos(inputs(0));
+                                T(1,0) = sin(inputs(0));
+                                T(1,1) = 0;
+                                T(1,2) = cos(inputs(0));
+                                T(1,3) = a1*sin(inputs(0));
+                                T(2,0) = 0;
+                                T(2,1) = -1;
+                                T(2,2) = 0;
+                                T(2,3) = d1;
+                                T(3,0) = 0;
+                                T(3,1) = 0;
+                                T(3,2) = 0;
+                                T(3,3) = 1;
+                                break;
+
+                        case 2:
+                                T(0,0) = cos(inputs(1));
+                                T(0,1) = -sin(inputs(1));
+                                T(0,2) = 0;
+                                T(0,3) = a2*cos(inputs(1));
+                                T(1,0) = sin(inputs(1));
+                                T(1,1) = cos(inputs(1));
+                                T(1,2) = 0;
+                                T(1,3) = a2*sin(inputs(1));
+                                T(2,0) = 0;
+                                T(2,1) = 0;
+                                T(2,2) = 1;
+                                T(2,3) = 0;
+                                T(3,0) = 0;
+                                T(3,1) = 0;
+                                T(3,2) = 0;
+                                T(3,3) = 1;
+                                break;
+
+                        case 3:
+                                T(0,0) = cos(inputs(2));
+                                T(0,1) = -sin(inputs(2));
+                                T(0,2) = 0;
+                                T(0,3) = a3*cos(inputs(2));
+                                T(1,0) = sin(inputs(2));
+                                T(1,1) = cos(inputs(2));
+                                T(1,2) = 0;
+                                T(1,3) = a3*sin(inputs(2));
+                                T(2,0) = 0;
+                                T(2,1) = 0;
+                                T(2,2) = 1;
+                                T(2,3) = 0;
+                                T(3,0) = 0;
+                                T(3,1) = 0;
+                                T(3,2) = 0;
+                                T(3,3) = 1;
+                                break;
+
+                        case 4:
+                                T(0,0) = cos(inputs(3));
+                                T(0,1) = 0;
+                                T(0,2) = -sin(inputs(3));
+                                T(0,3) = 0;
+                                T(1,0) = sin(inputs(3));
+                                T(1,1) = 0;
+                                T(1,2) = cos(inputs(3));
+                                T(1,3) = 0;
+                                T(2,0) = 0;
+                                T(2,1) = -1;
+                                T(2,2) = 0;
+                                T(2,3) = 0;
+                                T(3,0) = 0;
+                                T(3,1) = 0;
+                                T(3,2) = 0;
+                                T(3,3) = 1;
+                                break;
+
+                        case 5:
+                                T(0,0) = cos(inputs(4));
+                                T(0,1) = -sin(inputs(4));
+                                T(0,2) = 0;
+                                T(0,3) = 0;
+                                T(1,0) = sin(inputs(4));
+                                T(1,1) = cos(inputs(4));
+                                T(1,2) = 0;
+                                T(1,3) = 0;
+                                T(2,0) = 0;
+                                T(2,1) = 0;
+                                T(2,2) = 1;
+                                T(2,3) = d5;
+                                T(3,0) = 0;
+                                T(3,1) = 0;
+                                T(3,2) = 0;
+                                T(3,3) = 1;
+                                break;
+                }
+
+                U = T * U;
+
+                d << (-U(0,0) * U(1,3) + U(1,0) * U(0,3)), (-U(0,1) * U(1,3) + U(1,1) * U(0,3)), (-U(0,2) * U(1,3) + U(1,2) * U(0,3));
+                delta <<  U(2,0), U(2,1), U(2,2);
+
+                if (i == 5)
+                {
+                   J5 << d, delta;
+                }
+                if (i == 4)
+                {
+                    J4 << d,delta;
+                }
+                if (i == 3)
+                {
+                    J3 << d,delta;
+                }
+                if (i == 2)
+                {
+                    J2 << d,delta;
+                }
+                if (i == 1)
+                {
+                    J1 << d,delta;
+                }
+
+        }
+
+        J << J1,J2,J3,J4,J5;
+
+        MatrixXd R(3,3);
+        MatrixXd Z(3,3);
+        MatrixXd Jakobian(6,6);
+
+        R(0,0) = t_start(0,0);
+        R(0,1) = t_start(0,1);
+        R(0,2) = t_start(0,2);
+        R(1,0) = t_start(1,0);
+        R(1,1) = t_start(1,1);
+        R(1,2) = t_start(1,2);
+        R(2,0) = t_start(2,0);
+        R(2,1) = t_start(2,1);
+        R(2,2) = t_start(2,2);
+
+        Z(0,0) = 0;
+        Z(0,1) = 0;
+        Z(0,2) = 0;
+        Z(1,0) = 0;
+        Z(1,1) = 0;
+        Z(1,2) = 0;
+        Z(2,0) = 0;
+        Z(2,1) = 0;
+        Z(2,2) = 0;
+
+        Jakobian << R,Z,Z,R;
+
+        Jakobian = Jakobian * J;
+
+        MatrixXd pinv;
+
+        MatrixXd inverseJaK;
+
+        inverseJaK = Jakobian.adjoint() * Jakobian;
+        pinv = inverseJaK.inverse() * Jakobian.adjoint();
+
+        MatrixXd dq;
+
+        dq = pinv * e;
+
+        inputs = inputs + dq;
+
+        inputs(0) = round(inputs(0)*100)/100;
+        inputs(1) = round(inputs(1)*100)/100;
+        inputs(2) = round(inputs(2)*100)/100;
+        inputs(3) = round(inputs(3)*100)/100;
+        inputs(4) = round(inputs(4)*100)/100;
+
+        blad = dq.norm();
+        count+=1;
+        cout<<"count: "<<count<<endl;
+        cout<<"blad: "<<blad<<endl;
+        cout<<"tolerancja: "<<tolerancja<<endl;
+        if (count > 1000)
+        {
+            break;
+        }
+    }
+
+    if (count > jlimit)
+    {
+        q[0] = QNode::subscriber_joint1;
+        q[1] = QNode::subscriber_joint2;
+        q[2] = QNode::subscriber_joint3;
+        q[3] = QNode::subscriber_joint4;
+        q[4] = QNode::subscriber_joint5;
+
+        if(logi==true)
+        {
+            log(Warn,std::string("Nie można osiągnąć zadanej pozycji."));
+        }
+        linear_solution_exist=false;
+
+        return q;
+    }
+    else
+    {
+        /*for (int i=0; i<=4; i++)
+        {
+            while (inputs(i) > 2 * M_PI)
+            {
+                inputs(i) = inputs(i) - 2 * M_PI;
+            }
+            while (inputs(i) < -2 * M_PI)
+            {
+                inputs(i) = inputs(i) + 2 * M_PI;
+            }
+        }*/
+        q[0]=inputs(0)+offset1;
+        q[1]=inputs(1)+offset2;
+        q[2]=inputs(2)+offset3;
+        q[3]=inputs(3)+offset4+M_PI/2;
+        q[4]=inputs(4)+offset5;
+
+//        q[0]=inputs(0);
+//        q[1]=inputs(1);
+//        q[2]=inputs(2);
+//        q[3]=inputs(3);//+M_PI/2;
+//        q[4]=inputs(4);
+
+        cout<<q[0]<<endl;
+        cout<<q[1]<<endl;
+        cout<<q[2]<<endl;
+        cout<<q[3]<<endl;
+        cout<<q[4]<<endl;
+
+        if ((q[0] < MainWindow::min_1) || (q[0] > MainWindow::max_1)||
+                (q[1] < MainWindow::min_2) || (q[1] > MainWindow::max_2)||
+                (q[2] < MainWindow::min_3) || (q[2] > MainWindow::max_3)||
+                (q[3] < MainWindow::min_4) || (q[3] > MainWindow::max_4)||
+                (q[4] < MainWindow::min_5) || (q[4] > MainWindow::max_5))
+        {
+                q[0] = QNode::subscriber_joint1;
+                q[1] = QNode::subscriber_joint2;
+                q[2] = QNode::subscriber_joint3;
+                q[3] = QNode::subscriber_joint4;
+                q[4] = QNode::subscriber_joint5;
+
+                if(logi==true)
+                {
+                    log(Warn,std::string("Nie można osiągnąć zadanej pozycji."));
+                }
+                linear_solution_exist=false;
+
+                return q;
+        }
+        else
+        {
+            return q;
+        }
+    }
+}
+
 
 //Signum function do odwrotnej
 int QNode::sgn(double v)
@@ -597,12 +1092,12 @@ bool QNode::isPositionAchived(int movement_iteration_temp)
                //cout<<"subscriber_joint1: "<<subscriber_joint1<<endl;
                //cout<<"roznica: "<<P[point[movement_iteration_temp]][0]-subscriber_joint1<<endl;
                //cout<<"F_Abs: "<<abs(P[point[movement_iteration_temp]][0]-subscriber_joint1)<<endl;
-               std_msgs::String msg;
-               std::stringstream ss;
-               ss << "F_Abs: "<<abs(P[point[movement_iteration_temp]][0]-subscriber_joint1);
-               msg.data = ss.str();
+//               std_msgs::String msg;
+//               std::stringstream ss;
+//               ss << "F_Abs: "<<abs(P[point[movement_iteration_temp]][0]-subscriber_joint1);
+//               msg.data = ss.str();
 
-               log(Info,std::string("")+msg.data);
+//               log(Info,std::string("")+msg.data);
 
                return false;
            }

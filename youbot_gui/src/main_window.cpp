@@ -334,7 +334,8 @@ void MainWindow::on_x_plus_clicked(bool check)
     double *q;
     double x_temp=QNode::x;
     x_temp=x_temp+xyz_step;
-    q = qnode.inverseKinematic(x_temp, QNode::y, QNode::z, QNode::roll, QNode::pitch, QNode::yaw, true);
+   // q = qnode.inverseKinematic(x_temp, QNode::y, QNode::z, QNode::roll, QNode::pitch, QNode::yaw, true);
+        q = qnode.inverseKinematicJacobi(x_temp, QNode::y, QNode::z, QNode::roll, QNode::pitch, QNode::yaw, true);
     qnode.jointPublisher(q[0],q[1],q[2],q[3],q[4]);
 }
 void MainWindow::on_x_minus_clicked(bool check)
@@ -342,7 +343,8 @@ void MainWindow::on_x_minus_clicked(bool check)
     double *q;
     double x_temp=QNode::x;
     x_temp=x_temp-xyz_step;
-    q = qnode.inverseKinematic(x_temp, QNode::y, QNode::z, QNode::roll, QNode::pitch, QNode::yaw, true);
+//    q = qnode.inverseKinematic(x_temp, QNode::y, QNode::z, QNode::roll, QNode::pitch, QNode::yaw, true);
+    q = qnode.inverseKinematicJacobi(x_temp, QNode::y, QNode::z, QNode::roll, QNode::pitch, QNode::yaw, true);
     qnode.jointPublisher(q[0],q[1],q[2],q[3],q[4]);
 }
 void MainWindow::on_y_plus_clicked(bool check)
@@ -366,7 +368,8 @@ void MainWindow::on_z_plus_clicked(bool check)
     double *q;
     double z_temp=QNode::z;
     z_temp=z_temp+xyz_step;
-    q = qnode.inverseKinematic(QNode::x, QNode::y, z_temp, QNode::roll, QNode::pitch, QNode::yaw, true);
+//    q = qnode.inverseKinematic(QNode::x, QNode::y, z_temp, QNode::roll, QNode::pitch, QNode::yaw, true);
+    q = qnode.inverseKinematicJacobi(QNode::x, QNode::y, z_temp, QNode::roll, QNode::pitch, QNode::yaw, true);
     qnode.jointPublisher(q[0],q[1],q[2],q[3],q[4]);
 }
 void MainWindow::on_z_minus_clicked(bool check)
@@ -374,7 +377,8 @@ void MainWindow::on_z_minus_clicked(bool check)
     double *q;
     double z_temp=QNode::z;
     z_temp=z_temp-xyz_step;
-    q = qnode.inverseKinematic(QNode::x, QNode::y, z_temp, QNode::roll, QNode::pitch, QNode::yaw, true);
+//    q = qnode.inverseKinematic(QNode::x, QNode::y, z_temp, QNode::roll, QNode::pitch, QNode::yaw, true);
+    q = qnode.inverseKinematicJacobi(QNode::x, QNode::y, z_temp, QNode::roll, QNode::pitch, QNode::yaw, true);
     qnode.jointPublisher(q[0],q[1],q[2],q[3],q[4]);
 }
 
