@@ -192,9 +192,16 @@ double d5 = 218;
 //double offset4 = 1.70353;
 //double offset5 = 2.76548;
 
+//22.01 stare
+//double offset1 = 2.9496;
+//double offset2 = 2.616;
+//double offset3 = -2.54818;
+//double offset4 = 1.78896;
+//double offset5 = 2.92342;
+
+//22.01 nowe
 double offset1 = 2.9496;
-//double offset2 = 2.70519;
-double offset2 = 2.616;
+double offset2 = 2.70519;
 double offset3 = -2.54818;
 double offset4 = 1.78896;
 double offset5 = 2.92342;
@@ -205,7 +212,7 @@ double* QNode::inverseKinematicJacobi(double xk, double yk, double zk, double Rz
     static double q[5];
 
     double jlimit = 1000; //limit value for iterations
-    double tolerancja = 0.01; //tollerance of deviation
+    double tolerancja = 1e-10; //tollerance of deviation
     double blad = 1; //error value
     double count = 0; //iteration counter
 
@@ -248,18 +255,18 @@ double* QNode::inverseKinematicJacobi(double xk, double yk, double zk, double Rz
     MatrixXd t_input(4,4); //matrix of destination created from input values
 
     //input matrix
-    t_input(0,0) = round((cos(Rz)*cos(Ry))*100)/100;
-    t_input(0,1) = round((cos(Rz)*sin(Ry)*sin(Rx) - sin(Rz)*cos(Rx))*100)/100;
-    t_input(0,2) = round((cos(Rz)*sin(Ry)*cos(Rx) + sin(Rz)*sin(Rx))*100)/100;
-    t_input(0,3) = round(xk);
-    t_input(1,0) = round((sin(Rz)*cos(Ry))*100)/100;
-    t_input(1,1) = round((sin(Rz)*sin(Ry)*sin(Rx) + cos(Rz)*cos(Rx))*100)/100;
-    t_input(1,2) = round((sin(Rz)*sin(Ry)*cos(Rx) - cos(Rz)*sin(Rx))*100)/100;
-    t_input(1,2) = round(yk);
-    t_input(2,0) = round((-sin(Ry))*100)/100;
-    t_input(2,1) = round((cos(Ry)*sin(Rx))*100)/100;
-    t_input(2,2) = round((cos(Ry)*cos(Rx))*100)/100;
-    t_input(2,3) = round(zk);
+    t_input(0,0) = cos(Rz)*cos(Ry);
+    t_input(0,1) = cos(Rz)*sin(Ry)*sin(Rx) - sin(Rz)*cos(Rx);
+    t_input(0,2) = cos(Rz)*sin(Ry)*cos(Rx) + sin(Rz)*sin(Rx);
+    t_input(0,3) = xk;
+    t_input(1,0) = sin(Rz)*cos(Ry);
+    t_input(1,1) = sin(Rz)*sin(Ry)*sin(Rx) + cos(Rz)*cos(Rx);
+    t_input(1,2) = sin(Rz)*sin(Ry)*cos(Rx) - cos(Rz)*sin(Rx);
+    t_input(1,3) = yk;
+    t_input(2,0) = -sin(Ry);
+    t_input(2,1) = cos(Ry)*sin(Rx);
+    t_input(2,2) = cos(Ry)*cos(Rx);
+    t_input(2,3) = zk;
     t_input(3,0) = 0;
     t_input(3,1) = 0;
     t_input(3,2) = 0;
@@ -596,11 +603,6 @@ double* QNode::inverseKinematicJacobi(double xk, double yk, double zk, double Rz
 
         inputs = inputs + dq;
 
-        inputs(0) = round(inputs(0)*100)/100;
-        inputs(1) = round(inputs(1)*100)/100;
-        inputs(2) = round(inputs(2)*100)/100;
-        inputs(3) = round(inputs(3)*100)/100;
-        inputs(4) = round(inputs(4)*100)/100;
 
         blad = dq.norm();
         count+=1;
@@ -631,7 +633,7 @@ double* QNode::inverseKinematicJacobi(double xk, double yk, double zk, double Rz
     }
     else
     {
-        /*for (int i=0; i<=4; i++)
+        for (int i=0; i<=4; i++)
         {
             while (inputs(i) > 2 * M_PI)
             {
@@ -641,7 +643,7 @@ double* QNode::inverseKinematicJacobi(double xk, double yk, double zk, double Rz
             {
                 inputs(i) = inputs(i) + 2 * M_PI;
             }
-        }*/
+        }
         q[0]=inputs(0)+offset1;
         q[1]=inputs(1)+offset2;
         q[2]=inputs(2)+offset3;
