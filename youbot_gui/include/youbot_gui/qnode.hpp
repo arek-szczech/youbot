@@ -125,6 +125,12 @@ public:
         static double distance_z;
         static bool start_lin_mov;
 
+        static double q1_lin_check;
+        static double q2_lin_check;
+        static double q3_lin_check;
+        static double q4_lin_check;
+        static double q5_lin_check;
+
         static int velocity[100];
         static bool isManualPTPActiv;
 
@@ -145,7 +151,7 @@ public:
         void moveArm(double q1, double q2,double q3,double q4,double q5);
         void manualPTP(int i);
         double* inverseKinematic(double xk, double yk, double zk, double Rz, double Ry, double Rx, bool logi);
-        double* inverseKinematicJacobi(double xk, double yk, double zk, double Rz, double Ry, double Rx, bool logi);
+        double* inverseKinematicJacobi(double xk, double yk, double zk, double Rz, double Ry, double Rx, bool logi, bool check);
         int sgn(double v);
         void moveHome();
         void jointSimulator(int i);

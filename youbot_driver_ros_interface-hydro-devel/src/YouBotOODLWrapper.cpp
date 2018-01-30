@@ -43,7 +43,9 @@
 #include <youbot_trajectory_action_server/joint_trajectory_action.h>
 #include <sstream>
 
-#include "/home/arek/youbot/src/youbot/youbot_driver-hydro-devel/include/youbot_driver/youbot/YouBotManipulator.hpp"
+//#include "/home/mateusz/youbot/src/youbot_driver-hydro-devel/include/youbot_driver/youbot/YouBotManipulator.hpp"
+
+#include "../../youbot_driver-hydro-devel/include/youbot_driver/youbot/YouBotManipulator.hpp"
 
 using namespace youbot;
 

@@ -742,6 +742,15 @@
          <layout class="QHBoxLayout" name="horizontalLayout_19">
           <item>
            <widget class="QRadioButton" name="elbow_up">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
             <property name="text">
              <string>Łokieć - góra</string>
             </property>
@@ -752,6 +761,15 @@
           </item>
           <item>
            <widget class="QRadioButton" name="elbow_down">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
             <property name="text">
              <string>Łokieć - dół</string>
             </property>
@@ -764,7 +782,7 @@
           <item>
            <widget class="QLabel" name="label_8">
             <property name="text">
-             <string>Krok XYZ</string>
+             <string>Krok XYZ [mm]</string>
             </property>
            </widget>
           </item>
@@ -791,7 +809,7 @@
           <item>
            <widget class="QLabel" name="label_9">
             <property name="text">
-             <string>Krok w złączach</string>
+             <string>Krok w złączach [rad]</string>
             </property>
            </widget>
           </item>
@@ -848,7 +866,7 @@
      <x>0</x>
      <y>0</y>
      <width>1366</width>
-     <height>25</height>
+     <height>19</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">

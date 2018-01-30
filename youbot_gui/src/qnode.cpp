@@ -77,7 +77,7 @@
 
 //
 
-//#include "/home/arek/youbot/src/youbot/youbot_driver_ros_interface-hydro-devel/include/youbot_driver_ros_interface/joint_state_observer_oodl.h"
+//#include "/home/mateusz/youbot/src/youbot_driver_ros_interface-hydro-devel/include/youbot_driver_ros_interface/joint_state_observer_oodl.h"
 #include "../youbot_driver_ros_interface-hydro-devel/include/youbot_driver_ros_interface/YouBotOODLWrapper.h"
 
 
@@ -132,6 +132,12 @@ bool QNode::linear_solution_exist=true;
 
 bool QNode::opening_gripper=false;
 bool QNode::closing_gripper=false;
+
+double QNode::q1_lin_check;
+double QNode::q2_lin_check;
+double QNode::q3_lin_check;
+double QNode::q4_lin_check;
+double QNode::q5_lin_check;
 
 //int QNode::number_of_lin_mov=0;
 //int QNode::number_of_actual_lin_mov=0;
@@ -207,7 +213,7 @@ double offset4 = 1.78896;
 double offset5 = 2.92342;
 
 
-double* QNode::inverseKinematicJacobi(double xk, double yk, double zk, double Rz, double Ry, double Rx, bool logi)
+double* QNode::inverseKinematicJacobi(double xk, double yk, double zk, double Rz, double Ry, double Rx, bool logi, bool check)
 {
     static double q[5];
 
@@ -216,18 +222,38 @@ double* QNode::inverseKinematicJacobi(double xk, double yk, double zk, double Rz
     double blad = 1; //error value
     double count = 0; //iteration counter
 
-    //actual position from robot
-    double theta_1 = QNode::subscriber_joint1;
-    double theta_2 = QNode::subscriber_joint2;
-    double theta_3 = QNode::subscriber_joint3;
-    double theta_4 = QNode::subscriber_joint4;
-    double theta_5 = QNode::subscriber_joint5;
+    linear_solution_exist=true;
 
-    cout<<"theta_1: "<<theta_1<<endl;
-    cout<<"theta_2: "<<theta_2<<endl;
-    cout<<"theta_3: "<<theta_3<<endl;
-    cout<<"theta_4: "<<theta_4<<endl;
-    cout<<"theta_5: "<<theta_5<<endl;
+    double theta_1;
+    double theta_2;
+    double theta_3;
+    double theta_4;
+    double theta_5;
+
+    //actual position from robot
+    if(check)
+    {
+         theta_1=q1_lin_check;
+         theta_2=q2_lin_check;
+         theta_3=q3_lin_check;
+         theta_4=q4_lin_check;
+         theta_5=q5_lin_check;
+
+    }
+    else
+    {
+         theta_1 = QNode::subscriber_joint1;
+         theta_2 = QNode::subscriber_joint2;
+         theta_3 = QNode::subscriber_joint3;
+         theta_4 = QNode::subscriber_joint4;
+         theta_5 = QNode::subscriber_joint5;
+    }
+
+    //cout<<"theta_1: "<<theta_1<<endl;
+    //cout<<"theta_2: "<<theta_2<<endl;
+    //cout<<"theta_3: "<<theta_3<<endl;
+    //cout<<"theta_4: "<<theta_4<<endl;
+    //cout<<"theta_5: "<<theta_5<<endl;
 
 
     //actual position from robot after offsets and -pi/2 on 4th deegre of freedom
@@ -238,11 +264,11 @@ double* QNode::inverseKinematicJacobi(double xk, double yk, double zk, double Rz
     theta_5 = theta_5 - offset5;
 
 
-    cout<<"offtheta_1: "<<theta_1<<endl;
-    cout<<"offtheta_2: "<<theta_2<<endl;
-    cout<<"offtheta_3: "<<theta_3<<endl;
-    cout<<"offtheta_4: "<<theta_4<<endl;
-    cout<<"offtheta_5: "<<theta_5<<endl;
+    //cout<<"offtheta_1: "<<theta_1<<endl;
+    //cout<<"offtheta_2: "<<theta_2<<endl;
+    //cout<<"offtheta_3: "<<theta_3<<endl;
+    //cout<<"offtheta_4: "<<theta_4<<endl;
+    //cout<<"offtheta_5: "<<theta_5<<endl;
 
 
 
@@ -606,9 +632,9 @@ double* QNode::inverseKinematicJacobi(double xk, double yk, double zk, double Rz
 
         blad = dq.norm();
         count+=1;
-        cout<<"count: "<<count<<endl;
-        cout<<"blad: "<<blad<<endl;
-        cout<<"tolerancja: "<<tolerancja<<endl;
+        //cout<<"count: "<<count<<endl;
+        //cout<<"blad: "<<blad<<endl;
+        //cout<<"tolerancja: "<<tolerancja<<endl;
         if (count > 1000)
         {
             break;
@@ -656,11 +682,11 @@ double* QNode::inverseKinematicJacobi(double xk, double yk, double zk, double Rz
 //        q[3]=inputs(3);//+M_PI/2;
 //        q[4]=inputs(4);
 
-        cout<<q[0]<<endl;
-        cout<<q[1]<<endl;
-        cout<<q[2]<<endl;
-        cout<<q[3]<<endl;
-        cout<<q[4]<<endl;
+        //cout<<q[0]<<endl;
+        //cout<<q[1]<<endl;
+        //cout<<q[2]<<endl;
+        //cout<<q[3]<<endl;
+        //cout<<q[4]<<endl;
 
         if ((q[0] < MainWindow::min_1) || (q[0] > MainWindow::max_1)||
                 (q[1] < MainWindow::min_2) || (q[1] > MainWindow::max_2)||
@@ -1074,11 +1100,11 @@ void QNode::moveArm(double q1, double q2,double q3,double q4,double q5)
 bool QNode::isPositionAchived(int movement_iteration_temp)
 {
            if(
-             (abs(P[point[movement_iteration_temp]][0]-subscriber_joint1)<0.05) &&
-             (abs(P[point[movement_iteration_temp]][1]-subscriber_joint2)<0.05) &&
-             (abs(P[point[movement_iteration_temp]][2]-subscriber_joint3)<0.05) &&
-             (abs(P[point[movement_iteration_temp]][3]-subscriber_joint4)<0.05) &&
-             (abs(P[point[movement_iteration_temp]][4]-subscriber_joint5)<0.05)
+             ((abs(P[point[movement_iteration_temp]][0]-subscriber_joint1)<0.01) &&
+             (abs(P[point[movement_iteration_temp]][1]-subscriber_joint2)<0.01) &&
+             (abs(P[point[movement_iteration_temp]][2]-subscriber_joint3)<0.01) &&
+             (abs(P[point[movement_iteration_temp]][3]-subscriber_joint4)<0.01) &&
+             (abs(P[point[movement_iteration_temp]][4]-subscriber_joint5)<0.01)) || (greatest_value==0 && start_lin_mov)
             )
                 {
                     cout<<"Nr punktu gdzie dojechano: "<<point[movement_iteration_temp]<<endl;
@@ -1100,7 +1126,7 @@ bool QNode::isPositionAchived(int movement_iteration_temp)
 //               msg.data = ss.str();
 
 //               log(Info,std::string("")+msg.data);
-
+                cout << "Jeszcze nie dojechałem, a greatest_value =" << greatest_value << endl;
                return false;
            }
 }
@@ -1607,11 +1633,11 @@ bool QNode::isHomePositionAchived()
 bool QNode::isLittleStepExecuted()
 {
     if(
-      (abs(QNode::actual_little_step_position[0]-subscriber_joint1)<0.05) &&
-      (abs(QNode::actual_little_step_position[1]-subscriber_joint2)<0.05) &&
-      (abs(QNode::actual_little_step_position[2]-subscriber_joint3)<0.05) &&
-      (abs(QNode::actual_little_step_position[3]-subscriber_joint4)<0.05) &&
-      (abs(QNode::actual_little_step_position[4]-subscriber_joint5)<0.05)
+      (abs(QNode::actual_little_step_position[0]-subscriber_joint1)<0.01) &&
+      (abs(QNode::actual_little_step_position[1]-subscriber_joint2)<0.01) &&
+      (abs(QNode::actual_little_step_position[2]-subscriber_joint3)<0.01) &&
+      (abs(QNode::actual_little_step_position[3]-subscriber_joint4)<0.01) &&
+      (abs(QNode::actual_little_step_position[4]-subscriber_joint5)<0.01)
      )
          {
              return true;
@@ -1639,9 +1665,9 @@ void QNode::manualPTP(int i)
 
 void QNode::convActNumbOfLinMov2Joint()
 {
-//    myYouBotManipulator = new YouBotManipulator("youbot-manipulator", "/home/arek/youbot/src/youbot/youbot_driver-hydro-devel/config/");
+//    myYouBotManipulator = new YouBotManipulator("youbot-manipulator", "/home/mateusz/youbot/src/youbot_driver-hydro-devel/config/");
 //    YouBotManipulator* myYouBotManipulator = 0;
-//    YouBotManipulator myYouBotManipulator("youbot-manipulator", "/home/arek/youbot/src/youbot/youbot_driver-hydro-devel/config/");
+//    YouBotManipulator myYouBotManipulator("youbot-manipulator", "/home/mateusz/youbot/src/youbot_driver-hydro-devel/config/");
 //    MaximumPositioningVelocity maxPositioningVelocity;
 //    myYouBotManipulator->getArmJoint(1).getConfigurationParameter(maxPositioningVelocity);
 //    quantity<angular_velocity> velocity;
@@ -1653,13 +1679,16 @@ void QNode::lin(double q1, double q2,double q3,double q4,double q5)
 {
 //    if((distance_x!=0)&&(distance_y!=0)&&(distance_z!=0))
 //    {
-    prev_x+=distance_x/greatest_value;
-    prev_y+=distance_y/greatest_value;
-    prev_z+=distance_z/greatest_value;
+    if(greatest_value>0)
+    {
+        prev_x+=distance_x/greatest_value;
+        prev_y+=distance_y/greatest_value;
+        prev_z+=distance_z/greatest_value;
+    }
 //    }
 
     double* joints;
-    joints=QNode::inverseKinematic(prev_x, prev_y, prev_z, prev_roll, prev_pitch, prev_yaw, false);
+    joints=QNode::inverseKinematicJacobi(prev_x, prev_y, prev_z, prev_roll, prev_pitch, prev_yaw, false, false);
 
     actual_little_step_position[0]=joints[0];
     actual_little_step_position[1]=joints[1];
@@ -1691,11 +1720,11 @@ bool QNode::checkLinearMovementPossibility(int destination_point, bool mode)
 //        double q5_destination=P[destination_point][4];
 
 
-        cout<<"q1_destination: "<<q1_destination<<endl;
-        cout<<"q2_destination: "<<q2_destination<<endl;
-        cout<<"q3_destination: "<<q3_destination<<endl;
-        cout<<"q4_destination: "<<q4_destination<<endl;
-        cout<<"q5_destination: "<<q5_destination<<endl;
+        //cout<<"q1_destination: "<<q1_destination<<endl;
+        //cout<<"q2_destination: "<<q2_destination<<endl;
+        //cout<<"q3_destination: "<<q3_destination<<endl;
+        //cout<<"q4_destination: "<<q4_destination<<endl;
+        //cout<<"q5_destination: "<<q5_destination<<endl;
 
         double q1_prev;
         double q2_prev;
@@ -1722,11 +1751,11 @@ bool QNode::checkLinearMovementPossibility(int destination_point, bool mode)
         q5_prev=P[point[destination_point-1]][4];
         }
 
-        cout<<"q1_prev: "<<q1_prev<<endl;
-        cout<<"q2_prev: "<<q2_prev<<endl;
-        cout<<"q3_prev: "<<q3_prev<<endl;
-        cout<<"q4_prev: "<<q4_prev<<endl;
-        cout<<"q5_prev: "<<q5_prev<<endl;
+        //cout<<"q1_prev: "<<q1_prev<<endl;
+        //cout<<"q2_prev: "<<q2_prev<<endl;
+        //cout<<"q3_prev: "<<q3_prev<<endl;
+        //cout<<"q4_prev: "<<q4_prev<<endl;
+        //cout<<"q5_prev: "<<q5_prev<<endl;
 
         double *destination_cords;
         destination_cords = forwardKinematic(q1_destination, q2_destination, q3_destination, q4_destination, q5_destination);
@@ -1738,9 +1767,9 @@ bool QNode::checkLinearMovementPossibility(int destination_point, bool mode)
         double destination_pitch = destination_cords[4];
         double destination_yaw = destination_cords[5];
 
-        cout<<"destination_x: "<<destination_x<<endl;
-        cout<<"destination_y: "<<destination_y<<endl;
-        cout<<"destination_z: "<<destination_z<<endl;
+        //cout<<"destination_x: "<<destination_x<<endl;
+        //cout<<"destination_y: "<<destination_y<<endl;
+        //cout<<"destination_z: "<<destination_z<<endl;
 
         double *prev_cords;
         prev_cords = forwardKinematic(q1_prev, q2_prev, q3_prev, q4_prev, q5_prev);
@@ -1752,19 +1781,19 @@ bool QNode::checkLinearMovementPossibility(int destination_point, bool mode)
          prev_pitch = prev_cords[4];
          prev_yaw = prev_cords[5];
 
-        cout<<"prev_x: "<<prev_x<<endl;
-        cout<<"prev_y: "<<prev_y<<endl;
-        cout<<"prev_z: "<<prev_z<<endl;
+        //cout<<"prev_x: "<<prev_x<<endl;
+        //cout<<"prev_y: "<<prev_y<<endl;
+        //cout<<"prev_z: "<<prev_z<<endl;
 
          distance_x = destination_x-prev_x;
          distance_y = destination_y-prev_y;
          distance_z = destination_z-prev_z;
 
-        cout<<"distance_x: "<<distance_x<<endl;
+      //  cout<<"distance_x: "<<distance_x<<endl;
     //    cin>>distance_x;
-        cout<<"distance_y: "<<distance_y<<endl;
+       // cout<<"distance_y: "<<distance_y<<endl;
     //    cin>>distance_y;
-        cout<<"distance_z: "<<distance_z<<endl;
+        //cout<<"distance_z: "<<distance_z<<endl;
     //    cin>>distance_z;
 
     if (abs(distance_x) >= abs(distance_y))
@@ -1789,30 +1818,53 @@ bool QNode::checkLinearMovementPossibility(int destination_point, bool mode)
             greatest_value = abs(distance_z);
         }
     }
+    greatest_value=greatest_value/2;
+
 cout<<"greatest_value: "<<greatest_value<<endl;
 
     double execute_x=prev_x;
     double execute_y=prev_y;
     double execute_z=prev_z;
     int counter=0;
-
-    for (int i=1; i <= greatest_value; i++)
+    q1_lin_check=q1_prev;
+    q2_lin_check=q2_prev;
+    q3_lin_check=q3_prev;
+    q4_lin_check=q4_prev;
+    q5_lin_check=q5_prev;
+    double *q_lin_check;
+    for (int i=1; i < greatest_value; i++)
     {
         execute_x += distance_x/greatest_value;
         execute_y += distance_y/greatest_value;
         execute_z += distance_z/greatest_value;
-        cout<<"execute_x: "<<execute_x<<endl;
-        cout<<"execute_y: "<<execute_y<<endl;
-        cout<<"execute_z: "<<execute_z<<endl;
+        //cout<<"execute_x: "<<execute_x<<endl;
+        //cout<<"execute_y: "<<execute_y<<endl;
+        //cout<<"execute_z: "<<execute_z<<endl;
 
 
-        QNode::inverseKinematic(execute_x, execute_y, execute_z, prev_roll, prev_pitch ,prev_yaw, false);
+        q_lin_check=QNode::inverseKinematicJacobi(execute_x, execute_y, execute_z, prev_roll, prev_pitch ,prev_yaw, false, true);
+        q1_lin_check=q_lin_check[0];
+        q2_lin_check=q_lin_check[1];
+        q3_lin_check=q_lin_check[2];
+        q4_lin_check=q_lin_check[3];
+        q5_lin_check=q_lin_check[4];
+/*
+        std_msgs::String msg3;
+        std::stringstream ss;
+        ss << counter;
+        msg3.data = ss.str();
+        std_msgs::String msg4;
+        std::stringstream ss2;
+        ss2 << greatest_value;
+        msg4.data = ss.str();
+        log(Error,std::string("Counter="+msg3.data+"Greatest_value="+msg4.data));*/
+        cout << "ITERACJA=" << i << endl;
         if(linear_solution_exist==false)
         {
             counter++;
         }
     }
-    cout<<"counter: "<<counter<<endl;
+   // cout<<"counter: "<<counter<<endl;
     if (counter==0)
     {
         cout<<"można wykonać ruch"<<endl;
@@ -1946,7 +1998,7 @@ QNode::QNode(int argc, char** argv)://, YouBotOODLWrapper* youBot) :
     //  this->youBot = youBot;
     //  YouBotManipulator youBotArmName1;
     //  public:
-    //  YouBotManipulator myYouBotManipulator("youbot-manipulator", "/home/arek/youbot/src/youbot/youbot_driver-hydro-devel/config/");
+    //  YouBotManipulator myYouBotManipulator("youbot-manipulator", "/home/mateusz/youbot/src/youbot_driver-hydro-devel/config/");
     //, YouBotOODLWrapper* youBot
         }
 
@@ -2003,7 +2055,7 @@ bool QNode::init()
 
 void QNode::run()
 {
-        ros::Rate loop_rate(2); //zmienione z 1 na 20
+        ros::Rate loop_rate(5); //zmienione z 1 na 20
         int count = 0;
         MainWindow::joint_1 = QNode::subscriber_joint1;
         MainWindow::joint_2 = QNode::subscriber_joint2;
@@ -2045,6 +2097,7 @@ void QNode::run()
 
                 MainWindow::xyz_step=ui.krok_xyz->value();
                 MainWindow::joints_step=ui.krok_zlacza->value();
+                MainWindow::joints_step=MainWindow::joints_step/20;
 
 
 

@@ -75,7 +75,7 @@ public:
         static int zmienna;
 
         static int xyz_step;
-        static int joints_step;
+        static double joints_step;
 
 public Q_SLOTS:
         void on_edit_clicked(bool check);
