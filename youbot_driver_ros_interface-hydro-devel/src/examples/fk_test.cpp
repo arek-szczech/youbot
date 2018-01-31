@@ -56,91 +56,96 @@
 #include <boost/units/conversion.hpp>
 #include "std_msgs/String.h"
 #include <math.h>
+#include "sensor_msgs/JointState.h"
 
 using namespace std;
 
-void forwardKinematics(double th_1, double th_2, double th_3, double th_4, double th_5)
+//Joints
+double q1 = 0;
+double q2 = 0;
+double q3 = 0;
+double q4 = 0;
+double q5 = 0;
+
+//Offsets [rad]
+double offset1 = 2.9496;
+double offset2 = 2.70519;
+double offset3 = -2.54818;
+double offset4 = 1.78896;
+double offset5 = 2.92342;
+
+//Parameters [m]
+double a1 = 33;
+double d1 = 147;
+double a2 = 155;
+double a3 = 135;
+double d5 = 218;
+
+void forwardKinematics(double q1, double q2,double q3,double q4,double q5)
 {
-	double th1 = th_1 - 2.8668;
-	double th2 = th_2 - 2.5919;
-	double th3 = th_3 + 2.5211;
-	double th4 = th_4 - 3.3305;
-	double th5 = th_5 -	2.9314;
+    cout << "Wartosci wysyłane do robota: " << endl;
+    cout << "q1: " << q1 << endl;
+    cout << "q2: " << q2 << endl;
+    cout << "q3: " << q3 << endl;
+    cout << "q4: " << q4 << endl;
+    cout << "q5: " << q5 << endl;
+    cout << "" << endl;
 
-	cout << "Wartosci wysyłane do robota: " << endl;
-	cout << "th_1: " << th_1 << endl;
-	cout << "th_2: " << th_2 << endl;
-	cout << "th_3: " << th_3 << endl;
-	cout << "th_4: " << th_4 << endl;
-	cout << "th_5: " << th_5 << endl;
-	cout << "" << endl;
-	cout << "Wartosci uzywane do liczenia fk: " << endl;
-	cout << "th1: " << th1 << endl;
-	cout << "th2: " << th2 << endl;
-	cout << "th3: " << th3 << endl;
-	cout << "th4: " << th4 << endl;
-	cout << "th5: " << th5 << endl;
-	cout << "" << endl;
+    q1 = q1 - offset1;
+    q2 = q2 - offset2;
+    q3 = q3 - offset3;
+    q4 = q4 - offset4 - M_PI/2;
+    q5 = q5 - offset5;
 
-	double cos_th1 = cos(th1);
-	double cos_th2 = cos(th2);
-	double cos_th3 = cos(th3);
-	double cos_th4 = cos(th4);
-	double cos_th5 = cos(th5);
+    cout << "Wartosci uzywane do liczenia fk: " << endl;
+    cout << "q1: " << q1 << endl;
+    cout << "q2: " << q2 << endl;
+    cout << "q3: " << q3 << endl;
+    cout << "q4: " << q4 << endl;
+    cout << "q5: " << q5 << endl;
+    cout << "" << endl;
 
-	double sin_th1 = sin(th1);
-	double sin_th2 = sin(th2);
-	double sin_th3 = sin(th3);
-	double sin_th4 = sin(th4);
-	double sin_th5 = sin(th5);
+    double x = a1*cos(q1) - d5*(cos(q4)*(cos(q1)*cos(q2)*sin(q3) + cos(q1)*cos(q3)*sin(q2)) - sin(q4)*(cos(q1)*sin(q2)*sin(q3) - cos(q1)*cos(q2)*cos(q3))) + a2*cos(q1)*cos(q2) + a3*cos(q1)*cos(q2)*cos(q3) - a3*cos(q1)*sin(q2)*sin(q3);
+    double y = a1*sin(q1) - d5*(cos(q4)*(cos(q2)*sin(q1)*sin(q3) + cos(q3)*sin(q1)*sin(q2)) - sin(q4)*(sin(q1)*sin(q2)*sin(q3) - cos(q2)*cos(q3)*sin(q1))) + a2*cos(q2)*sin(q1) + a3*cos(q2)*cos(q3)*sin(q1) - a3*sin(q1)*sin(q2)*sin(q3);
+    double z = d1 - a2*sin(q2) - d5*(cos(q4)*(cos(q2)*cos(q3) - sin(q2)*sin(q3)) - sin(q4)*(cos(q2)*sin(q3) + cos(q3)*sin(q2))) - a3*cos(q2)*sin(q3) - a3*cos(q3)*sin(q2);
+    double roll = atan2(- cos(q1)*sin(q5) - cos(q5)*(cos(q4)*(sin(q1)*sin(q2)*sin(q3) - cos(q2)*cos(q3)*sin(q1)) + sin(q4)*(cos(q2)*sin(q1)*sin(q3) + cos(q3)*sin(q1)*sin(q2))), sin(q1)*sin(q5) - cos(q5)*(cos(q4)*(cos(q1)*sin(q2)*sin(q3) - cos(q1)*cos(q2)*cos(q3)) + sin(q4)*(cos(q1)*cos(q2)*sin(q3) + cos(q1)*cos(q3)*sin(q2))));
+    double pitch = atan2(cos(q5)*(cos(q4)*(cos(q2)*sin(q3) + cos(q3)*sin(q2)) + sin(q4)*(cos(q2)*cos(q3) - sin(q2)*sin(q3))), sqrt(sin(q5)*sin(q5)*(cos(q4)*(cos(q2)*sin(q3) + cos(q3)*sin(q2)) + sin(q4)*(cos(q2)*cos(q3) - sin(q2)*sin(q3)))*(cos(q4)*(cos(q2)*sin(q3) + cos(q3)*sin(q2)) + sin(q4)*(cos(q2)*cos(q3) - sin(q2)*sin(q3))) + (cos(q4)*(cos(q2)*cos(q3) - sin(q2)*sin(q3)) - sin(q4)*(cos(q2)*sin(q3) + cos(q3)*sin(q2)))*(cos(q4)*(cos(q2)*cos(q3) - sin(q2)*sin(q3)) - sin(q4)*(cos(q2)*sin(q3) + cos(q3)*sin(q2)))));
+    double yaw = atan2(sin(q5)*(cos(q4)*(cos(q2)*sin(q3) + cos(q3)*sin(q2)) + sin(q4)*(cos(q2)*cos(q3) - sin(q2)*sin(q3))), sin(q4)*(cos(q2)*sin(q3) + cos(q3)*sin(q2)) - cos(q4)*(cos(q2)*cos(q3) - sin(q2)*sin(q3)));
 
-	//Parameters [m]
-	double a1 = 33;
-	double d1 = 147;
-	double a2 = 155;
-	double a3 = 135;
-	double d5 = 218;
-	
-	double x = a1*cos(th1) - d5*(cos(th4)*(cos(th1)*cos(th2)*sin(th3) + cos(th1)*cos(th3)*sin(th2)) - sin(th4)*(cos(th1)*sin(th2)*sin(th3) - cos(th1)*cos(th2)*cos(th3))) + a2*cos(th1)*cos(th2) + a3*cos(th1)*cos(th2)*cos(th3) - a3*cos(th1)*sin(th2)*sin(th3);
-	double y = a1*sin(th1) - d5*(cos(th4)*(cos(th2)*sin(th1)*sin(th3) + cos(th3)*sin(th1)*sin(th2)) - sin(th4)*(sin(th1)*sin(th2)*sin(th3) - cos(th2)*cos(th3)*sin(th1))) + a2*cos(th2)*sin(th1) + a3*cos(th2)*cos(th3)*sin(th1) - a3*sin(th1)*sin(th2)*sin(th3);
-	double z = d1 - a2*sin(th2) - d5*(cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2))) - a3*cos(th2)*sin(th3) - a3*cos(th3)*sin(th2);
-
-	double roll = atan2(- cos(th1)*sin(th5) - cos(th5)*(cos(th4)*(sin(th1)*sin(th2)*sin(th3) - cos(th2)*cos(th3)*sin(th1)) + sin(th4)*(cos(th2)*sin(th1)*sin(th3) + cos(th3)*sin(th1)*sin(th2))), sin(th1)*sin(th5) - cos(th5)*(cos(th4)*(cos(th1)*sin(th2)*sin(th3) - cos(th1)*cos(th2)*cos(th3)) + sin(th4)*(cos(th1)*cos(th2)*sin(th3) + cos(th1)*cos(th3)*sin(th2))));
-	double pitch = atan2(cos(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))), sqrt(sin(th5)*sin(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)))*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))) + (cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)))*(cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)) - sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)))));
-	double yaw = atan2(sin(th5)*(cos(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) + sin(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3))), sin(th4)*(cos(th2)*sin(th3) + cos(th3)*sin(th2)) - cos(th4)*(cos(th2)*cos(th3) - sin(th2)*sin(th3)));
-
-	cout << "Pozycja x: " << x << endl;
-	cout << "Pozycja y: " << y << endl;
-	cout << "Pozycja z: " << z << endl;
-	cout << "Kąt roll: " << roll << endl;
-	cout << "Kąt pitch: " << pitch << endl;
-	cout << "Kąt yaw: " << yaw << endl;
-	cout << "----------" << endl;
-
-
+    cout << "Pozycja x: " << x << endl;
+    cout << "Pozycja y: " << y << endl;
+    cout << "Pozycja z: " << z << endl;
+    cout << "Kąt roll: " << roll << endl;
+    cout << "Kąt pitch: " << pitch << endl;
+    cout << "Kąt yaw: " << yaw << endl;
+    cout << "----------" << endl;
 }
 
-void chatterCallback(const brics_actuator::JointPositionsConstPtr& youbotArmCommand)
+void jointsCallback(const sensor_msgs::JointStateConstPtr& youbotArmState)
 {
-	//Values read from manipulator
-	double th_1 = youbotArmCommand->positions[0].value;
-	double th_2 = youbotArmCommand->positions[1].value;
-	double th_3 = youbotArmCommand->positions[2].value;
-	double th_4 = youbotArmCommand->positions[3].value;
-	double th_5 = youbotArmCommand->positions[4].value;
-
-	//Calculating forward kinematics
-	forwardKinematics(th_1,th_2,th_3,th_4,th_5);
+    q1 = youbotArmState->position[0];
+    q2 = youbotArmState->position[1];
+    q3 = youbotArmState->position[2];
+    q4 = youbotArmState->position[3];
+    q5 = youbotArmState->position[4];
 }
 
 int main(int argc, char **argv) 
 {
-	ros::init(argc, argv, "fk_test");
-	ros::NodeHandle n;
-	ros::Subscriber myarmPositionsSubscriber;
+    ros::init(argc, argv, "fk_test");
+    ros::start();
+    ros::NodeHandle n;
+    ros::Subscriber jointsSubscriber;
+    jointsSubscriber = n.subscribe<sensor_msgs::JointState >("/joint_states", 1, jointsCallback);
 
-	myarmPositionsSubscriber = n.subscribe<brics_actuator::JointPositions >("arm_1/arm_controller/position_command", 1, chatterCallback);
+    //start();
+    ros::Rate loop_rate(0.2);
+    while ( ros::ok() )
+    {
+        forwardKinematics(q1,q2,q3,q4,q5);
+        ros::spinOnce();
+        loop_rate.sleep();
+    }
 
-	ros::spin();
-	return 0;
+    return 0;
 }
