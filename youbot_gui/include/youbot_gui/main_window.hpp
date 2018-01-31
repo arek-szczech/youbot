@@ -49,10 +49,10 @@ class MainWindow : public QMainWindow {
 Q_OBJECT
 
 public:
-	MainWindow(int argc, char** argv, QWidget *parent = 0);
-	~MainWindow();
+        MainWindow(int argc, char** argv, QWidget *parent = 0);
+        ~MainWindow();
 
-	void closeEvent(QCloseEvent *event);
+        void closeEvent(QCloseEvent *event);
 
         static double joint_1;
         static double joint_2;
@@ -124,14 +124,17 @@ public Q_SLOTS:
         void on_elbow_up_clicked(bool check);
         void on_elbow_down_clicked(bool check);
 
+        void on_radio_button_cords_clicked(bool check);
+        void on_radio_button_joints_clicked(bool check);
+
         void updateLoggingView();
         void updateListView();
 
 
 
 private:
-	Ui::MainWindowDesign ui;
-	QNode qnode;
+        Ui::MainWindowDesign ui;
+        QNode qnode;
 };
 
 }  // namespace youbot_gui

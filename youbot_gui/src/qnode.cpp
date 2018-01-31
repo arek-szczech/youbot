@@ -159,7 +159,7 @@ bool QNode::start_lin_mov=false;
 
 int QNode::velocity[100];
 bool QNode::isManualPTPActiv=false;
-
+bool QNode::points_list_view_mode=false;
 
 //*********Zmienne do funkcji executeProgram****************
 string line[100];
@@ -1501,6 +1501,9 @@ void QNode::readProgramFromFile()
 void QNode::loadPointsList()
 {
     list_model.removeRows(0,list_model.rowCount());
+
+    if(points_list_view_mode)
+    {
     for (int i=-1; i<line_nmb; i++)
     {
         double *cords;
@@ -1515,6 +1518,28 @@ void QNode::loadPointsList()
         list_model.setData(list_model.index(list_model.rowCount()-1),new_row);
         Q_EMIT listUpdated(); // used to readjust the scrollbar
     }
+    }
+    else
+    {
+        for (int i=-1; i<line_nmb; i++)
+            {
+            double q_1 = round(q1[i]*1000)/1000;
+            double q_2 = round(q2[i]*1000)/1000;;
+            double q_3 = round(q3[i]*1000)/1000;;
+            double q_4 = round(q4[i]*1000)/1000;;
+            double q_5 = round(q5[i]*1000)/1000;;
+                std::stringstream msg;
+                msg<< "P" << i+1 << ": \tq1: " << q_1 << "\tq2: " << q_2 << "\tq3: " << q_3
+                   <<  "\tq4: " << q_4 << "\tq5: " << q_5;
+
+                list_model.setData(list_model.index(0),"\t[rad]\t[rad]\t[rad]\t[rad]\t[rad]");
+                list_model.insertRows(list_model.rowCount(),1);
+                QVariant new_row(QString(msg.str().c_str()));
+                list_model.setData(list_model.index(list_model.rowCount()-1),new_row);
+                Q_EMIT listUpdated(); // used to readjust the scrollbar
+            }
+    }
+
 }
 
 void QNode::jointPublisher(double q1, double q2,double q3,double q4,double q5)
@@ -1549,6 +1574,7 @@ void QNode::jointPublisher(double q1, double q2,double q3,double q4,double q5)
     jointPosition[2].value = q3;
     jointPosition[3].value = q4;
     jointPosition[4].value = q5;
+
 
     for (int i = 0; i < numberOfArmJoints; ++i)
     {
@@ -1704,7 +1730,7 @@ cout<<"to maly krok dla czlowieka, ale wielki dla Youbota"<<endl;
 }
 
 bool QNode::checkLinearMovementPossibility(int destination_point, bool mode)
-{   
+{
         linear_solution_exist=true;
 
         double q1_destination=P[point[destination_point]][0];
@@ -1992,8 +2018,8 @@ cout<<"Jestem w stanie 2, P1, open"<<endl;
 }
 
 QNode::QNode(int argc, char** argv)://, YouBotOODLWrapper* youBot) :
-	init_argc(argc),
-	init_argv(argv)
+        init_argc(argc),
+        init_argv(argv)
         {
     //  this->youBot = youBot;
     //  YouBotManipulator youBotArmName1;
@@ -2008,18 +2034,18 @@ QNode::~QNode()
       ros::shutdown(); // explicitly needed since we use ros::start();
       ros::waitForShutdown();
     }
-	wait();
+        wait();
 }
 
 bool QNode::init()
 {
-	ros::init(init_argc,init_argv,"youbot_gui");
+        ros::init(init_argc,init_argv,"youbot_gui");
         if ( ! ros::master::check() )
         {
                 return false;
-	}
+        }
         ros::start();
-	ros::NodeHandle n;
+        ros::NodeHandle n;
         armPositionsPublisher = n.advertise<brics_actuator::JointPositions > ("arm_1/arm_controller/position_command", 1);
         gripperPositionPublisher = n.advertise<brics_actuator::JointPositions > ("arm_1/gripper_controller/position_command", 1);
         jointsPublisher = n.advertise<sensor_msgs::JointState>("/joint_states", 1);
@@ -2050,7 +2076,7 @@ bool QNode::init()
         QNode::log(Info,std::string("Połączono ze sterownikiem robota"));
 
         start();
-	return true;
+        return true;
 }
 
 void QNode::run()
@@ -2066,7 +2092,7 @@ void QNode::run()
 
 
 
-	while ( ros::ok() ) {
+        while ( ros::ok() ) {
 
 //            brics_actuator::ProgramExecuteVelocity msg;
 
@@ -2159,47 +2185,47 @@ void QNode::run()
                log(Error,std::string("Utracono łączność EtherCAT"));
                 QNode::ethercat_connection_temp2=false;
             }
-		ros::spinOnce();
-		loop_rate.sleep();
-		++count;
-	}
-	std::cout << "Ros shutdown, proceeding to close the gui." << std::endl;
-	Q_EMIT rosShutdown(); // used to signal the gui for a shutdown (useful to roslaunch)
+                ros::spinOnce();
+                loop_rate.sleep();
+                ++count;
+        }
+        std::cout << "Ros shutdown, proceeding to close the gui." << std::endl;
+        Q_EMIT rosShutdown(); // used to signal the gui for a shutdown (useful to roslaunch)
 }
 
 void QNode::log( const LogLevel &level, const std::string &msg) {
-	logging_model.insertRows(logging_model.rowCount(),1);
-	std::stringstream logging_model_msg;
-	switch ( level ) {
-		case(Debug) : {
-				ROS_DEBUG_STREAM(msg);
-				logging_model_msg << "[DEBUG] [" << ros::Time::now() << "]: " << msg;
-				break;
-		}
-		case(Info) : {
-				ROS_INFO_STREAM(msg);
+        logging_model.insertRows(logging_model.rowCount(),1);
+        std::stringstream logging_model_msg;
+        switch ( level ) {
+                case(Debug) : {
+                                ROS_DEBUG_STREAM(msg);
+                                logging_model_msg << "[DEBUG] [" << ros::Time::now() << "]: " << msg;
+                                break;
+                }
+                case(Info) : {
+                                ROS_INFO_STREAM(msg);
                                 logging_model_msg << "[INFO]: " << msg;
-				break;
-		}
-		case(Warn) : {
-				ROS_WARN_STREAM(msg);
+                                break;
+                }
+                case(Warn) : {
+                                ROS_WARN_STREAM(msg);
                                 logging_model_msg << "[WARN]: " << msg;
-				break;
-		}
-		case(Error) : {
-				ROS_ERROR_STREAM(msg);
+                                break;
+                }
+                case(Error) : {
+                                ROS_ERROR_STREAM(msg);
                                 logging_model_msg << "[ERROR]: " << msg;
-				break;
-		}
-		case(Fatal) : {
-				ROS_FATAL_STREAM(msg);
-				logging_model_msg << "[FATAL] [" << ros::Time::now() << "]: " << msg;
-				break;
-		}
-	}
-	QVariant new_row(QString(logging_model_msg.str().c_str()));
-	logging_model.setData(logging_model.index(logging_model.rowCount()-1),new_row);
-	Q_EMIT loggingUpdated(); // used to readjust the scrollbar
+                                break;
+                }
+                case(Fatal) : {
+                                ROS_FATAL_STREAM(msg);
+                                logging_model_msg << "[FATAL] [" << ros::Time::now() << "]: " << msg;
+                                break;
+                }
+        }
+        QVariant new_row(QString(logging_model_msg.str().c_str()));
+        logging_model.setData(logging_model.index(logging_model.rowCount()-1),new_row);
+        Q_EMIT loggingUpdated(); // used to readjust the scrollbar
 }
 
 }

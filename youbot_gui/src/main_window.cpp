@@ -109,6 +109,7 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent )
     QObject::connect(&qnode, SIGNAL(listUpdated()), this, SLOT(updateListView()));
 
 
+
     /*********************
         ** Logging
         **********************/
@@ -619,6 +620,16 @@ void MainWindow::on_elbow_up_clicked(bool check)
 void MainWindow::on_elbow_down_clicked(bool check)
 {
     QNode::elbow_state=true;
+}
+
+void MainWindow::on_radio_button_cords_clicked(bool check)
+{
+    QNode::points_list_view_mode=true;
+}
+
+void MainWindow::on_radio_button_joints_clicked(bool check)
+{
+    QNode::points_list_view_mode=false;
 }
 
 void MainWindow::updateLoggingView() {

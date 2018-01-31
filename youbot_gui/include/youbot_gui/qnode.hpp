@@ -133,13 +133,14 @@ public:
 
         static int velocity[100];
         static bool isManualPTPActiv;
+        static bool points_list_view_mode;
 
         Ui::MainWindowDesign ui;
 
 
         QNode(int argc, char** argv);//, YouBotOODLWrapper* youBot );
-	virtual ~QNode();
-	bool init();
+        virtual ~QNode();
+        bool init();
         void run();
         void executeProgram();
         double* forwardKinematic(double q1, double q2,double q3,double q4,double q5);
@@ -164,28 +165,28 @@ public:
         bool isLittleStepExecuted();
         void convActNumbOfLinMov2Joint();
 
-	enum LogLevel {
-	         Debug,
-	         Info,
-	         Warn,
-	         Error,
-	         Fatal
-	 };
+        enum LogLevel {
+                 Debug,
+                 Info,
+                 Warn,
+                 Error,
+                 Fatal
+         };
 
-	QStringListModel* loggingModel() { return &logging_model; }
-	void log( const LogLevel &level, const std::string &msg);
+        QStringListModel* loggingModel() { return &logging_model; }
+        void log( const LogLevel &level, const std::string &msg);
 
         QStringListModel* listModel() { return &list_model; }
 
 
 Q_SIGNALS:
-	void loggingUpdated();
-    	void rosShutdown();
+        void loggingUpdated();
+        void rosShutdown();
         void listUpdated();
 
 private:
-	int init_argc;
-	char** init_argv;
+        int init_argc;
+        char** init_argv;
         //ros::Publisher chatter_publisher;
         ros::Publisher armPositionsPublisher;
         ros::Publisher gripperPositionPublisher;
@@ -199,7 +200,7 @@ private:
         ros::Publisher velocityPublisher;
 
 
-    	QStringListModel logging_model;
+        QStringListModel logging_model;
         QStringListModel list_model;
 
         ros::Time currentTime;
