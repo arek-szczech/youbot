@@ -271,13 +271,51 @@ void MainWindow::on_run_driver_clicked(bool check)
 {
     qnode.log(qnode.Info,std::string("Uruchamianie sterownika..."));
     system("gnome-terminal -x sh -c 'cd ~/youbot ; source devel/setup.bash ; roslaunch youbot_driver_ros_interface youbot_driver.launch'");
-
+    ui.connect_master->setEnabled(true);
 }
 
 void MainWindow::on_connect_master_clicked(bool check)
 {
     qnode.init();
     qnode.readPointsFromFile();
+
+    //qnode.log(qnode.Info,std::string("Wczytano listę punktów"));
+    qnode.readPointsFromFile();
+    qnode.loadPointsList();
+    qnode.moveHome();
+
+    ui.execute->setEnabled(true);
+    ui.pause->setEnabled(true);
+    ui.stop->setEnabled(true);
+    ui.edit->setEnabled(true);
+    ui.previous->setEnabled(true);
+    ui.next->setEnabled(true);
+    ui.home->setEnabled(true);
+    ui.save->setEnabled(true);
+    ui.edit_list->setEnabled(true);
+    ui.x_plus->setEnabled(true);
+    ui.x_minus->setEnabled(true);
+    ui.y_plus->setEnabled(true);
+    ui.y_minus->setEnabled(true);
+    ui.z_plus->setEnabled(true);
+    ui.z_minus->setEnabled(true);
+    ui.roll_plus->setEnabled(true);
+    ui.roll_minus->setEnabled(true);
+    ui.pitch_plus->setEnabled(true);
+    ui.pitch_minus->setEnabled(true);
+    ui.q1_plus->setEnabled(true);
+    ui.q1_minus->setEnabled(true);
+    ui.q2_plus->setEnabled(true);
+    ui.q2_minus->setEnabled(true);
+    ui.q3_plus->setEnabled(true);
+    ui.q3_minus->setEnabled(true);
+    ui.q4_plus->setEnabled(true);
+    ui.q4_minus->setEnabled(true);
+    ui.q5_plus->setEnabled(true);
+    ui.q5_minus->setEnabled(true);
+    ui.gripper_open->setEnabled(true);
+    ui.gripper_close->setEnabled(true);
+
 }
 
 void MainWindow::on_save_clicked(bool check) //zapisz punkt
@@ -317,6 +355,10 @@ void MainWindow::on_save_clicked(bool check) //zapisz punkt
     ss << point_number+1;
     msg.data = ss.str();
     qnode.log(qnode.Info,std::string("Zapisano punkt P")+msg.data);
+
+    //qnode.log(qnode.Info,std::string("Wczytano listę punktów"));
+    qnode.readPointsFromFile();
+    qnode.loadPointsList();
 }
 
 
@@ -324,14 +366,11 @@ void MainWindow::on_edit_list_clicked(bool check)
 {
     //system("gnome-terminal -x sh -c 'cd ~/youbot ; gedit punkty.txt'"); //dodatkowo odpala terminal
     system("bash -c ''cd ~/youbot ; gedit punkty.txt''");   //nie odpala terminala
-}
-void  MainWindow::on_load_list_clicked(bool check)
-{
-    qnode.log(qnode.Info,std::string("Wczytano listę punktów"));
+
+    //qnode.log(qnode.Info,std::string("Wczytano listę punktów"));
     qnode.readPointsFromFile();
     qnode.loadPointsList();
 }
-
 
 void MainWindow::on_x_plus_clicked(bool check)
 {
@@ -628,11 +667,19 @@ void MainWindow::on_elbow_down_clicked(bool check)
 void MainWindow::on_radio_button_cords_clicked(bool check)
 {
     QNode::points_list_view_mode=true;
+
+    //qnode.log(qnode.Info,std::string("Wczytano listę punktów"));
+    qnode.readPointsFromFile();
+    qnode.loadPointsList();
 }
 
 void MainWindow::on_radio_button_joints_clicked(bool check)
 {
     QNode::points_list_view_mode=false;
+
+    //qnode.log(qnode.Info,std::string("Wczytano listę punktów"));
+    qnode.readPointsFromFile();
+    qnode.loadPointsList();
 }
 
 void MainWindow::updateLoggingView() {

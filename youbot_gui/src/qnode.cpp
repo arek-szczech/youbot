@@ -160,28 +160,7 @@ double a2 = 155;
 double a3 = 135;
 double d5 = 218;
 
-//Offsets for youBot driver
-//stare
-//double offset1 = 2.8668;
-//double offset2 = 2.59191;
-//double offset3 = -2.52113;
-//double offset4 = 1.75973;
-//double offset5 = 2.93141;
-
-//double offset1 = 2.91503;
-//double offset2 = 2.61799;
-//double offset3 = -2.50542;
-//double offset4 = 1.70353;
-//double offset5 = 2.76548;
-
-//22.01 stare
-//double offset1 = 2.9496;
-//double offset2 = 2.616;
-//double offset3 = -2.54818;
-//double offset4 = 1.78896;
-//double offset5 = 2.92342;
-
-//22.01 nowe
+//offsets for youBot driver
 double offset1 = 2.9496;
 double offset2 = 2.70519;
 double offset3 = -2.54818;
@@ -214,7 +193,6 @@ double* QNode::inverseKinematicJacobi(double xk, double yk, double zk, double Rz
          theta_3=q3_lin_check;
          theta_4=q4_lin_check;
          theta_5=q5_lin_check;
-
     }
     else
     {
@@ -225,34 +203,12 @@ double* QNode::inverseKinematicJacobi(double xk, double yk, double zk, double Rz
          theta_5 = QNode::subscriber_joint5;
     }
 
-    //cout<<"theta_1: "<<theta_1<<endl;
-    //cout<<"theta_2: "<<theta_2<<endl;
-    //cout<<"theta_3: "<<theta_3<<endl;
-    //cout<<"theta_4: "<<theta_4<<endl;
-    //cout<<"theta_5: "<<theta_5<<endl;
-
-
     //actual position from robot after offsets and -pi/2 on 4th deegre of freedom
     theta_1 = theta_1 - offset1;
     theta_2 = theta_2 - offset2;
     theta_3 = theta_3 - offset3;
     theta_4 = theta_4 - offset4 - M_PI/2;
     theta_5 = theta_5 - offset5;
-
-
-    //cout<<"offtheta_1: "<<theta_1<<endl;
-    //cout<<"offtheta_2: "<<theta_2<<endl;
-    //cout<<"offtheta_3: "<<theta_3<<endl;
-    //cout<<"offtheta_4: "<<theta_4<<endl;
-    //cout<<"offtheta_5: "<<theta_5<<endl;
-
-
-
-//    double theta_1 = 0; 2.9496
-//    double theta_2 = -1.57;1.046
-//    double theta_3 = -0.78;-3.32818
-//    double theta_4 = -2.61;0.74896
-//    double theta_5 = 0;2.9342
 
     MatrixXd t_input(4,4); //matrix of destination created from input values
 
@@ -400,9 +356,6 @@ double* QNode::inverseKinematicJacobi(double xk, double yk, double zk, double Rz
 
         VectorXd e(6); //vector of deviation
         e << e_1, e_2;
-
-//        cout << e << endl;
-//        cout << endl;
 
         MatrixXd U(4,4); //eye matrix
 
@@ -608,9 +561,7 @@ double* QNode::inverseKinematicJacobi(double xk, double yk, double zk, double Rz
 
         blad = dq.norm();
         count+=1;
-        //cout<<"count: "<<count<<endl;
-        //cout<<"blad: "<<blad<<endl;
-        //cout<<"tolerancja: "<<tolerancja<<endl;
+
         if (count > 1000)
         {
             break;
@@ -651,18 +602,6 @@ double* QNode::inverseKinematicJacobi(double xk, double yk, double zk, double Rz
         q[2]=inputs(2)+offset3;
         q[3]=inputs(3)+offset4+M_PI/2;
         q[4]=inputs(4)+offset5;
-
-//        q[0]=inputs(0);
-//        q[1]=inputs(1);
-//        q[2]=inputs(2);
-//        q[3]=inputs(3);//+M_PI/2;
-//        q[4]=inputs(4);
-
-        //cout<<q[0]<<endl;
-        //cout<<q[1]<<endl;
-        //cout<<q[2]<<endl;
-        //cout<<q[3]<<endl;
-        //cout<<q[4]<<endl;
 
         if ((q[0] < MainWindow::min_1) || (q[0] > MainWindow::max_1)||
                 (q[1] < MainWindow::min_2) || (q[1] > MainWindow::max_2)||
@@ -707,8 +646,6 @@ double* QNode::inverseKinematic(double xk, double yk, double zk, double Rz, doub
     cout<<"roll zad: "<<Rz<<endl;
     cout<<"pitch zad: "<<Ry<<endl;
     cout<<"yaw zad: "<<Rx<<endl;
-
-    //logi==false: do not show logs, logi==true: show logs;
 
     linear_solution_exist=true;
     static double q[5]; //final array with calculations of IK
@@ -816,14 +753,6 @@ double* QNode::inverseKinematic(double xk, double yk, double zk, double Rz, doub
         q[3] = q[3] + offset4;
         q[4] = q[4] + offset5;
 
-
-        cout<<"odwr q1: "<<q[0]<<endl;
-        cout<<"odwr q2: "<<q[1]<<endl;
-        cout<<"odwr q3: "<<q[2]<<endl;
-        cout<<"odwr q4: "<<q[3]<<endl;
-        cout<<"odwr q5: "<<q[4]<<endl;
-
-
         cords = forwardKinematic(q[0],q[1],q[2],q[3],q[4]);
 
         if      (
@@ -854,15 +783,6 @@ double* QNode::inverseKinematic(double xk, double yk, double zk, double Rz, doub
         else
         {
 
-            cout<<"x zad: "<<xk<<endl;
-            cout<<"y zad: "<<yk<<endl;
-            cout<<"z zad: "<<zk<<endl;
-
-            cout<<"x obl: "<<cords[0]<<endl;
-            cout<<"y obl: "<<cords[1]<<endl;
-            cout<<"z obl: "<<cords[2]<<endl;
-
-//            if (xk == cords[0] && yk == cords[1] && zk == cords[2])
             if (abs(xk-cords[0])<1.0 && abs(yk-cords[1])<1.0 && abs(zk-cords[2])<1.0)
             {
                 return q;
@@ -968,13 +888,6 @@ double* QNode::inverseKinematic(double xk, double yk, double zk, double Rz, doub
 
         else
         {
-            cout<<"x zad: "<<xk<<endl;
-            cout<<"y zad: "<<yk<<endl;
-            cout<<"z zad: "<<zk<<endl;
-
-            cout<<"x obl: "<<cords[0]<<endl;
-            cout<<"y obl: "<<cords[1]<<endl;
-            cout<<"z obl: "<<cords[2]<<endl;
 
             if (abs(xk-cords[0])<1.0 && abs(yk-cords[1])<1.0 && abs(zk-cords[2])<1.0)
             {
@@ -1032,15 +945,14 @@ double* QNode::forwardKinematic(double q1, double q2,double q3,double q4,double 
     return cords;
 }
 
-//Symulator
+//create msg for gazebo simulator
 trajectory_msgs::JointTrajectory createArmPositionCommand(std::vector<double>& newPositions)
 {
-        int numberOfJoints = 5;
         trajectory_msgs::JointTrajectory msg;
-
         trajectory_msgs::JointTrajectoryPoint point;
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 5; i++)
+        {
                 point.positions.push_back(newPositions[i]);
                 point.velocities.push_back(5);//byly zera
                 point.accelerations.push_back(3);
@@ -1053,14 +965,13 @@ trajectory_msgs::JointTrajectory createArmPositionCommand(std::vector<double>& n
                 jointName << "arm_joint_" << (i + 1);
                 msg.joint_names.push_back(jointName.str());
         }
-
         msg.header.frame_id = "arm_link_0";
         msg.header.stamp = ros::Time::now();
 
         return msg;
 }
 
-//gazebo simulator msg
+//gazebo simulator msg sending
 void QNode::moveArm(double q1, double q2,double q3,double q4,double q5)
 {
         trajectory_msgs::JointTrajectory msg;
@@ -1086,31 +997,19 @@ bool QNode::isPositionAchived(int movement_iteration_temp)
              (abs(P[point[movement_iteration_temp]][4]-subscriber_joint5)<0.01)) || (greatest_value==0 && start_lin_mov)
             )
                 {
-                    cout<<"Nr punktu gdzie dojechano: "<<point[movement_iteration_temp]<<endl;
-                    cout<<"Wartość joint 1: "<<P[point[movement_iteration_temp]][0]<<endl;
-                    cout<<"T_Abs: "<<abs(P[point[movement_iteration_temp]][0]-subscriber_joint1)<<endl;
+//                    cout<<"Nr punktu gdzie dojechano: "<<point[movement_iteration_temp]<<endl;
+//                    cout<<"Wartość joint 1: "<<P[point[movement_iteration_temp]][0]<<endl;
+//                    cout<<"T_Abs: "<<abs(P[point[movement_iteration_temp]][0]-subscriber_joint1)<<endl;
                     QNode::movement_iteration++;
                     start_lin_mov=false;
                     return true;
                 }
            else
            {
-               //cout<<"P[point[movement_iteration_temp]][0]: "<<P[point[movement_iteration_temp]][0]<<endl;
-               //cout<<"subscriber_joint1: "<<subscriber_joint1<<endl;
-               //cout<<"roznica: "<<P[point[movement_iteration_temp]][0]-subscriber_joint1<<endl;
-               //cout<<"F_Abs: "<<abs(P[point[movement_iteration_temp]][0]-subscriber_joint1)<<endl;
-//               std_msgs::String msg;
-//               std::stringstream ss;
-//               ss << "F_Abs: "<<abs(P[point[movement_iteration_temp]][0]-subscriber_joint1);
-//               msg.data = ss.str();
-
-//               log(Info,std::string("")+msg.data);
-                cout << "Jeszcze nie dojechałem, a greatest_value =" << greatest_value << endl;
                return false;
            }
 }
 
-//żeby przywrócić wersję przed joint_state należy zakomentować ciało jointsCallaback i odkomentować gripperCallback
 void jointsCallback(const sensor_msgs::JointStateConstPtr& youbotArmState)
 {
     double q1 = youbotArmState->position[0];
@@ -1476,49 +1375,59 @@ void QNode::readProgramFromFile()
     }
 }
 
-
 void QNode::loadPointsList()
 {
     list_model.removeRows(0,list_model.rowCount());
 
-
-    if(points_list_view_mode)
+    if(line_nmb==0)
     {
-    for (int i=-1; i<line_nmb; i++)
-    {
-        double *cords;
-        cords = forwardKinematic(q1[i],q2[i],q3[i],q4[i],q5[i]);
-                std::stringstream msg;
-        msg<< "P" << i+1 << ": x: " << cords[0] << "\ty: " << cords[1] << "\tz: " << cords[2]
-           <<  "\troll: " << cords[3] << "\tpitch: " << cords[4] << "\tyaw: " << cords[5];
+        std::stringstream msg;
+        msg<< "Brak zapisanych punktów!";
         list_model.setData(list_model.index(0),"    [mm]\t[mm]\t[mm]\t[rad]\t[rad]\t[rad]");
         list_model.insertRows(list_model.rowCount(),1);
         QVariant new_row(QString(msg.str().c_str()));
         list_model.setData(list_model.index(list_model.rowCount()-1),new_row);
         Q_EMIT listUpdated(); // used to readjust the scrollbar
     }
-    }
     else
     {
-        for (int i=-1; i<line_nmb; i++)
+        if(points_list_view_mode)
+        {
+            for (int i=-1; i<line_nmb; i++)
             {
-            double q_1 = round(q1[i]*1000)/1000;
-            double q_2 = round(q2[i]*1000)/1000;;
-            double q_3 = round(q3[i]*1000)/1000;;
-            double q_4 = round(q4[i]*1000)/1000;;
-            double q_5 = round(q5[i]*1000)/1000;;
+                double *cords;
+                cords = forwardKinematic(q1[i],q2[i],q3[i],q4[i],q5[i]);
                 std::stringstream msg;
-                msg<< "P" << i+1 << ": \tq1: " << q_1 << "\tq2: " << q_2 << "\tq3: " << q_3
-                   <<  "\tq4: " << q_4 << "\tq5: " << q_5;
-
-                list_model.setData(list_model.index(0),"\t[rad]\t[rad]\t[rad]\t[rad]\t[rad]");
+                msg<< "P" << std::setw(2) << i+1 << ":" << std::setw(5) << cords[0] << std::setw(7) << cords[1] << std::setw(7) << cords[2]
+                   << "    " << std::setw(7) << cords[3] << "     " << std::setw(7) << cords[4] << "   " << std::setw(7) << cords[5];
+                list_model.setData(list_model.index(0),"     x[mm]  y[mm]  z[mm]  roll[rad]  pitch[rad]  yaw[rad]");
                 list_model.insertRows(list_model.rowCount(),1);
                 QVariant new_row(QString(msg.str().c_str()));
                 list_model.setData(list_model.index(list_model.rowCount()-1),new_row);
                 Q_EMIT listUpdated(); // used to readjust the scrollbar
             }
-    }
+        }
+        else
+        {
+            for (int i=-1; i<line_nmb; i++)
+            {
+                double q_1 = round(q1[i]*1000)/1000;
+                double q_2 = round(q2[i]*1000)/1000;;
+                double q_3 = round(q3[i]*1000)/1000;;
+                double q_4 = round(q4[i]*1000)/1000;;
+                double q_5 = round(q5[i]*1000)/1000;;
+                std::stringstream msg;
+                msg<< "P" << std::setw(2) << i+1 << ":" << std::setw(6) << q_1 << " " << std::setw(8) << q_2 << " " << std::setw(8) << q_3
+                   << " " << std::setw(8) << q_4 << " " << std::setw(8) << q_5;
 
+                list_model.setData(list_model.index(0),"    q1[rad]  q2[rad]  q3[rad]  q4[rad]  q5[rad]");
+                list_model.insertRows(list_model.rowCount(),1);
+                QVariant new_row(QString(msg.str().c_str()));
+                list_model.setData(list_model.index(list_model.rowCount()-1),new_row);
+                Q_EMIT listUpdated(); // used to readjust the scrollbar
+            }
+        }
+    }
 }
 
 void QNode::jointPublisher(double q1, double q2,double q3,double q4,double q5)

@@ -54,6 +54,9 @@
           </item>
           <item>
            <widget class="QPushButton" name="edit">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>Edytuj program</string>
             </property>
@@ -65,6 +68,9 @@
          <layout class="QHBoxLayout" name="horizontalLayout_18">
           <item>
            <widget class="QPushButton" name="execute">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>Wykonaj program</string>
             </property>
@@ -72,6 +78,9 @@
           </item>
           <item>
            <widget class="QPushButton" name="pause">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>Wstrzymaj program</string>
             </property>
@@ -79,6 +88,9 @@
           </item>
           <item>
            <widget class="QPushButton" name="stop">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>Resetuj program</string>
             </property>
@@ -94,6 +106,9 @@
          <layout class="QHBoxLayout" name="horizontalLayout_7">
           <item>
            <widget class="QPushButton" name="previous">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>Poprzedni krok</string>
             </property>
@@ -101,6 +116,9 @@
           </item>
           <item>
            <widget class="QPushButton" name="next">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>Następny krok</string>
             </property>
@@ -108,6 +126,9 @@
           </item>
           <item>
            <widget class="QPushButton" name="home">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>Pozycja domowa</string>
             </property>
@@ -135,7 +156,15 @@
        </widget>
       </item>
       <item>
-       <widget class="QListView" name="view_logging"/>
+       <widget class="QListView" name="view_logging">
+        <property name="font">
+         <font>
+          <family>Ubuntu</family>
+          <pointsize>11</pointsize>
+          <italic>false</italic>
+         </font>
+        </property>
+       </widget>
       </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_10">
@@ -148,6 +177,9 @@
         </item>
         <item>
          <widget class="QPushButton" name="connect_master">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="text">
            <string>Połącz ze sterownikiem</string>
           </property>
@@ -185,12 +217,22 @@
            </layout>
           </item>
           <item>
-           <widget class="QListView" name="points_list"/>
+           <widget class="QListView" name="points_list">
+            <property name="font">
+             <font>
+              <family>Courier 10 Pitch</family>
+              <pointsize>11</pointsize>
+             </font>
+            </property>
+           </widget>
           </item>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_12">
             <item>
              <widget class="QPushButton" name="save">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="text">
                <string>Zapisz punkt</string>
               </property>
@@ -198,15 +240,11 @@
             </item>
             <item>
              <widget class="QPushButton" name="edit_list">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="text">
                <string>Edytuj listę</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="load_list">
-              <property name="text">
-               <string>Wczytaj listę</string>
               </property>
              </widget>
             </item>
@@ -264,6 +302,9 @@
          <layout class="QHBoxLayout" name="horizontalLayout_4">
           <item>
            <widget class="QPushButton" name="x_plus">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>+</string>
             </property>
@@ -271,6 +312,9 @@
           </item>
           <item>
            <widget class="QPushButton" name="y_plus">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>+</string>
             </property>
@@ -278,6 +322,9 @@
           </item>
           <item>
            <widget class="QPushButton" name="z_plus">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>+</string>
             </property>
@@ -323,6 +370,9 @@
          <layout class="QHBoxLayout" name="horizontalLayout_6">
           <item>
            <widget class="QPushButton" name="x_minus">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>-</string>
             </property>
@@ -330,6 +380,9 @@
           </item>
           <item>
            <widget class="QPushButton" name="y_minus">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>-</string>
             </property>
@@ -337,6 +390,9 @@
           </item>
           <item>
            <widget class="QPushButton" name="z_minus">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>-</string>
             </property>
@@ -398,6 +454,9 @@
              <layout class="QHBoxLayout" name="horizontalLayout_14">
               <item>
                <widget class="QPushButton" name="roll_plus">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
                 <property name="text">
                  <string>+</string>
                 </property>
@@ -405,6 +464,9 @@
               </item>
               <item>
                <widget class="QPushButton" name="pitch_plus">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
                 <property name="text">
                  <string>+</string>
                 </property>
@@ -412,6 +474,9 @@
               </item>
               <item>
                <widget class="QPushButton" name="yaw_plus">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
                 <property name="text">
                  <string>+</string>
                 </property>
@@ -457,6 +522,9 @@
              <layout class="QHBoxLayout" name="horizontalLayout_20">
               <item>
                <widget class="QPushButton" name="roll_minus">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
                 <property name="text">
                  <string>-</string>
                 </property>
@@ -464,6 +532,9 @@
               </item>
               <item>
                <widget class="QPushButton" name="pitch_minus">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
                 <property name="text">
                  <string>-</string>
                 </property>
@@ -471,6 +542,9 @@
               </item>
               <item>
                <widget class="QPushButton" name="yaw_minus">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
                 <property name="text">
                  <string>-</string>
                 </property>
@@ -546,6 +620,9 @@
          <layout class="QHBoxLayout" name="horizontalLayout">
           <item>
            <widget class="QPushButton" name="q1_plus">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>+</string>
             </property>
@@ -553,6 +630,9 @@
           </item>
           <item>
            <widget class="QPushButton" name="q2_plus">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>+</string>
             </property>
@@ -560,6 +640,9 @@
           </item>
           <item>
            <widget class="QPushButton" name="q3_plus">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>+</string>
             </property>
@@ -567,6 +650,9 @@
           </item>
           <item>
            <widget class="QPushButton" name="q4_plus">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>+</string>
             </property>
@@ -574,6 +660,9 @@
           </item>
           <item>
            <widget class="QPushButton" name="q5_plus">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>+</string>
             </property>
@@ -639,6 +728,9 @@
          <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
            <widget class="QPushButton" name="q1_minus">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>-</string>
             </property>
@@ -646,6 +738,9 @@
           </item>
           <item>
            <widget class="QPushButton" name="q2_minus">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>-</string>
             </property>
@@ -653,6 +748,9 @@
           </item>
           <item>
            <widget class="QPushButton" name="q3_minus">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>-</string>
             </property>
@@ -660,6 +758,9 @@
           </item>
           <item>
            <widget class="QPushButton" name="q4_minus">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>-</string>
             </property>
@@ -667,6 +768,9 @@
           </item>
           <item>
            <widget class="QPushButton" name="q5_minus">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>-</string>
             </property>
@@ -703,6 +807,9 @@
          <layout class="QHBoxLayout" name="horizontalLayout_21">
           <item>
            <widget class="QPushButton" name="gripper_open">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>Otwórz</string>
             </property>
@@ -710,6 +817,9 @@
           </item>
           <item>
            <widget class="QPushButton" name="gripper_close">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>Zamknij</string>
             </property>
@@ -861,118 +971,293 @@
        </layout>
       </item>
       <item>
-       <layout class="QVBoxLayout" name="inne">
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_22">
         <item>
-         <layout class="QVBoxLayout" name="verticalLayout">
-          <item>
-           <widget class="QLabel" name="label_15">
-            <property name="font">
-             <font>
-              <pointsize>12</pointsize>
-              <weight>75</weight>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="text">
-             <string>Zakresy</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="label_10">
-            <property name="text">
-             <string>joint 1: od 0.0100692 do 5.84014 </string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="label_13">
-            <property name="text">
-             <string>joint 2: od 0.0100692 do 2.61799 </string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="label_12">
-            <property name="text">
-             <string>joint 3: od -5.02655 do -0.015708 </string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="label_11">
-            <property name="text">
-             <string>joint 4: od 0.0221239 do 3.4292 </string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="label_14">
-            <property name="text">
-             <string>joint 5: od 0.110619 do 5.64159 </string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-         </layout>
+         <widget class="QLabel" name="youbot_picture">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="pixmap">
+           <pixmap resource="../resources/images.qrc">:/images/youbot2.png</pixmap>
+          </property>
+          <property name="scaledContents">
+           <bool>true</bool>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
         </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="inne">
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_6">
           <item>
-           <spacer name="verticalSpacer">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_22">
-          <item>
-           <widget class="QLabel" name="youbot_picture">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="pixmap">
-             <pixmap resource="../resources/images.qrc">:/images/youbot2.png</pixmap>
-            </property>
-            <property name="scaledContents">
-             <bool>true</bool>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
+           <layout class="QVBoxLayout" name="verticalLayout">
+            <item>
+             <widget class="QLabel" name="label_15">
+              <property name="font">
+               <font>
+                <pointsize>12</pointsize>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string>Zakresy</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_23">
+              <item>
+               <widget class="QLabel" name="label_14">
+                <property name="font">
+                 <font>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Złącze 1:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_13">
+                <property name="text">
+                 <string>[min]:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_12">
+                <property name="text">
+                 <string>0.0100692</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_11">
+                <property name="text">
+                 <string>[max]:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_10">
+                <property name="text">
+                 <string>5.84014</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_30">
+              <item>
+               <widget class="QLabel" name="label_34">
+                <property name="font">
+                 <font>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Złącze 2:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_33">
+                <property name="text">
+                 <string>[min]:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_30">
+                <property name="text">
+                 <string>0.0100692</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_25">
+                <property name="text">
+                 <string>[max]:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_23">
+                <property name="text">
+                 <string>2.61799</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_31">
+              <item>
+               <widget class="QLabel" name="label_35">
+                <property name="font">
+                 <font>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Złącze 3:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_29">
+                <property name="text">
+                 <string>[min]:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_28">
+                <property name="text">
+                 <string>-5.02655</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_27">
+                <property name="text">
+                 <string>[max]:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_26">
+                <property name="text">
+                 <string>-0.015708</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_25">
+              <item>
+               <widget class="QLabel" name="label_20">
+                <property name="font">
+                 <font>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Złącze 4:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_19">
+                <property name="text">
+                 <string>[min]:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_18">
+                <property name="text">
+                 <string>0.0221239</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_17">
+                <property name="text">
+                 <string>[max]:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_16">
+                <property name="text">
+                 <string>3.4292</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_27">
+              <item>
+               <widget class="QLabel" name="label_32">
+                <property name="font">
+                 <font>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Złącze 5:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_31">
+                <property name="text">
+                 <string>[min]:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_24">
+                <property name="text">
+                 <string>0.110619</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_22">
+                <property name="text">
+                 <string>[max]:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_21">
+                <property name="text">
+                 <string>5.64159</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
           </item>
          </layout>
         </item>
