@@ -57,28 +57,22 @@ using namespace std;
 
 double MainWindow::min_1 = 0.0100693;
 double MainWindow::max_1 = 5.84014;
-//double MainWindow::joint_1 = 0.0100692;
-//static double joint_1 = 0.0100692;
 double MainWindow::joint_1 = QNode::subscriber_joint1;
 
 double MainWindow::min_2 = 0.0100693;
 double MainWindow::max_2 = 2.61799;
-//double MainWindow::joint_2 = 0.0100692;
 double MainWindow::joint_2 = QNode::subscriber_joint2;
 
 double MainWindow::min_3 = -5.02655;
 double MainWindow::max_3 = -0.015709;
-//double MainWindow::joint_3 = -0.015708;
 double MainWindow::joint_3 = QNode::subscriber_joint3;
 
 double MainWindow::min_4 = 0.0221240;
 double MainWindow::max_4 = 3.4292;
-//double MainWindow::joint_4 = 0.0221239;
 double MainWindow::joint_4 = QNode::subscriber_joint4;
 
 double MainWindow::min_5 = 0.110620;
 double MainWindow::max_5 = 5.64159;
-//double MainWindow::joint_5 = 0.110619;
 double MainWindow::joint_5 = QNode::subscriber_joint5;
 
 double min_6 = 0;
@@ -89,8 +83,6 @@ double min_7 = 0;
 double max_7 = 0.011;
 static double gripper_2 = 0;
 
-int MainWindow::zmienna=0;
-
 int MainWindow::xyz_step = 1;
 double MainWindow::joints_step = 0.05;
 
@@ -100,9 +92,8 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent )
 {
     ui.setupUi(this);
     ui.youbot_picture->setPixmap(QPixmap("/home/arek/youbot/src/youbot/youbot_gui/resources/images/youbot2.png"));
-//    ui.youbot_picture->setPixmap(QPixmap(":/images/youbot2.png"));
+    //    ui.youbot_picture->setPixmap(QPixmap(":/images/youbot2.png"));
     qnode.ui = ui;
-    //        qnode.initUi(ui);
     QObject::connect(ui.actionAbout_Qt, SIGNAL(triggered(bool)), qApp, SLOT(aboutQt()));
 
     setWindowIcon(QIcon(":/images/icon.png"));
@@ -111,23 +102,15 @@ MainWindow::MainWindow(int argc, char** argv, QWidget *parent )
     ui.points_list->setModel(qnode.listModel());
     QObject::connect(&qnode, SIGNAL(listUpdated()), this, SLOT(updateListView()));
 
-
-
-    /*********************
-        ** Logging
-        **********************/
     ui.view_logging->setModel(qnode.loggingModel());
     QObject::connect(&qnode, SIGNAL(loggingUpdated()), this, SLOT(updateLoggingView()));
-
 }
-
-
 
 MainWindow::~MainWindow() {}
 
+
 void MainWindow::on_edit_clicked(bool check)
 {
-
     system("bash -c ''cd ~/youbot ; gedit program.txt''");
 }
 
@@ -162,11 +145,8 @@ void MainWindow::on_previous_clicked(bool check)
         qnode.readPointsFromFile();
         qnode.readProgramFromFile();
 
-        cout<<"Przed dek: "<<QNode::movement_iteration<<endl;
-
         if(QNode::movement_iteration>0)
         {
-            cout<<"Prev_prog_line_numb: "<<QNode::program_line_number<<endl;
             if(QNode::movement_iteration==QNode::program_line_number)
             {
                 QNode::movement_iteration=QNode::movement_iteration-2;
@@ -205,7 +185,6 @@ void MainWindow::on_previous_clicked(bool check)
             }
 
         }
-        cout<<"Po dek: "<<QNode::movement_iteration<<endl;
     }
 }
 
@@ -216,17 +195,12 @@ void MainWindow::on_next_clicked(bool check)
         qnode.readPointsFromFile();
         qnode.readProgramFromFile();
 
-        cout<<"Przed ink: "<<QNode::movement_iteration<<endl;
-
         if(QNode::movement_iteration<QNode::program_line_number)
         {
-            cout<<"Next_prog_line_numb: "<<QNode::program_line_number<<endl;
-
             if(QNode::command[QNode::movement_iteration]=="PTP")
             {
                 qnode.manualPTP(QNode::movement_iteration);
             }
-
 
             if(QNode::command[QNode::movement_iteration]=="GRO")
             {
@@ -240,7 +214,6 @@ void MainWindow::on_next_clicked(bool check)
                 qnode.gripperPublisher(0, 0);
                 qnode.log(QNode::Info,std::string("[Tryb ręczny] Zamknięto chwytak"));
             }
-
 
             if(QNode::command[QNode::movement_iteration]=="LIN")
             {
@@ -258,7 +231,6 @@ void MainWindow::on_next_clicked(bool check)
             QNode::movement_iteration++;
 
         }
-        cout<<"Po ink: "<<QNode::movement_iteration<<endl;
     }
 }
 
@@ -278,8 +250,6 @@ void MainWindow::on_connect_master_clicked(bool check)
 {
     qnode.init();
     qnode.readPointsFromFile();
-
-    //qnode.log(qnode.Info,std::string("Wczytano listę punktów"));
     qnode.readPointsFromFile();
     qnode.loadPointsList();
     qnode.moveHome();
@@ -315,10 +285,9 @@ void MainWindow::on_connect_master_clicked(bool check)
     ui.q5_minus->setEnabled(true);
     ui.gripper_open->setEnabled(true);
     ui.gripper_close->setEnabled(true);
-
 }
 
-void MainWindow::on_save_clicked(bool check) //zapisz punkt
+void MainWindow::on_save_clicked(bool check)
 {
     string line[100];
     fstream file;
@@ -340,34 +309,25 @@ void MainWindow::on_save_clicked(bool check) //zapisz punkt
     file.open( "punkty.txt", ios::in | ios::out | ios::app);
     if( file.good() == true )
     {
-        cout << "Uzyskano dostep do pliku!" << endl;
-        cout<<point_number<<endl;
-        //file << "P0;1;1.1;1.1;1.1;1.1;" << endl;
         file<<"P"<<point_number+1<<";"<< QNode::subscriber_joint1 <<";"<< QNode::subscriber_joint2 <<";"<< QNode::subscriber_joint3 <<";"
            << QNode::subscriber_joint4 <<";"<< QNode::subscriber_joint5 <<";"<<endl;
         file.close();
     }
 
     else cout << "Dostep do pliku zostal zabroniony!" << endl;
-    // cout<< QNode::x;
+
     std_msgs::String msg;
     std::stringstream ss;
     ss << point_number+1;
     msg.data = ss.str();
     qnode.log(qnode.Info,std::string("Zapisano punkt P")+msg.data);
-
-    //qnode.log(qnode.Info,std::string("Wczytano listę punktów"));
     qnode.readPointsFromFile();
     qnode.loadPointsList();
 }
 
-
 void MainWindow::on_edit_list_clicked(bool check)
 {
-    //system("gnome-terminal -x sh -c 'cd ~/youbot ; gedit punkty.txt'"); //dodatkowo odpala terminal
     system("bash -c ''cd ~/youbot ; gedit punkty.txt''");   //nie odpala terminala
-
-    //qnode.log(qnode.Info,std::string("Wczytano listę punktów"));
     qnode.readPointsFromFile();
     qnode.loadPointsList();
 }
@@ -485,7 +445,7 @@ void MainWindow::on_yaw_minus_clicked(bool check)
 }
 void MainWindow::on_q1_plus_clicked(bool check)
 {
-   // if(joint_1 < max_1 - (((max_1 - min_1)/100)*joints_step))
+    // if(joint_1 < max_1 - (((max_1 - min_1)/100)*joints_step))
     if (joint_1 < max_1 - joints_step)
     {
         //joint_1 = joint_1 + (((max_1 - min_1)/100)*joints_step);
@@ -501,10 +461,10 @@ void MainWindow::on_q1_plus_clicked(bool check)
 
 void MainWindow::on_q1_minus_clicked(bool check)
 {
-   // if(joint_1 > min_1 + (((max_1 - min_1)/100)*joints_step))
-        if (joint_1 > min_1 + joints_step)
+    // if(joint_1 > min_1 + (((max_1 - min_1)/100)*joints_step))
+    if (joint_1 > min_1 + joints_step)
     {
-   //     joint_1 = joint_1 - (((max_1 - min_1)/100)*joints_step);
+        //     joint_1 = joint_1 - (((max_1 - min_1)/100)*joints_step);
         joint_1 = joint_1 - joints_step;
         qnode.jointPublisher(MainWindow::joint_1, MainWindow::joint_2,MainWindow::joint_3,MainWindow::joint_4,MainWindow::joint_5);
     }
@@ -517,10 +477,10 @@ void MainWindow::on_q1_minus_clicked(bool check)
 
 void MainWindow::on_q2_plus_clicked(bool check)
 {
-   // if(joint_2 < max_2 - (((max_2 - min_2)/100)*joints_step))
-        if (joint_2 < max_2 - joints_step)
+    // if(joint_2 < max_2 - (((max_2 - min_2)/100)*joints_step))
+    if (joint_2 < max_2 - joints_step)
     {
-      //  joint_2 = joint_2 + (((max_2 - min_2)/100)*joints_step);
+        //  joint_2 = joint_2 + (((max_2 - min_2)/100)*joints_step);
         joint_2 = joint_2 + joints_step;
         qnode.jointPublisher(MainWindow::joint_1, MainWindow::joint_2,MainWindow::joint_3,MainWindow::joint_4,MainWindow::joint_5);
     }
@@ -534,9 +494,9 @@ void MainWindow::on_q2_plus_clicked(bool check)
 void MainWindow::on_q2_minus_clicked(bool check)
 {
     //if(joint_2 > min_2 + (((max_2 - min_2)/100)*joints_step))
-        if (joint_2 > min_2 + joints_step)
+    if (joint_2 > min_2 + joints_step)
     {
-       // joint_2 = joint_2 - (((max_2 - min_2)/100)*joints_step);
+        // joint_2 = joint_2 - (((max_2 - min_2)/100)*joints_step);
         joint_2 = joint_2 - joints_step;
         qnode.jointPublisher(MainWindow::joint_1, MainWindow::joint_2,MainWindow::joint_3,MainWindow::joint_4,MainWindow::joint_5);
     }
@@ -549,8 +509,8 @@ void MainWindow::on_q2_minus_clicked(bool check)
 
 void MainWindow::on_q3_plus_clicked(bool check)
 {
-  //  if(joint_3 < max_3 - (((max_3 - min_3)/100)*joints_step))
-      if (joint_3 < max_3 - joints_step)
+    //  if(joint_3 < max_3 - (((max_3 - min_3)/100)*joints_step))
+    if (joint_3 < max_3 - joints_step)
     {
         //joint_3 = joint_3 + (((max_3 - min_3)/100)*joints_step);
         joint_3 = joint_3 + joints_step;
@@ -582,9 +542,9 @@ void MainWindow::on_q3_minus_clicked(bool check)
 void MainWindow::on_q4_plus_clicked(bool check)
 {
     //if(joint_4 < max_4 - (((max_4 - min_4)/100)*joints_step))
-      if (joint_4 < max_4 - joints_step)
+    if (joint_4 < max_4 - joints_step)
     {
-       // joint_4 = joint_4 + (((max_4 - min_4)/100)*joints_step);
+        // joint_4 = joint_4 + (((max_4 - min_4)/100)*joints_step);
         joint_4 = joint_4 + joints_step;
         qnode.jointPublisher(MainWindow::joint_1, MainWindow::joint_2,MainWindow::joint_3,MainWindow::joint_4,MainWindow::joint_5);
     }
@@ -597,10 +557,10 @@ void MainWindow::on_q4_plus_clicked(bool check)
 
 void MainWindow::on_q4_minus_clicked(bool check)
 {
-   // if(joint_4 > min_4 + (((max_4 - min_4)/100)*joints_step))
-      if (joint_4 > min_4 + joints_step)
+    // if(joint_4 > min_4 + (((max_4 - min_4)/100)*joints_step))
+    if (joint_4 > min_4 + joints_step)
     {
-       // joint_4 = joint_4 - (((max_4 - min_4)/100)*joints_step);
+        // joint_4 = joint_4 - (((max_4 - min_4)/100)*joints_step);
         joint_4 = joint_4 - joints_step;
         qnode.jointPublisher(MainWindow::joint_1, MainWindow::joint_2,MainWindow::joint_3,MainWindow::joint_4,MainWindow::joint_5);
     }
@@ -613,8 +573,8 @@ void MainWindow::on_q4_minus_clicked(bool check)
 
 void MainWindow::on_q5_plus_clicked(bool check)
 {
-  //  if(joint_5 < max_5 - (((max_5 - min_5)/100)*joints_step))
-      if (joint_5 < max_5 - joints_step)
+    //  if(joint_5 < max_5 - (((max_5 - min_5)/100)*joints_step))
+    if (joint_5 < max_5 - joints_step)
     {
         //joint_5 = joint_5 + (((max_5 - min_5)/100)*joints_step);
         joint_5 = joint_5 + joints_step;
@@ -630,7 +590,7 @@ void MainWindow::on_q5_plus_clicked(bool check)
 void MainWindow::on_q5_minus_clicked(bool check)
 {
     //if(joint_5 > min_5 + (((max_5 - min_5)/100)*joints_step))
-      if (joint_5 > min_5 + joints_step)
+    if (joint_5 > min_5 + joints_step)
     {
         //joint_5 = joint_5 - (((max_5 - min_5)/100)*joints_step);
         joint_5 = joint_5 - joints_step;
@@ -650,7 +610,6 @@ void MainWindow::on_gripper_open_clicked(bool check)
 
 void MainWindow::on_gripper_close_clicked(bool check)
 {
-
     qnode.gripperPublisher(0, 0);
 }
 
@@ -667,8 +626,6 @@ void MainWindow::on_elbow_down_clicked(bool check)
 void MainWindow::on_radio_button_cords_clicked(bool check)
 {
     QNode::points_list_view_mode=true;
-
-    //qnode.log(qnode.Info,std::string("Wczytano listę punktów"));
     qnode.readPointsFromFile();
     qnode.loadPointsList();
 }
@@ -676,20 +633,18 @@ void MainWindow::on_radio_button_cords_clicked(bool check)
 void MainWindow::on_radio_button_joints_clicked(bool check)
 {
     QNode::points_list_view_mode=false;
-
-    //qnode.log(qnode.Info,std::string("Wczytano listę punktów"));
     qnode.readPointsFromFile();
     qnode.loadPointsList();
 }
 
-void MainWindow::updateLoggingView() {
+void MainWindow::updateLoggingView()
+{
     ui.view_logging->scrollToBottom();
-
 }
 
-void MainWindow::updateListView() {
+void MainWindow::updateListView()
+{
     ui.points_list->scrollToBottom();
-
 }
 
 void MainWindow::closeEvent (QCloseEvent *event)
@@ -700,24 +655,6 @@ void MainWindow::closeEvent (QCloseEvent *event)
     }
     else
     {
-        //        QMessageBox msgBox;
-        //        msgBox.setText(tr("Confirm?"));
-        //        QAbstractButton* pButtonYes = msgBox.addButton(tr("Yeah!"), QMessageBox::YesRole);
-
-
-        //        const QMessageBox::StandardButton resBtn = QMessageBox::question( this, tr("youBot Arm GUI"),
-        //                                                                    tr("Robot nie jest w pozycji domowej!\n"),
-        //                                                                    QMessageBox::Cancel | QMessageBox::No | QMessageBox::Yes| QMessageBox::YesRole,
-        //                                                                    QMessageBox::Yes);
-        //        if (resBtn != QMessageBox::Yes)
-        //        {
-        //            event->ignore();
-        //        }
-        //        else
-        //        {
-        //            event->accept();
-        //        }
-
         QMessageBox msgBox;
         msgBox.setText(tr("Robot nie jest w pozycji domowej!"));
         QAbstractButton* cancelButton = msgBox.addButton(tr("Anuluj"), QMessageBox::YesRole);
