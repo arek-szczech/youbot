@@ -76,12 +76,6 @@ public:
         static double subscriber_gripper_1;
         static double subscriber_gripper_2;
 
-        static double ik_th1;
-        static double ik_th2;
-        static double ik_th3;
-        static double ik_th4;
-        static double ik_th5;
-
         static int program_state;
         static int program_line_number;
         static int point[100];

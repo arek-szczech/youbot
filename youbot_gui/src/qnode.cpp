@@ -35,7 +35,7 @@
 *
 ******************************************************************************/
 
-#include "../include/youbot_gui/main_window.hpp" //Kolejność includów jest krytyczna xD Musi być na górze
+#include "../include/youbot_gui/main_window.hpp" //Kolejność includów jest krytyczna
 #include <ros/ros.h>
 #include <ros/network.h>
 #include <string.h>
@@ -67,22 +67,10 @@
 #include <unistd.h>
 #include "brics_actuator/ProgramExecuteVelocity.h"
 
-
 #include "../include/youbot_gui/qnode.hpp"
-
-
-
 #include "../youbot_driver-hydro-devel/include/youbot_driver/youbot/YouBotBase.hpp"
 #include "../youbot_driver-hydro-devel/include/youbot_driver/youbot/YouBotManipulator.hpp"
-
-//
-
-//#include "/home/mateusz/youbot/src/youbot_driver_ros_interface-hydro-devel/include/youbot_driver_ros_interface/joint_state_observer_oodl.h"
 #include "../youbot_driver_ros_interface-hydro-devel/include/youbot_driver_ros_interface/YouBotOODLWrapper.h"
-
-
-//#include "youbot_driver_ros_interface/joint_state_observer_oodl.h"
-//#include "youbot_driver_ros_interface/YouBotOODLWrapper.h"
 
 using namespace std;
 using namespace youbot;
@@ -95,18 +83,10 @@ double QNode::subscriber_joint2;
 double QNode::subscriber_joint3;
 double QNode::subscriber_joint4;
 double QNode::subscriber_joint5;
-
 double QNode::subscriber_gripper_1;
 double QNode::subscriber_gripper_2;
 
-//specialIK
-double QNode::ik_th1;
-double QNode::ik_th2;
-double QNode::ik_th3;
-double QNode::ik_th4;
-double QNode::ik_th5;
-
-//zestaw z jointsCallbac - aktualna fk, wyświetlacze, zadawanie odwrotnej
+//forward_kinematic
 double QNode::x;
 double QNode::y;
 double QNode::z;
@@ -139,11 +119,7 @@ double QNode::q3_lin_check;
 double QNode::q4_lin_check;
 double QNode::q5_lin_check;
 
-//int QNode::number_of_lin_mov=0;
-//int QNode::number_of_actual_lin_mov=0;
-//int QNode::lin_mov_little_steps_count=1;
 int QNode::greatest_value=0;
-//int QNode::lin_mov_array[100];
 bool QNode::executed_little_step=false;
 double QNode::actual_little_step_position[5];
 double QNode::prev_x;
@@ -212,7 +188,7 @@ double offset3 = -2.54818;
 double offset4 = 1.78896;
 double offset5 = 2.92342;
 
-
+//full working ik
 double* QNode::inverseKinematicJacobi(double xk, double yk, double zk, double Rz, double Ry, double Rx, bool logi, bool check)
 {
     static double q[5];
@@ -715,14 +691,14 @@ double* QNode::inverseKinematicJacobi(double xk, double yk, double zk, double Rz
     }
 }
 
-
-//Signum function do odwrotnej
+//Signum function
 int QNode::sgn(double v)
 {
         if (v < 0) return -1;
         if (v >= 0) return 1;
 }
 
+//half working ik
 double* QNode::inverseKinematic(double xk, double yk, double zk, double Rz, double Ry, double Rx, bool logi)
 {
     cout<<"x zad: "<<xk<<endl;
@@ -1026,6 +1002,7 @@ double* QNode::inverseKinematic(double xk, double yk, double zk, double Rz, doub
     }
 }
 
+//fk
 double* QNode::forwardKinematic(double q1, double q2,double q3,double q4,double q5)
 {
     static double cords[6];
@@ -1082,6 +1059,8 @@ trajectory_msgs::JointTrajectory createArmPositionCommand(std::vector<double>& n
 
         return msg;
 }
+
+//gazebo simulator msg
 void QNode::moveArm(double q1, double q2,double q3,double q4,double q5)
 {
         trajectory_msgs::JointTrajectory msg;
@@ -1502,16 +1481,16 @@ void QNode::loadPointsList()
 {
     list_model.removeRows(0,list_model.rowCount());
 
+
     if(points_list_view_mode)
     {
     for (int i=-1; i<line_nmb; i++)
     {
         double *cords;
         cords = forwardKinematic(q1[i],q2[i],q3[i],q4[i],q5[i]);
-        std::stringstream msg;
+                std::stringstream msg;
         msg<< "P" << i+1 << ": x: " << cords[0] << "\ty: " << cords[1] << "\tz: " << cords[2]
            <<  "\troll: " << cords[3] << "\tpitch: " << cords[4] << "\tyaw: " << cords[5];
-
         list_model.setData(list_model.index(0),"    [mm]\t[mm]\t[mm]\t[rad]\t[rad]\t[rad]");
         list_model.insertRows(list_model.rowCount(),1);
         QVariant new_row(QString(msg.str().c_str()));
